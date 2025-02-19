@@ -1,0 +1,83 @@
+-- Category 테이블 삭제 및 생성
+DROP TABLE IF EXISTS category;
+
+CREATE TABLE category (
+    category_id                 INT AUTO_INCREMENT PRIMARY KEY,
+    category_name               VARCHAR(100) NOT NULL,
+    category_ratio              DOUBLE PRECISION,
+    category_score_sum          DOUBLE PRECISION,
+    category_score_deviation    DOUBLE PRECISION
+);
+
+-- Activity 테이블 삭제 및 생성
+DROP TABLE IF EXISTS activity;
+
+CREATE TABLE activity (
+    activity_id                 INT AUTO_INCREMENT PRIMARY KEY,
+    category_id                 INT NOT NULL,
+    activity_class              VARCHAR(100) NOT NULL,
+    activity_detail             TEXT,
+    activity_weight             DOUBLE PRECISION,
+    activity_domain             INT,
+
+    CONSTRAINT fk_activity_category
+        FOREIGN KEY (category_id)
+            REFERENCES category (category_id)
+            ON DELETE CASCADE
+);
+
+-- User 테이블 삭제 및 생성
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+    user_id                   INT AUTO_INCREMENT PRIMARY KEY,
+    user_name                 VARCHAR(100) NOT NULL,
+    user_role                 VARCHAR(50) DEFAULT 'student',  -- 'student', 'admin', 'super_admin'
+    user_hakbun               VARCHAR(20),
+    user_hakgwa_cd            FLOAT DEFAULT 0,
+    user_year                 DOUBLE PRECISION,
+    created_at                TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at                TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Submit 테이블 삭제 및 생성
+DROP TABLE IF EXISTS submit;
+
+CREATE TABLE submit (
+    submit_id                INT AUTO_INCREMENT PRIMARY KEY,
+    user_id                  INT NOT NULL,
+    activity_id              INT NOT NULL,
+    submit_date              DATE,
+    submit_file              VARCHAR(100),
+    submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
+    submit_approved_date     TIMESTAMP,
+    submit_content           TEXT,
+
+    CONSTRAINT fk_submit_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (user_id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_submit_activity
+        FOREIGN KEY (activity_id)
+            REFERENCES activity (activity_id)
+            ON DELETE CASCADE
+);
+
+-- Score 테이블 삭제 및 생성
+DROP TABLE IF EXISTS score;
+
+CREATE TABLE score (
+    score_id                INT AUTO_INCREMENT PRIMARY KEY,
+    user_id                 INT NOT NULL,
+    lq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
+    rq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
+    cq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
+    created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_score_user
+       FOREIGN KEY (user_id)
+           REFERENCES users (user_id)
+           ON DELETE CASCADE
+);
