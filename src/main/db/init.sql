@@ -35,6 +35,14 @@ CREATE TABLE activity (
             ON DELETE CASCADE
 );
 
+-- 기본 activity들 삽입
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', 0.2, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA', 0.5, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'gradeH', 3, 0);
+       
+
+
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
 
