@@ -25,8 +25,8 @@ CREATE TABLE activity (
     activity_id                 INT AUTO_INCREMENT PRIMARY KEY,
     category_id                 INT NOT NULL,
     activity_class              VARCHAR(100) NOT NULL,
-    activity_detail             TEXT,
-    activity_name               TEXT,
+    activity_name             TEXT,
+    activity_detail               TEXT,
     activity_weight             DOUBLE PRECISION,
     activity_domain             INT,
 
@@ -38,7 +38,7 @@ CREATE TABLE activity (
 
 -- 기본 activity들 삽입
 --LQ
-INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
 VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', '교내외의의 교육 활동', 0.2, 0),
        ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA','교육조교 활동(학부생 TA)', 0.5, 0),
        ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade40to45','학점 4.0 ~ 4.5', 3.0, 0),
@@ -53,16 +53,24 @@ VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'ed
        ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar4','커미터로서의 활동 : 4점', 4.0, 0),
        ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar3','커미터로서의 활동 : 3점', 3.0, 0),
        ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar0','커미터로서의 활동 : 0점', 0.0, 0);
-       
---RQ
-INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'academicJournal', 'jcr5Main', 5.0, 1), --자연계열 학술지
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr5Part', 4.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr10Main', 4.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr10Part', 3.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr20Main', 3.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr20Part', 2.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'kciOver', 2.0, 0); --인문계 학술지
+
+--RQ, 그 중에서 학술지 파트
+INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr5Main','JCR 상위 5% 이내 학술지(주저)', 5.0, 1), --자연계열 학술지
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr5Part','JCR 상위 5% 이내 학술지 (공저)', 4.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr10Main','JCR 상위 10% 이내 학술지 (주저)', 4.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr10Part','JCR 상위 10% 이내 학술지 (공저)', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr20Main','JCR 상위 20% 이내 학술지 (주저)', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr20Part','JCR 상위 20% 이내 학술지 (공저)', 2.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciOver','SCI, SSCI, A&HCI 급 학술지', 5.0, 2), --인문계 학술지
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciExcellent','KCI 우수 등재 학술지', 4.0, 2),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kci','KCI 등재', 3.0, 2),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciCandidate','KCI 후보, 기타 국제', 2.0, 2); 
+
+--RQ, 그 중에서 학술대회 파트
+INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'conference', 'knownSpeech','저명 국제학술대회 발표', 5.0, 1), --자연계열 학술대회
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'jcr5Part','JCR 상위 5% 이내 학술지 (공저)', 4.0, 1); 
 
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
