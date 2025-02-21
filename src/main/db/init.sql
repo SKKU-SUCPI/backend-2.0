@@ -26,6 +26,7 @@ CREATE TABLE activity (
     category_id                 INT NOT NULL,
     activity_class              VARCHAR(100) NOT NULL,
     activity_detail             TEXT,
+    activity_name               TEXT,
     activity_weight             DOUBLE PRECISION,
     activity_domain             INT,
 
@@ -36,12 +37,32 @@ CREATE TABLE activity (
 );
 
 -- 기본 activity들 삽입
+--LQ
 INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', 0.2, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA', 0.5, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'gradeH', 3, 0);
+VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', '교내외의의 교육 활동', 0.2, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA','교육조교 활동(학부생 TA)', 0.5, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade40to45','학점 4.0 ~ 4.5', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade35to40','학점 3.5 ~ 4.0', 2.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade30to35','학점 3.0 ~ 3.5', 1.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade00to30', '학점 3.0 미만',0.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute5','OS커뮤니티생성 및 활성도 : 5점', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute4','OS커뮤니티생성 및 활성도 : 4점', 4.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute3','OS커뮤니티생성 및 활성도 : 3점', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute0','OS커뮤니티생성 및 활성도 : 3점미만', 0.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar5','커미터로서의 활동 : 5점', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar4','커미터로서의 활동 : 4점', 4.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar3','커미터로서의 활동 : 3점', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar0','커미터로서의 활동 : 0점', 0.0, 0);
        
-
+--RQ
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'academicJournal', 'jcr5Main', 5.0, 1), --자연계열 학술지
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr5Part', 4.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr10Main', 4.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr10Part', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr20Main', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'jcr20Part', 2.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'academicJournal', 'kciOver', 2.0, 0); --인문계 학술지
 
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
