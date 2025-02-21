@@ -9,6 +9,15 @@ CREATE TABLE category (
     category_score_deviation    DOUBLE PRECISION
 );
 
+-- 기본 카테고리 데이터 삽입
+INSERT INTO category (category_name, category_ratio, category_score_sum, category_score_deviation)
+VALUES ('LQ', 33.3, 0, 0),
+       ('RQ', 33.3, 0, 0),
+       ('CQ', 33.3, 0, 0);
+
+
+
+
 -- Activity 테이블 삭제 및 생성
 DROP TABLE IF EXISTS activity;
 
@@ -25,6 +34,14 @@ CREATE TABLE activity (
             REFERENCES category (category_id)
             ON DELETE CASCADE
 );
+
+-- 기본 activity들 삽입
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', 0.2, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA', 0.5, 0),
+       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'gradeH', 3, 0);
+       
+
 
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
@@ -80,4 +97,10 @@ CREATE TABLE score (
        FOREIGN KEY (user_id)
            REFERENCES users (user_id)
            ON DELETE CASCADE
+);
+
+CREATE TABLE test_entity (
+     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+     title VARCHAR(255) NOT NULL,
+     content TEXT NOT NULL
 );
