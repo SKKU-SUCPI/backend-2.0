@@ -1,6 +1,7 @@
 package com.skku.sucpi.dto.test;
 
 import lombok.*;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * builder pattern
@@ -8,7 +9,8 @@ import lombok.*;
  * setter 보다 디버깅이 쉬움
  */
 @Getter
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
+@Jacksonized
 @Builder
 public class TestResponseDto {
 
