@@ -90,6 +90,27 @@ VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'co
        ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','교내/지역 공모전 참여', 0.5, 0),
        ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회)', 0.5, 0); 
 
+--CQ
+INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain) --cq의 경우 activity name == activity detail 인 것들이 종종 있음
+VALUES ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'coop', 'coop','산학프로젝트', 10.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'internship', 'internship','인턴십', 10.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'startup', 'startup','창업', 30.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'overseaVolunteer', 'overseaVolunteer','해외봉사', 10.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'seminar', 'seminar','화상강연 / 세미나 참여', 1.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiLeader','알리미-회장', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiVice','알리미-부회장', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiMember','알리미-참여', 2.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilLeader','학생회-회장', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilVice','학생회-부회장', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilMember','학생회-참여', 1.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterLeader','기자단-회장', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterVice','기자단-부회장', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterMember','기자단-참여', 1.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studioContribution', 'studioContribution','스튜디오 기여 (ARS Electronica 작품 제공 등)', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupLeader','SCG, MAV, 스꾸딩 등 - 회장', 5.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupVice','SCG, MAV, 스꾸딩 등 - 부회장', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupMember','SCG, MAV, 스꾸딩 등 - 참여', 1.0, 0);
+
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
 
