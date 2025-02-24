@@ -69,8 +69,26 @@ VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'jo
 
 --RQ, 그 중에서 학술대회 파트
 INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'conference', 'knownSpeech','저명 국제학술대회 발표', 5.0, 1), --자연계열 학술대회
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'jcr5Part','JCR 상위 5% 이내 학술지 (공저)', 4.0, 1); 
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'conference', 'knownSpeech1','저명 국제학술대회 구두 발표', 4.0, 1), --자연계열 학술대회
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'knownPoster','저명 국제학술대회 포스터 발표', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalSpeech1','일반 국제학술대회 구두 발표', 3.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalPoster','일반 국제학술대회 포스터 발표', 2.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalSpeech1','국내학술대회 구두 발표', 2.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalPoster','국내학술대회 포스터 발표', 1.0, 1),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'knownSpeech2','저명 국제학술대회 발표(BK 기준)', 4.0, 2), --인문계 학술대회회
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalSpeech2','일반 국제학술대회 발표', 2.0, 2),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalSpeech2','국내학술대회 발표', 1.0, 2); 
+       --자연계열과 인문계 중 항목이 비슷하게 중복되는 경우가 있어 knownSpeech1(자연이 domain 1), knownSpeech2(인문이 domain 2)이렇게 구분하긴 했으나, 너무 거추장스러운지추후 논의 필요.
+
+--RQ, 그 중에서 공모전/ICPC
+INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionTop','국제/대규모 공모전(ICPC, 공개SW개발자대회) 대상', 10.0, 0), --자연&인문계열 공모전/ICPC
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionWin','국제/대규모 공모전(ICPC, 공개SW개발자대회) 입상', 4.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회) 참여', 2.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionTop','교내/지역 공모전 대상', 3.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionWin','교내/지역 공모전 입상', 1.0, 0),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','교내/지역 공모전 참여', 0.5, 0),
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회)', 0.5, 0); 
 
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
