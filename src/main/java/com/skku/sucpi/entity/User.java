@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -27,6 +28,7 @@ public class User {
     @Column(name = "user_role", length = 50)
     private String role = "student"; // 기본값: "student"
 
+    @Comment("학교에서 가져온 학번 또는 교직원번호 - 같은 경우가 있다면 변경 필요...")
     @Column(name = "user_hakbun", length = 20)
     private String hakbun;
 
