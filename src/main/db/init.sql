@@ -172,3 +172,6 @@ CREATE TABLE test_entity (
      title VARCHAR(255) NOT NULL,
      content TEXT NOT NULL
 );
+
+-- 학생 더미 데이터 삽입 스크립트 실행
+SOURCE ./student_dummy.sql;
