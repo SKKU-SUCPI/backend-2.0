@@ -87,8 +87,7 @@ VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'co
        ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회) 참여', 2.0, 0),
        ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionTop','교내/지역 공모전 대상', 3.0, 0),
        ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionWin','교내/지역 공모전 입상', 1.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','교내/지역 공모전 참여', 0.5, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회)', 0.5, 0); 
+       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','교내/지역 공모전 참여', 0.5, 0); 
 
 -- CQ
 INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain) -- cq의 경우 activity name == activity detail 인 것들이 종종 있음
