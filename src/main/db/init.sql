@@ -173,4 +173,5 @@ CREATE TABLE test_entity (
 );
 
 -- 학생 더미 데이터 삽입 스크립트 실행
-SOURCE ./student_dummy.sql;
+-- SOURCE ./student_dummy.sql;
+SOURCE /docker-entrypoint-initdb.d/student_dummy.sql;

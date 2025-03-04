@@ -9,3 +9,4 @@ EXPOSE 3306
 
 # 초기화 SQL 스크립트 복사
 COPY init.sql /docker-entrypoint-initdb.d/
+COPY student_dummy.sql /docker-entrypoint-initdb.d/
