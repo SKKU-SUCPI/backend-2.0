@@ -3,6 +3,7 @@ package com.skku.sucpi.controller.auth;
 
 import com.skku.sucpi.dto.user.SSOUserDto;
 import com.skku.sucpi.entity.User;
+import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.auth.SSOService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.JWTUtil;
@@ -11,14 +12,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class AuthController {
     private final SSOService ssoService;
     private final UserService userService;
     private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<String> login(
@@ -65,19 +70,60 @@ public class AuthController {
          * role 구분
          */
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
 
         /**
          * Response
          * jwt, role, 필요한 유저 정보
          */
-        addCookie(response, "accessToken", accessToken, 15 * 60);  // 15분
+        response.addHeader("Authorization", "Bearer " + accessToken);
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
         return ResponseEntity.ok("로그인 성공");
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/reissue")
+    public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (!jwtUtil.isValidToken(c.getValue())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+
+                if (c.getName().equals("refreshToken")) {
+                    Long userId = jwtUtil.getUserId(c.getValue());
+                    Optional<User> user = userRepository.findById(userId);
+
+                    if (user.isEmpty()) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                    }
+
+                    User u = user.get();
+                    String accessToken = jwtUtil.generateAccessToken(u.getName(), u.getId(), u.getRole());
+
+                    response.addHeader("Authorization", "Bearer " + accessToken);
+                }
+            }
+        }
+
+        return ResponseEntity.ok("Reissue Successfully");
+    }
+
+
 
     // test api
     @PostMapping("/login/student")
@@ -92,16 +138,13 @@ public class AuthController {
                 .role("student")
                 .build();
 
-//        User user = userService.getOrCreateUser(ssoUserDto);
-//
-//        String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
-//        String refreshToken = jwtUtil.generateRefreshToken(user.getName());
+        User user = userService.getOrCreateUser(ssoUserDto);
 
-        String accessToken = jwtUtil.generateAccessToken("신진건", 2020310328L, "student");
-        String refreshToken = jwtUtil.generateRefreshToken("신진건");
+        String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
 
-        addCookie(response, "accessToken", accessToken, 15 * 60);  // 15분
+        response.addHeader("Authorization", "Bearer " + accessToken);
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
@@ -124,10 +167,10 @@ public class AuthController {
         User user = userService.getOrCreateUser(ssoUserDto);
 
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
 
-        addCookie(response, "accessToken", accessToken, 15 * 60);  // 15분
+        response.addHeader("Authorization", "Bearer " + accessToken);
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
@@ -150,10 +193,10 @@ public class AuthController {
         User user = userService.getOrCreateUser(ssoUserDto);
 
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getName());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
 
-        addCookie(response, "accessToken", accessToken, 15 * 60);  // 15분
+        response.addHeader("Authorization", "Bearer " + accessToken);
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
@@ -181,6 +224,7 @@ public class AuthController {
         return "super-admin 입니다.";
     }
 
+
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지
@@ -191,5 +235,6 @@ public class AuthController {
 
         response.addCookie(cookie);
     }
+
 
 }

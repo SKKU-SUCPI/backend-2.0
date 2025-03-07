@@ -4,6 +4,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -12,13 +13,15 @@ import java.util.Date;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JWTUtil {
 
-    private final String key = "this_is_a_very_secure_secret_key_which_is_at_least_32_bytes";
-    private final SecretKey secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+    private final SecretKey secretKey;
     private final long accessTokenExpiration = 15 * 60 * 1000; // 15분
     private final long refreshTokenExpiration = 7 * 24 * 60 * 60 * 1000; // 7일
+
+    public JWTUtil(@Value("${JWT_SECRET_KEY}") String key) {
+        this.secretKey = Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
+    }
 
     public String generateAccessToken(String userName, Long userId, String role) {
         Claims claims = Jwts.claims();
@@ -37,9 +40,10 @@ public class JWTUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(String userName) {
+    public String generateRefreshToken(String userName, Long userId) {
         Claims claims = Jwts.claims();
         claims.put("userName", userName);
+        claims.put("userId", userId);
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
