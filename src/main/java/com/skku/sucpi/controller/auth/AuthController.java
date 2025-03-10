@@ -45,7 +45,7 @@ public class AuthController {
          * pToken 없으면 SSO Login redirect
          * pToken 있으면 토큰 검증, User Info 가져오기
          */
-//        response.sendRedirect("https://login.skku.edu" + "/?retUrl=12c46rw122r6dkenmr74");
+//        response.sendRedirect("https://login.skku.edu" + "/?retUrl=");
 //        return ResponseEntity.status(HttpStatus.FOUND).build();
 
 
