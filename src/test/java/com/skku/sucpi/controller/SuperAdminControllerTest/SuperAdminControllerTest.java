@@ -30,7 +30,7 @@ public class SuperAdminControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    JWTUtil jwtUtil;
+    private JWTUtil jwtUtil;
 
     private String accessToken;
 
