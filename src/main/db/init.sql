@@ -2,7 +2,7 @@
 DROP TABLE IF EXISTS category;
 
 CREATE TABLE category (
-    category_id                 INT AUTO_INCREMENT PRIMARY KEY,
+    category_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
     category_name               VARCHAR(100) NOT NULL,
     category_ratio              DOUBLE PRECISION,
     category_score_sum          DOUBLE PRECISION,
@@ -22,11 +22,11 @@ VALUES ('LQ', 33.3, 0, 0),
 DROP TABLE IF EXISTS activity;
 
 CREATE TABLE activity (
-    activity_id                 INT AUTO_INCREMENT PRIMARY KEY,
-    category_id                 INT NOT NULL,
+    activity_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_id                 BIGINT NOT NULL,
     activity_class              VARCHAR(100) NOT NULL,
-    activity_name             TEXT,
-    activity_detail               TEXT,
+    activity_name               TEXT,
+    activity_detail             TEXT,
     activity_weight             DOUBLE PRECISION,
     activity_domain             INT,
 
@@ -114,7 +114,7 @@ VALUES ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'co
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
-    user_id                   INT AUTO_INCREMENT PRIMARY KEY,
+    user_id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_name                 VARCHAR(100) NOT NULL,
     user_role                 VARCHAR(50) DEFAULT 'student',  -- 'student', 'admin', 'super_admin'
     user_hakbun               VARCHAR(20),
@@ -128,11 +128,11 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS submit;
 
 CREATE TABLE submit (
-    submit_id                INT AUTO_INCREMENT PRIMARY KEY,
-    user_id                  INT NOT NULL,
-    activity_id              INT NOT NULL,
+    submit_id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id                  BIGINT NOT NULL,
+    activity_id              BIGINT NOT NULL,
     submit_date              DATE,
-    submit_file              VARCHAR(100),
+    -- submit_file              VARCHAR(100), -- 야는 사라진 attribute인 것이여여
     submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
     submit_approved_date     TIMESTAMP,
     submit_content           TEXT,
@@ -152,8 +152,8 @@ CREATE TABLE submit (
 DROP TABLE IF EXISTS score;
 
 CREATE TABLE score (
-    score_id                INT AUTO_INCREMENT PRIMARY KEY,
-    user_id                 INT NOT NULL,
+    score_id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id                 BIGINT NOT NULL,
     lq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
     rq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
     cq_score                DOUBLE PRECISION NOT NULL  DEFAULT 0,
@@ -163,6 +163,22 @@ CREATE TABLE score (
     CONSTRAINT fk_score_user
        FOREIGN KEY (user_id)
            REFERENCES users (user_id)
+           ON DELETE CASCADE
+);
+
+-- 파일 저장 경로 테이블 삭제 및 생성
+DROP TABLE IF EXISTS file_storage;
+CREATE TABLE file_storage (
+    file_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    submit_id                 BIGINT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    
+    file_type VARCHAR(100) NOT NULL, -- 파일 형식 (예: image/png, application/pdf)
+    file_data LONGBLOB NOT NULL,
+
+    CONSTRAINT fk_file_storage_submit
+       FOREIGN KEY (submit_id)
+           REFERENCES submit (submit_id)
            ON DELETE CASCADE
 );
 
