@@ -132,7 +132,7 @@ CREATE TABLE submit (
     user_id                  BIGINT NOT NULL,
     activity_id              BIGINT NOT NULL,
     submit_date              DATE,
-    submit_file              VARCHAR(100),
+    -- submit_file              VARCHAR(100), -- 야는 사라진 attribute인 것이여여
     submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
     submit_approved_date     TIMESTAMP,
     submit_content           TEXT,
@@ -166,18 +166,19 @@ CREATE TABLE score (
            ON DELETE CASCADE
 );
 
--- 파일 저장 경로 테이블
+-- 파일 저장 경로 테이블 삭제 및 생성
+DROP TABLE IF EXISTS file_storage;
 CREATE TABLE file_storage (
     file_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id                 BIGINT NOT NULL,
+    submit_id                 BIGINT NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     
     file_type VARCHAR(100) NOT NULL, -- 파일 형식 (예: image/png, application/pdf)
     file_data LONGBLOB NOT NULL,
 
-    CONSTRAINT fk_score_user
-       FOREIGN KEY (user_id)
-           REFERENCES users (user_id)
+    CONSTRAINT fk_file_storage_submit
+       FOREIGN KEY (submit_id)
+           REFERENCES submit (submit_id)
            ON DELETE CASCADE
 );
 
