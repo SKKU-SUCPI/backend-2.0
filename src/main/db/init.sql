@@ -146,7 +146,7 @@ CREATE TABLE submit (
     CONSTRAINT fk_submit_activity
         FOREIGN KEY (activity_id)
             REFERENCES activity (activity_id)
-            ON DELETE CASCADE
+            ON DELETE CASCADE,
 
     CONSTRAINT fk_submit_file_storage
         FOREIGN KEY (file_id)
