@@ -124,6 +124,17 @@ CREATE TABLE users (
     updated_at                TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- 파일 저장 경로 테이블 삭제 및 생성
+DROP TABLE IF EXISTS file_storage;
+CREATE TABLE file_storage (
+    file_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    
+    file_type VARCHAR(100) NOT NULL, -- 파일 형식 (예: image/png, application/pdf)
+    file_data LONGBLOB NOT NULL
+);
+
+
 -- Submit 테이블 삭제 및 생성
 DROP TABLE IF EXISTS submit;
 
@@ -172,15 +183,6 @@ CREATE TABLE score (
            ON DELETE CASCADE
 );
 
--- 파일 저장 경로 테이블 삭제 및 생성
-DROP TABLE IF EXISTS file_storage;
-CREATE TABLE file_storage (
-    file_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    file_name VARCHAR(255) NOT NULL,
-    
-    file_type VARCHAR(100) NOT NULL, -- 파일 형식 (예: image/png, application/pdf)
-    file_data LONGBLOB NOT NULL
-);
 
 CREATE TABLE test_entity (
      id BIGINT AUTO_INCREMENT PRIMARY KEY,
