@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
@@ -16,8 +17,6 @@ public class Submit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "submit_id")
     private Long id;
-
-    // file table 추가 필요
 
     @Column(name = "submit_date")
     private LocalDateTime submitDate;
@@ -31,4 +30,18 @@ public class Submit {
     @Lob
     @Column(name = "submit_contents")
     private String content;
+
+    // user
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    // activity
+    @ManyToOne
+    @JoinColumn(name = "activity_id", nullable = false)
+    private Activity activity;
+
+    // file
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "submit",cascade = CascadeType.ALL, orphanRemoval = true)
+    List<FileStorage> files;
 }

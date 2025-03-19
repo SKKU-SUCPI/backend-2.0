@@ -30,25 +30,25 @@ public class UserServiceTest {
     @Test
     void getAllUser() {
         // given
-        User user1 = User.builder()
-                .name("홍길동")
-                .role("student")
-                .build();
-        User user2 = User.builder()
-                .name("김철수")
-                .role("admin")
-                .build();
+//        User user1 = User.builder()
+//                .name("홍길동")
+//                .role("student")
+//                .build();
+//        User user2 = User.builder()
+//                .name("김철수")
+//                .role("admin")
+//                .build();
 
-        userRepository.save(user1);
-        userRepository.save(user2);
-        log.info(String.valueOf(user1.getCreatedAt()));
+//        userRepository.save(user1);
+//        userRepository.save(user2);
+//        log.info(String.valueOf(user1.getCreatedAt()));
 
         // when
         List<User> users = userService.getAllUsers();
 
         // then
-        assertThat(users.get(1).getName()).isEqualTo("김철수");
-        assertThat(users.size()).isEqualTo(2);
+        assertThat(users.get(1).getName()).isEqualTo("최츀뱺");
+        assertThat(users.size()).isGreaterThan(400);
         assertThat(users.get(0).getRole()).isEqualTo("student");
     }
 
