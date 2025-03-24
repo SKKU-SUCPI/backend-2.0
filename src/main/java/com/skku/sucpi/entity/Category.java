@@ -21,11 +21,23 @@ public class Category {
     @Column(name = "category_ratio")
     private Double ratio;
 
-    @Column(name = "category_score_sum")
-    private Double sum;
+    @Column(name = "category_score_sum_m")
+    private Double sumM;
 
-    @Column(name = "category_score_deviation")
-    private Double deviation;
+    @Column(name = "category_score_sum_y")
+    private Double sumY;
+
+    @Column(name = "category_score_square_sum_m")
+    private Double squareSumM;
+
+    @Column(name = "category_score_square_sum_y")
+    private Double squareSumY;
+
+    @Column(name = "category_count_m")
+    private Double countM;
+
+    @Column(name = "category_count_y")
+    private Double countY;
 
     public void updateRatio(Double ratio) {
         this.ratio = ratio;
