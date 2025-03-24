@@ -12,7 +12,7 @@ CREATE TABLE category (
 );
 
 -- 기본 카테고리 데이터 삽입
-INSERT INTO category (category_name, category_ratio, category_score_sum, category_score_deviation)
+INSERT INTO category (category_name, category_ratio, category_score_sum_m, category_score_sum_y, category_score_variance_m, category_score_variance_y)
 VALUES ('LQ', 33.3, 0, 0),
        ('RQ', 33.3, 0, 0),
        ('CQ', 33.3, 0, 0);
