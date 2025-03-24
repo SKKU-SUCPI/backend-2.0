@@ -8,7 +8,7 @@ CREATE TABLE category (
     category_score_sum_m          DOUBLE PRECISION,
     category_score_sum_y          DOUBLE PRECISION,
     category_score_variance_m    DOUBLE PRECISION,
-    category_score_variance_y    DOUBLE PRECISION,
+    category_score_variance_y    DOUBLE PRECISION
 );
 
 -- 기본 카테고리 데이터 삽입
@@ -16,7 +16,6 @@ INSERT INTO category (category_name, category_ratio, category_score_sum, categor
 VALUES ('LQ', 33.3, 0, 0),
        ('RQ', 33.3, 0, 0),
        ('CQ', 33.3, 0, 0);
-);
 
 
 -- Activity 테이블 삭제 및 생성
