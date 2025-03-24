@@ -3489,3 +3489,76 @@ INSERT INTO submit (user_id, activity_id, submit_date, submit_state, submit_appr
 INSERT INTO submit (user_id, activity_id, submit_date, submit_state, submit_approved_date, submit_content) VALUES ((SELECT user_id FROM users WHERE user_hakbun = '2020310058' LIMIT 1), (SELECT activity_id FROM activity WHERE activity_name = 'knownSpeech2' AND category_id = (SELECT category_id FROM category WHERE category_name = 'RQ' LIMIT 1) AND activity_domain = 2 LIMIT 1), NOW(), 2, NOW(), 'RQ: knownSpeech2 활동 수행');
 INSERT INTO submit (user_id, activity_id, submit_date, submit_state, submit_approved_date, submit_content) VALUES ((SELECT user_id FROM users WHERE user_hakbun = '2020310058' LIMIT 1), (SELECT activity_id FROM activity WHERE activity_name = 'kci' AND category_id = (SELECT category_id FROM category WHERE category_name = 'RQ' LIMIT 1) AND activity_domain = 2 LIMIT 1), NOW(), 2, NOW(), 'RQ: kci 활동 수행');
 INSERT INTO submit (user_id, activity_id, submit_date, submit_state, submit_approved_date, submit_content) VALUES ((SELECT user_id FROM users WHERE user_hakbun = '2020310058' LIMIT 1), (SELECT activity_id FROM activity WHERE activity_name = 'studioContribution' AND category_id = (SELECT category_id FROM category WHERE category_name = 'CQ' LIMIT 1) LIMIT 1), NOW(), 2, NOW(), 'CQ: studioContribution 활동 수행');
+
+-- score update
+INSERT INTO score (user_id, lq_score, rq_score, cq_score, created_at, updated_at)
+SELECT u.user_id, 0, 0, 0, NOW(), NOW()
+FROM users u
+WHERE NOT EXISTS (
+    SELECT 1 FROM score s WHERE s.user_id = u.user_id
+);
+
+UPDATE score s
+    JOIN (
+    SELECT
+    u.user_id,
+    SUM(CASE WHEN c.category_id = 1 THEN a.activity_weight ELSE 0 END) AS lq_score,
+    SUM(CASE WHEN c.category_id = 2 THEN a.activity_weight ELSE 0 END) AS rq_score,
+    SUM(CASE WHEN c.category_id = 3 THEN a.activity_weight ELSE 0 END) AS cq_score
+    FROM users u
+    LEFT JOIN submit sb ON u.user_id = sb.user_id AND sb.submit_state = 1
+    LEFT JOIN activity a ON sb.activity_id = a.activity_id
+    LEFT JOIN category c ON a.category_id = c.category_id
+    GROUP BY u.user_id
+    ) AS calculated ON s.user_id = calculated.user_id
+    SET
+        s.lq_score = calculated.lq_score,
+        s.rq_score = calculated.rq_score,
+        s.cq_score = calculated.cq_score;
+
+-- category sum update
+UPDATE category c
+    JOIN (
+    SELECT
+    a.category_id,
+    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN a.activity_weight ELSE 0 END) AS sum_m,
+    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN a.activity_weight ELSE 0 END) AS sum_y
+    FROM submit s
+    JOIN users u ON s.user_id = u.user_id
+    JOIN activity a ON s.activity_id = a.activity_id
+    WHERE s.submit_state = 1
+    GROUP BY a.category_id
+    ) sub ON c.category_id = sub.category_id
+    SET
+        c.category_score_sum_m = sub.sum_m,
+        c.category_score_sum_y = sub.sum_y;
+
+-- category variance update
+UPDATE category c
+    JOIN (
+    SELECT
+    a.category_id,
+
+    -- M Campus
+    COUNT(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN 1 END) AS cnt_m,
+    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN a.activity_weight ELSE 0 END) AS sum_m,
+    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_m,
+
+    -- Y Campus
+    COUNT(CASE WHEN u.user_hakgwa_cd = 3 THEN 1 END) AS cnt_y,
+    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN a.activity_weight ELSE 0 END) AS sum_y,
+    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_y
+
+    FROM submit s
+    JOIN users u ON s.user_id = u.user_id
+    JOIN activity a ON s.activity_id = a.activity_id
+    WHERE s.submit_state = 1
+    GROUP BY a.category_id
+    ) sub ON c.category_id = sub.category_id
+    SET
+        c.category_score_square_sum_m = sub.sum_sq_m,
+        c.category_score_square_sum_y = sub.sum_sq_y,
+        c.category_score_sum_m = sub.sum_m,
+        c.category_score_sum_y = sub.sum_y,
+        c.category_count_m = sub.cnt_m,
+        c.category_count_y = sub.cnt_y;

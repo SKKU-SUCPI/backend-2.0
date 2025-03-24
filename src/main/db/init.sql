@@ -2,20 +2,22 @@
 DROP TABLE IF EXISTS category;
 
 CREATE TABLE category (
-    category_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
-    category_name               VARCHAR(100) NOT NULL,
-    category_ratio              DOUBLE PRECISION,
-    category_score_sum          DOUBLE PRECISION,
-    category_score_deviation    DOUBLE PRECISION
+    category_id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_name                 VARCHAR(100) NOT NULL,
+    category_ratio                DOUBLE PRECISION,
+    category_score_sum_m          DOUBLE PRECISION,
+    category_score_sum_y          DOUBLE PRECISION,
+    category_score_square_sum_m   DOUBLE PRECISION,
+    category_score_square_sum_y   DOUBLE PRECISION,
+    category_count_m              BIGINT,
+    category_count_y              BIGINT
 );
 
 -- 기본 카테고리 데이터 삽입
-INSERT INTO category (category_name, category_ratio, category_score_sum, category_score_deviation)
-VALUES ('LQ', 33.3, 0, 0),
-       ('RQ', 33.3, 0, 0),
-       ('CQ', 33.3, 0, 0);
-
-
+INSERT INTO category (category_name, category_ratio, category_score_sum_m, category_score_sum_y, category_score_square_sum_m, category_score_square_sum_y, category_count_m, category_count_y)
+VALUES ('LQ', 33.3, 0, 0, 0, 0, 0, 0),
+       ('RQ', 33.3, 0, 0, 0, 0, 0, 0),
+       ('CQ', 33.3, 0, 0, 0, 0, 0, 0);
 
 
 -- Activity 테이블 삭제 및 생성
