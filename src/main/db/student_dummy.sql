@@ -3556,8 +3556,9 @@ UPDATE category c
     GROUP BY a.category_id
     ) sub ON c.category_id = sub.category_id
     SET
-        c.category_score_variance_m =
-        IF(sub.cnt_m > 0, sub.sum_sq_m / sub.cnt_m - POW(sub.sum_m / sub.cnt_m, 2), 0),
-
-        c.category_score_variance_y =
-        IF(sub.cnt_y > 0, sub.sum_sq_y / sub.cnt_y - POW(sub.sum_y / sub.cnt_y, 2), 0);
+        c.category_score_square_sum_m = sub.sum_sq_m,
+        c.category_score_square_sum_y = sub.sum_sq_y,
+        c.category_score_sum_m = sub.sum_m,
+        c.category_score_sum_y = sub.sum_y,
+        c.category_count_m = sub.cnt_m,
+        c.category_count_y = sub.cnt_y;
