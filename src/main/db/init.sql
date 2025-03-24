@@ -2,11 +2,13 @@
 DROP TABLE IF EXISTS category;
 
 CREATE TABLE category (
-    category_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
-    category_name               VARCHAR(100) NOT NULL,
-    category_ratio              DOUBLE PRECISION,
-    category_score_sum          DOUBLE PRECISION,
-    category_score_deviation    DOUBLE PRECISION
+    category_id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    category_name                 VARCHAR(100) NOT NULL,
+    category_ratio                DOUBLE PRECISION,
+    category_score_sum_m          DOUBLE PRECISION,
+    category_score_sum_y          DOUBLE PRECISION,
+    category_score_variance_m    DOUBLE PRECISION,
+    category_score_variance_y    DOUBLE PRECISION,
 );
 
 -- 기본 카테고리 데이터 삽입
