@@ -16,8 +16,7 @@ INSERT INTO category (category_name, category_ratio, category_score_sum, categor
 VALUES ('LQ', 33.3, 0, 0),
        ('RQ', 33.3, 0, 0),
        ('CQ', 33.3, 0, 0);
-
-
+);
 
 
 -- Activity 테이블 삭제 및 생성
