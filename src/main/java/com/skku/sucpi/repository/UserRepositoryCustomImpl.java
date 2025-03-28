@@ -2,6 +2,8 @@ package com.skku.sucpi.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.PathBuilder;
@@ -17,6 +19,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -30,10 +33,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
             String department,
             String studentId,
             Integer grade,
-            String sortBy,
-            String direction,
-            int page,
-            int size) {
+            Pageable pageable) {
 
         QUser student = QUser.user;
         QScore score = QScore.score;
@@ -57,7 +57,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
         }
         // 필터링(학년)
         if (grade != null) {
-            builder.and(student.year.between(grade, grade + 1));
+            builder.and(student.year.between(grade, grade + 0.9));
         }
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
@@ -76,36 +76,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .from(student)
                 .join(score)
                 .on(student.id.eq(score.user.id))
-                .where(builder);
+                .where(builder)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(getOrderSpecifier(pageable.getSort(), score));
 
-        // 정렬
-        OrderSpecifier<?> orderSpecifier;
-
-//        if (List.of("id", "name", "hakgwaCd", "hakbun", "year").contains(sortBy)) {
-//            PathBuilder<User> path = new PathBuilder<>(User.class, "user");
-//
-//            orderSpecifier = direction.equalsIgnoreCase("desc")
-//                    ? path.getComparable(sortBy, Comparable.class).desc()
-//                    : path.getComparable(sortBy, Comparable.class).asc();
-//        } else
-        if (List.of("lqScore", "rqScore", "cqScore").contains(sortBy)) {
-            PathBuilder<Score> path = new PathBuilder<>(Score.class, "score");
-
-            orderSpecifier = direction.equalsIgnoreCase("desc")
-                    ? path.getComparable(sortBy, Comparable.class).desc()
-                    : path.getComparable(sortBy, Comparable.class).asc();
-        } else {
-            // 기본 정렬: id asc
-            PathBuilder<User> path = new PathBuilder<>(User.class, "user");
-
-            orderSpecifier = path.getComparable("id", Comparable.class).asc();
-        }
-
-        jpaQuery.orderBy(orderSpecifier);
-
-        // 페이지네이션
-        jpaQuery.offset((long) page * size);
-        jpaQuery.limit(size);
 
         List<StudentDto.basicInfo> result = jpaQuery.fetchJoin().fetch().stream().map(tuple -> StudentDto.basicInfo.builder()
                         .id(tuple.get(student.id))
@@ -130,11 +105,18 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .where(builder)
                 .fetchOne();
 
-        Pageable pageable = PageRequest.of(page, size,
-                direction.equalsIgnoreCase("desc") ?
-                        Sort.by(sortBy).descending() :
-                        Sort.by(sortBy).ascending());
-
         return new PageImpl<>(result, pageable, total != null ? total : 0);
+    }
+
+    private OrderSpecifier<?>[] getOrderSpecifier(Sort sort, QScore score) {
+        return sort.stream()
+                .map(order -> {
+                    PathBuilder<Score> pathBuilder = new PathBuilder<>(score.getType(), score.getMetadata());
+                    return new OrderSpecifier(
+                            order.isAscending() ? Order.ASC : Order.DESC,
+                            pathBuilder.get(order.getProperty())
+                    );
+                })
+                .toArray(OrderSpecifier[]::new);
     }
 }

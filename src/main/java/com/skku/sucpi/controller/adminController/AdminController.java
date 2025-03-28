@@ -10,6 +10,9 @@ import com.skku.sucpi.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,10 +46,7 @@ public class AdminController {
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
             @RequestParam(required = false) Integer grade,      // 필터 (학년)
-            @RequestParam(defaultValue = "id") String sortBy,   // 정렬 기준 (기본: user id)
-            @RequestParam(defaultValue = "asc") String direction, // 정렬 방향 (기본: asc)
-            @RequestParam(defaultValue = "0") int page,         // 페이지 번호
-            @RequestParam(defaultValue = "10") int size,         // 페이지 크기
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
         Page<StudentDto.basicInfo> result = userService.searchStudentsList(
@@ -54,10 +54,7 @@ public class AdminController {
                 department,
                 studentId,
                 grade,
-                sortBy,
-                direction,
-                page,
-                size
+                pageable
         );
 
         return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));

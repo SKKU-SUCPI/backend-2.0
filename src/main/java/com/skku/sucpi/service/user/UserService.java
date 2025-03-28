@@ -6,6 +6,7 @@ import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,20 +37,14 @@ public class UserService {
             String department,
             String studentId,
             Integer grade,
-            String sortBy,
-            String direction,
-            int page,
-            int size
+            Pageable pageable
     ) {
         return userRepository.searchStudentsList(
                 name,
                 department,
                 studentId,
                 grade,
-                sortBy,
-                direction,
-                page,
-                size
+                pageable
         );
     }
 }
