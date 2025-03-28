@@ -28,7 +28,7 @@ public class Submit {
     private LocalDateTime approvedDate;
 
     @Lob
-    @Column(name = "submit_contents")
+    @Column(name = "submit_content")
     private String content;
 
     // user
@@ -44,4 +44,10 @@ public class Submit {
     // file
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "submit",cascade = CascadeType.ALL, orphanRemoval = true)
     List<FileStorage> files;
+
+    public void updateState(Integer state) {
+        this.state = state;
+        this.approvedDate = LocalDateTime.now();
+    }
+
 }

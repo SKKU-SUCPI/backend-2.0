@@ -59,14 +59,14 @@ public class UserServiceTest {
         User user1 = User.builder()
                 .name("홍길동")
                 .role("student")
-                .hakbun("11111111")
+                .hakbun("12312312")
                 .build();
 
         userRepository.save(user1);
         SSOUserDto ssoUserDto = SSOUserDto.builder()
                 .userName("홍길동")
                 .role("student")
-                .hakbun("11111111")
+                .hakbun("12312312")
                 .build();
 
         // when
@@ -75,7 +75,7 @@ public class UserServiceTest {
         // then
         assertThat(user.getName()).isEqualTo("홍길동");
         assertThat(user.getRole()).isEqualTo("student");
-        assertThat(user.getHakbun()).isEqualTo("11111111");
+        assertThat(user.getHakbun()).isEqualTo("12312312");
     }
 
     @DisplayName("로그인 - 유저 조회하기")
