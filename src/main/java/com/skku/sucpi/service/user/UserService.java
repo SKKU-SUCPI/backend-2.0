@@ -1,9 +1,11 @@
 package com.skku.sucpi.service.user;
 
 import com.skku.sucpi.dto.user.SSOUserDto;
+import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,5 +29,27 @@ public class UserService {
                     User newUser = new User(ssoUserDto);
                     return userRepository.save(newUser);
         });
+    }
+
+    public Page<StudentDto.basicInfo> searchStudentsList(
+            String name,
+            String department,
+            String studentId,
+            Integer grade,
+            String sortBy,
+            String direction,
+            int page,
+            int size
+    ) {
+        return userRepository.searchStudentsList(
+                name,
+                department,
+                studentId,
+                grade,
+                sortBy,
+                direction,
+                page,
+                size
+        );
     }
 }
