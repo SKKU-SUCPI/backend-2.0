@@ -34,10 +34,10 @@ public class Category {
     private Double squareSumY;
 
     @Column(name = "category_count_m")
-    private Double countM;
+    private Integer countM;
 
     @Column(name = "category_count_y")
-    private Double countY;
+    private Integer countY;
 
     public void updateRatio(Double ratio) {
         this.ratio = ratio;

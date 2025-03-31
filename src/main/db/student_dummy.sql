@@ -3540,14 +3540,14 @@ UPDATE category c
     a.category_id,
 
     -- M Campus
-    COUNT(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN 1 END) AS cnt_m,
-    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN a.activity_weight ELSE 0 END) AS sum_m,
-    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_m,
+    COUNT(CASE WHEN u.user_hakgwa_cd = 3 THEN 1 END) AS cnt_m,
+    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN a.activity_weight ELSE 0 END) AS sum_m,
+    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_m,
 
     -- Y Campus
-    COUNT(CASE WHEN u.user_hakgwa_cd = 3 THEN 1 END) AS cnt_y,
-    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN a.activity_weight ELSE 0 END) AS sum_y,
-    SUM(CASE WHEN u.user_hakgwa_cd = 3 THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_y
+    COUNT(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN 1 END) AS cnt_y,
+    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN a.activity_weight ELSE 0 END) AS sum_y,
+    SUM(CASE WHEN u.user_hakgwa_cd IN (1, 2) THEN POW(a.activity_weight, 2) ELSE 0 END) AS sum_sq_y
 
     FROM submit s
     JOIN users u ON s.user_id = u.user_id
@@ -3562,3 +3562,20 @@ UPDATE category c
         c.category_score_sum_y = sub.sum_y,
         c.category_count_m = sub.cnt_m,
         c.category_count_y = sub.cnt_y;
+
+UPDATE category c
+    JOIN (
+    SELECT COUNT(*) AS cnt
+    FROM users
+    WHERE user_hakgwa_cd = 3
+    ) AS total
+SET c.category_count_m = total.cnt;
+
+UPDATE category c
+    JOIN (
+    SELECT COUNT(*) AS cnt
+    FROM users
+    WHERE user_hakgwa_cd IN (1, 2)
+    ) AS total
+SET c.category_count_y = total.cnt;
+

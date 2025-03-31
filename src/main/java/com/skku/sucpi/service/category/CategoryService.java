@@ -29,6 +29,7 @@ public class CategoryService {
         }
     }
 
+    @Transactional(readOnly = true)
     public RatioResponseDto getAllRatio() {
         List<Category> categories = categoryRepository.findAll();
 
@@ -49,5 +50,10 @@ public class CategoryService {
                 .rq(rq)
                 .cq(cq)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Category> getAllCategory() {
+        return categoryRepository.findAll();
     }
 }
