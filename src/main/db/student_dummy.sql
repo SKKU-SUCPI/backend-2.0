@@ -3566,7 +3566,7 @@ UPDATE category c
 UPDATE category c
     JOIN (
     SELECT COUNT(*) AS cnt
-    FROM user
+    FROM users
     WHERE user_hakgwa_cd = 3
     ) AS total
 SET c.category_count_m = total.cnt;
@@ -3574,7 +3574,7 @@ SET c.category_count_m = total.cnt;
 UPDATE category c
     JOIN (
     SELECT COUNT(*) AS cnt
-    FROM user
+    FROM users
     WHERE user_hakgwa_cd IN (1, 2)
     ) AS total
 SET c.category_count_y = total.cnt;
