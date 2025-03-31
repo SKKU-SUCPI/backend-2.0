@@ -7,10 +7,12 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.entity.QScore;
 import com.skku.sucpi.entity.QUser;
 import com.skku.sucpi.entity.Score;
+import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.List;
 public class UserRepositoryCustomImpl implements UserRepositoryCustom{
 
     private final EntityManager em;
+    private final ScoreService scoreService;
 
     @Override
     public Page<StudentDto.BasicInfo> searchStudentsList(
@@ -77,21 +80,23 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifier(pageable.getSort(), score));
 
-
-        List<StudentDto.BasicInfo> result = jpaQuery.fetchJoin().fetch().stream().map(tuple -> StudentDto.BasicInfo.builder()
-                        .id(tuple.get(student.id))
-                        .name(tuple.get(student.name))
-                        .department(UserUtil.getDepartmentFromCode(tuple.get(student.hakgwaCd)))
-                        .studentId(tuple.get(student.hakbun))
-                        .grade((int) tuple.get(student.year).doubleValue())
-                        .lq(tuple.get(score.lqScore))
-                        .cq(tuple.get(score.cqScore))
-                        .rq(tuple.get(score.rqScore))
-                        .tLq(tuple.get(score.lqScore))
-                        .tCq(tuple.get(score.cqScore))
-                        .tRq(tuple.get(score.rqScore))
-                        .totalScore(tuple.get(score.lqScore) + tuple.get(score.cqScore) + tuple.get(score.rqScore))
-                        .build())
+        List<StudentDto.BasicInfo> result = jpaQuery.fetchJoin().fetch().stream().map(tuple -> {
+                    TScoreDto tScoreDto = scoreService.getTScoreByUserId(tuple.get(student.id));
+                    return StudentDto.BasicInfo.builder()
+                            .id(tuple.get(student.id))
+                            .name(tuple.get(student.name))
+                            .department(UserUtil.getDepartmentFromCode(tuple.get(student.hakgwaCd)))
+                            .studentId(tuple.get(student.hakbun))
+                            .grade((int) tuple.get(student.year).doubleValue())
+                            .lq(tuple.get(score.lqScore))
+                            .cq(tuple.get(score.cqScore))
+                            .rq(tuple.get(score.rqScore))
+                            .tLq(tScoreDto.getTLq())
+                            .tCq(tScoreDto.getTCq())
+                            .tRq(tScoreDto.getTRq())
+                            .totalScore(tuple.get(score.lqScore) + tuple.get(score.cqScore) + tuple.get(score.rqScore))
+                            .build();
+                })
                 .toList();
 
         Long total = queryFactory
