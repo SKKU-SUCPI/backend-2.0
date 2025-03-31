@@ -2,10 +2,8 @@ package com.skku.sucpi.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,13 +11,11 @@ import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.entity.QScore;
 import com.skku.sucpi.entity.QUser;
 import com.skku.sucpi.entity.Score;
-import com.skku.sucpi.entity.User;
 import com.skku.sucpi.util.UserUtil;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,7 +24,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
     private final EntityManager em;
 
     @Override
-    public Page<StudentDto.basicInfo> searchStudentsList(
+    public Page<StudentDto.BasicInfo> searchStudentsList(
             String name,
             String department,
             String studentId,
@@ -82,7 +78,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .orderBy(getOrderSpecifier(pageable.getSort(), score));
 
 
-        List<StudentDto.basicInfo> result = jpaQuery.fetchJoin().fetch().stream().map(tuple -> StudentDto.basicInfo.builder()
+        List<StudentDto.BasicInfo> result = jpaQuery.fetchJoin().fetch().stream().map(tuple -> StudentDto.BasicInfo.builder()
                         .id(tuple.get(student.id))
                         .name(tuple.get(student.name))
                         .department(UserUtil.getDepartmentFromCode(tuple.get(student.hakgwaCd)))

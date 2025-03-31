@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface UserRepositoryCustom {
-    Page<StudentDto.basicInfo> searchStudentsList(
+    Page<StudentDto.BasicInfo> searchStudentsList(
             String name,
             String department,
             String studentId,

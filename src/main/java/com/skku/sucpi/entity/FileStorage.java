@@ -27,6 +27,6 @@ public class FileStorage {
 
     @Lob
     @Column(name = "file_data", nullable = false, columnDefinition = "LONGBLOB")
-    private String fileDate;
+    private byte[] fileDate;
 
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -30,5 +31,9 @@ public class SubmitService {
                     .state(submit.getState())
                     .build();
         }
+    }
+
+    public List<Submit> getSubmitListByUserId(Long userId) {
+        return submitRepository.findByUserId(userId);
     }
 }

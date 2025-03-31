@@ -1,8 +1,11 @@
 package com.skku.sucpi.dto.user;
 
+import com.skku.sucpi.dto.submit.SubmitDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
+
+import java.util.List;
 
 public class StudentDto {
 
@@ -10,7 +13,7 @@ public class StudentDto {
     @Getter
     @Jacksonized
     @Builder
-    static public class basicInfo {
+    static public class BasicInfo {
         private Long id;
         private String name; // 이름
         private String department; // 학과
@@ -29,7 +32,8 @@ public class StudentDto {
     @Getter
     @Jacksonized
     @Builder
-    static public class detailInfo {
-
+    static public class DetailInfo {
+        private BasicInfo basicInfo;
+        private List<SubmitDto.BasicInfo> submitsList;
     }
 }

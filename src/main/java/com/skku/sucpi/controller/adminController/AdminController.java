@@ -5,6 +5,7 @@ import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.dto.user.StudentDto;
+import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.activity.ActivityService;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.submit.SubmitService;
@@ -29,6 +30,7 @@ public class AdminController {
     private final ActivityService activityService;
     private final UserService userService;
     private final SubmitService submitService;
+    private final UserRepository userRepository;
 
     @GetMapping("/ratio")
     public ResponseEntity<ApiResponse<RatioResponseDto>> getAllRatio(HttpServletRequest request) {
@@ -41,7 +43,7 @@ public class AdminController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity<ApiResponse<Page<StudentDto.basicInfo>>> getStudents(
+    public ResponseEntity<ApiResponse<Page<StudentDto.BasicInfo>>> getStudents(
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
@@ -49,7 +51,7 @@ public class AdminController {
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
-        Page<StudentDto.basicInfo> result = userService.searchStudentsList(
+        Page<StudentDto.BasicInfo> result = userService.searchStudentsList(
                 name,
                 department,
                 studentId,
@@ -58,6 +60,14 @@ public class AdminController {
         );
 
         return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
+    }
+
+    @GetMapping("/student/{id}")
+    public ResponseEntity<ApiResponse<StudentDto.DetailInfo>> getStudent(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(userService.searchStudentInfo(id), r.getRequestURI()));
     }
 
     @PostMapping("/submit")
