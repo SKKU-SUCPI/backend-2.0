@@ -19,4 +19,14 @@ public class UserUtil {
             default -> "";
         };
     }
+
+    // 율전캠퍼스 체크
+    static public boolean checkCampusY (Float code) {
+        return switch (code.intValue()) {
+            case 1 -> true;
+            case 2 -> true;
+            case 3 -> false;
+            default -> false;
+        };
+    }
 }

@@ -51,4 +51,9 @@ public class CategoryService {
                 .cq(cq)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public List<Category> getAllCategory() {
+        return categoryRepository.findAll();
+    }
 }

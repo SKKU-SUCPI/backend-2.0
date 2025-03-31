@@ -1,5 +1,6 @@
 package com.skku.sucpi.service.user;
 
+import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.user.SSOUserDto;
 import com.skku.sucpi.dto.user.StudentDto;
@@ -31,6 +32,11 @@ public class UserService {
     private final SubmitService submitService;
 
     @Transactional(readOnly = true)
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+    }
+
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -57,6 +63,9 @@ public class UserService {
         // 3. 제출 정보
         List<Submit> submits = submitService.getSubmitListByUserId(userId);
 
+        // 4. t-score
+        TScoreDto tScoreDto = scoreService.getTScoreByUserId(user.getId());
+
         StudentDto.BasicInfo info = StudentDto.BasicInfo.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -66,7 +75,12 @@ public class UserService {
                 .lq(score.getLqScore())
                 .rq(score.getRqScore())
                 .cq(score.getCqScore())
+                .tLq(tScoreDto.getTLq())
+                .tCq(tScoreDto.getTCq())
+                .tRq(tScoreDto.getTRq())
                 .build();
+
+
 
         List<SubmitDto.BasicInfo> submitDtoList = new ArrayList<>();
         for (Submit s : submits) {
