@@ -1,6 +1,7 @@
 package com.skku.sucpi.service.fileStorage;
 
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
+import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.repository.FileStorageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,5 +19,10 @@ public class FileStorageService {
     @Transactional(readOnly = true)
     public List<FileInfoDto> getFileInfoBySubmitId(Long submitId) {
         return fileStorageRepository.findFileInfoBySubmitId(submitId);
+    }
+
+    @Transactional(readOnly = true)
+    public FileStorage getFileStorageById(Long id) {
+        return fileStorageRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id 입니다."));
     }
 }

@@ -6,9 +6,11 @@ import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.dto.user.StudentDto;
+import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.activity.ActivityService;
 import com.skku.sucpi.service.category.CategoryService;
+import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,10 +19,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class AdminController {
     private final UserService userService;
     private final SubmitService submitService;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     @GetMapping("/ratio")
     public ResponseEntity<ApiResponse<RatioResponseDto>> getAllRatio(HttpServletRequest request) {
@@ -87,4 +93,19 @@ public class AdminController {
         return ResponseEntity.ok().body(ApiResponse.success(submitService.updateSubmitState(request), r.getRequestURI()));
     }
 
+    @GetMapping("/files/{id}/download")
+    public ResponseEntity<byte[]> downloadFile(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        FileStorage file = fileStorageService.getFileStorageById(id);
+
+        String fileName = new StringTokenizer(file.getFileName(), ".").nextToken();
+        String fileType = file.getFileType();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "." + fileType + "\"")
+                .body(file.getFileDate());
+    }
 }
