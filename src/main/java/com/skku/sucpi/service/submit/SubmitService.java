@@ -7,6 +7,8 @@ import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.repository.SubmitRepository;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,5 +51,13 @@ public class SubmitService {
                 .basicInfo(SubmitDto.from(submit))
                 .fileInfoList(fileInfoList)
                 .build();
+    }
+
+    public Page<SubmitDto.ListInfo> searchSubmitList(
+            String userName,
+            Integer state,
+            Pageable pageable
+    ) {
+        return submitRepository.searchSubmitList(userName, state, pageable);
     }
 }

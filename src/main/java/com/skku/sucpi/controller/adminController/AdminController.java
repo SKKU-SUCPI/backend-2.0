@@ -77,6 +77,16 @@ public class AdminController {
         return ResponseEntity.ok().body(ApiResponse.success(userService.searchStudentInfo(id), r.getRequestURI()));
     }
 
+    @GetMapping("/submits")
+    public ResponseEntity<ApiResponse<Page<SubmitDto.ListInfo>>> getSubmits(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer state,
+            @PageableDefault(size = 20) Pageable pageable,
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.searchSubmitList(name, state, pageable), r.getRequestURI()));
+    }
+
     @GetMapping("/submit/{id}")
     public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
             @PathVariable Long id,

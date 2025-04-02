@@ -36,9 +36,23 @@ public class SubmitDto {
     @Getter
     @Jacksonized
     @Builder
+    static public class ListInfo {
+        // 목록 조회 용
+        private BasicInfo basicInfo;
+
+        private Long userId;
+        private String userName;
+        private String studentId;
+        private Integer grade;
+        private String department;
+    }
+
+    @Getter
+    @Jacksonized
+    @Builder
     static public class DetailInfo {
-        BasicInfo basicInfo;
-        List<FileInfoDto> fileInfoList;
+        private BasicInfo basicInfo;
+        private List<FileInfoDto> fileInfoList;
     }
 
     static public BasicInfo from(Submit s) {
