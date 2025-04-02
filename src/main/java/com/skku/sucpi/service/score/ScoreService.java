@@ -70,6 +70,13 @@ public class ScoreService {
                 .build();
     }
 
+    public void updateScore(Long userId, Long categoryId, Double diff) {
+        Score score = scoreRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학생입니다."));
+
+        score.updateScore(categoryId, diff);
+    }
+
     public Double calculateStandardDeviation(Double squareSum, Double sum, Integer count) {
         if (count == 0) throw new IllegalArgumentException("모집단의 수가 1 이상이어야 합니다.");
         double meanSquare = sum * sum / count;

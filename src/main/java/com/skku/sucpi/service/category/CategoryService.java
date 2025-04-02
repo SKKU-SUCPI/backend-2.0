@@ -52,6 +52,13 @@ public class CategoryService {
                 .build();
     }
 
+    public void updateSumAndSquareSum(Long id, Double score, boolean isYuljeon) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+
+        category.updateSumAndSquareSum(score, isYuljeon);
+    }
+
     @Transactional(readOnly = true)
     public List<Category> getAllCategory() {
         return categoryRepository.findAll();

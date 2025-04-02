@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,19 +26,24 @@ public class Submit {
     private Integer state;
 
     @Column(name = "submit_approved_date")
+    @UpdateTimestamp
     private LocalDateTime approvedDate;
 
     @Lob
     @Column(name = "submit_content")
     private String content;
 
+    @Lob
+    @Column(name = "submit_comment")
+    private String comment;
+
     // user
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // activity
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
 
@@ -50,4 +56,7 @@ public class Submit {
         this.approvedDate = LocalDateTime.now();
     }
 
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
 }

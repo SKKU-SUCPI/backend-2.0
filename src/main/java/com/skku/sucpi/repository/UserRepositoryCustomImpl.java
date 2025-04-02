@@ -7,6 +7,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.entity.QScore;
@@ -27,7 +28,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
     private final ScoreService scoreService;
 
     @Override
-    public Page<StudentDto.BasicInfo> searchStudentsList(
+    public PaginationDto<StudentDto.BasicInfo> searchStudentsList(
             String name,
             String department,
             String studentId,
@@ -106,7 +107,16 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
                 .where(builder)
                 .fetchOne();
 
-        return new PageImpl<>(result, pageable, total != null ? total : 0);
+        total = total != null ? total : 0;
+
+//        return new PageImpl<>(result, pageable, total != null ? total : 0);
+        return PaginationDto.<StudentDto.BasicInfo>builder()
+                .content(result)
+                .page(pageable.getPageNumber())
+                .totalPage(total / pageable.getPageSize() + 1)
+                .size(pageable.getPageSize())
+                .totalElements(total)
+                .build();
     }
 
     private OrderSpecifier<?>[] getOrderSpecifier(Sort sort, QScore score) {

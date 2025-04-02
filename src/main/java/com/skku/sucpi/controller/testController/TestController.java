@@ -1,9 +1,6 @@
 package com.skku.sucpi.controller.testController;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.skku.sucpi.dto.test.TestRequestDto;
 import com.skku.sucpi.dto.test.TestResponseDto;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "예제 API", description = "Swagger 테스트용 API")
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api")
 public class TestController {
 
     private final TestService testService;
