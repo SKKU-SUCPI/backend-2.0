@@ -1,11 +1,13 @@
 package com.skku.sucpi.dto.submit;
 
+import com.skku.sucpi.dto.fileStorage.FileInfoDto;
 import com.skku.sucpi.entity.Submit;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SubmitDto {
 
@@ -29,6 +31,14 @@ public class SubmitDto {
         private Long categoryId;
         private String categoryName;
         private Double categoryRatio;
+    }
+
+    @Getter
+    @Jacksonized
+    @Builder
+    static public class DetailInfo {
+        BasicInfo basicInfo;
+        List<FileInfoDto> fileInfoList;
     }
 
     static public BasicInfo from(Submit s) {

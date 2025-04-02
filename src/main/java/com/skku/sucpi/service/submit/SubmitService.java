@@ -1,8 +1,11 @@
 package com.skku.sucpi.service.submit;
 
+import com.skku.sucpi.dto.fileStorage.FileInfoDto;
+import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.repository.SubmitRepository;
+import com.skku.sucpi.service.fileStorage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,7 @@ import java.util.Optional;
 public class SubmitService {
 
     private final SubmitRepository submitRepository;
+    private final FileStorageService fileStorageService;
 
     public SubmitStateDto.Response updateSubmitState(SubmitStateDto.Request request) {
         Optional<Submit> optionalSubmit = submitRepository.findById(request.getId());
@@ -35,5 +39,15 @@ public class SubmitService {
 
     public List<Submit> getSubmitListByUserId(Long userId) {
         return submitRepository.findByUserId(userId);
+    }
+
+    public SubmitDto.DetailInfo getSubmitDetailInfoById(Long id) {
+        Submit submit = submitRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
+        List<FileInfoDto> fileInfoList = fileStorageService.getFileInfoBySubmitId(id);
+
+        return SubmitDto.DetailInfo.builder()
+                .basicInfo(SubmitDto.from(submit))
+                .fileInfoList(fileInfoList)
+                .build();
     }
 }

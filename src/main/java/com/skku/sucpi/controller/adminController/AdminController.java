@@ -3,6 +3,7 @@ package com.skku.sucpi.controller.adminController;
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
+import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.repository.UserRepository;
@@ -68,6 +69,14 @@ public class AdminController {
             HttpServletRequest r
     ) {
         return ResponseEntity.ok().body(ApiResponse.success(userService.searchStudentInfo(id), r.getRequestURI()));
+    }
+
+    @GetMapping("/submit/{id}")
+    public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
     }
 
     @PostMapping("/submit")
