@@ -3579,3 +3579,11 @@ UPDATE category c
     ) AS total
 SET c.category_count_y = total.cnt;
 
+INSERT INTO file_storage (submit_id, file_name, file_type, file_data)
+VALUES (1, 'sucpi', 'txt', UNHEX(HEX('sucpi')));
+
+INSERT INTO file_storage (submit_id, file_name, file_type, file_data)
+VALUES (1, 'hello', 'txt', UNHEX(HEX('hello')));
+
+INSERT INTO file_storage (submit_id, file_name, file_type, file_data)
+VALUES (1, 'skku', 'txt', UNHEX(HEX('skku')));

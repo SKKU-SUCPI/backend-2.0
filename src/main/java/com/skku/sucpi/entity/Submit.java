@@ -31,6 +31,10 @@ public class Submit {
     @Column(name = "submit_content")
     private String content;
 
+    @Lob
+    @Column(name = "submit_comment")
+    private String comment;
+
     // user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

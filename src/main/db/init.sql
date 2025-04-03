@@ -138,6 +138,7 @@ CREATE TABLE submit (
     submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
     submit_approved_date     TIMESTAMP,
     submit_content           TEXT,
+    submit_comment           TEXT,
 
     CONSTRAINT fk_submit_user
         FOREIGN KEY (user_id)
