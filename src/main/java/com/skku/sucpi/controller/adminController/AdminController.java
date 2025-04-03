@@ -95,7 +95,7 @@ public class AdminController {
         return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
     }
 
-    @PostMapping("/submit")
+    @PostMapping("/submit/state")
     public ResponseEntity<ApiResponse<SubmitStateDto.Response>> updateSubmitState(
             @RequestBody SubmitStateDto.Request request,
             HttpServletRequest r
