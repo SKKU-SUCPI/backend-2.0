@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class Submit {
     private Integer state;
 
     @Column(name = "submit_approved_date")
+    @UpdateTimestamp
     private LocalDateTime approvedDate;
 
     @Lob
@@ -54,4 +56,7 @@ public class Submit {
         this.approvedDate = LocalDateTime.now();
     }
 
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
 }

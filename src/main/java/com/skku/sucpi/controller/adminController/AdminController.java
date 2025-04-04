@@ -36,7 +36,6 @@ public class AdminController {
     private final ActivityService activityService;
     private final UserService userService;
     private final SubmitService submitService;
-    private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
     @GetMapping("/ratio")

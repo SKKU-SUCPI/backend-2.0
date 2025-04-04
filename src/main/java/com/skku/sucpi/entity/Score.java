@@ -28,4 +28,16 @@ public class Score {
 
     @Column(name = "cq_score")
     private Double cqScore;
+
+    public void updateScore(Long categoryId, Double diff) {
+        if (categoryId == 1) {
+            this.lqScore += diff;
+        } else if (categoryId ==2) {
+            this.rqScore += diff;
+        } else if (categoryId == 3) {
+            this.cqScore += diff;
+        } else {
+            throw new IllegalArgumentException("lq, rq, cq 가 모두 아닙니다.");
+        }
+    }
 }
