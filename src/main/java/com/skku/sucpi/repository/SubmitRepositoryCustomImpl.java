@@ -3,14 +3,13 @@ package com.skku.sucpi.repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.entity.QSubmit;
 import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.util.UserUtil;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
     private final EntityManager em;
 
     @Override
-    public Page<SubmitDto.ListInfo> searchSubmitList(
+    public PaginationDto<SubmitDto.ListInfo> searchSubmitList(
             String userName,
             Integer state,
             Pageable pageable) {
@@ -64,7 +63,15 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .fetchOne();
 
 
-        return new PageImpl<>(result, pageable, total != null ? total : 0);
+        total = total != null ? total : 0;
 
+//        return new PageImpl<>(result, pageable, total != null ? total : 0);
+        return PaginationDto.<SubmitDto.ListInfo>builder()
+                .content(result)
+                .page(pageable.getPageNumber())
+                .totalPage(total / pageable.getPageSize() + 1)
+                .size(pageable.getPageSize())
+                .totalElements(total)
+                .build();
     }
 }

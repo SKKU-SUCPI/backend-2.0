@@ -1,6 +1,7 @@
 package com.skku.sucpi.controller.adminController;
 
 import com.skku.sucpi.dto.ApiResponse;
+import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
@@ -49,7 +50,7 @@ public class AdminController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity<ApiResponse<Page<StudentDto.BasicInfo>>> getStudents(
+    public ResponseEntity<ApiResponse<PaginationDto<StudentDto.BasicInfo>>> getStudents(
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
@@ -57,7 +58,7 @@ public class AdminController {
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
-        Page<StudentDto.BasicInfo> result = userService.searchStudentsList(
+        PaginationDto<StudentDto.BasicInfo> result = userService.searchStudentsList(
                 name,
                 department,
                 studentId,
@@ -77,7 +78,7 @@ public class AdminController {
     }
 
     @GetMapping("/submits")
-    public ResponseEntity<ApiResponse<Page<SubmitDto.ListInfo>>> getSubmits(
+    public ResponseEntity<ApiResponse<PaginationDto<SubmitDto.ListInfo>>> getSubmits(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer state,
             @PageableDefault(size = 20) Pageable pageable,

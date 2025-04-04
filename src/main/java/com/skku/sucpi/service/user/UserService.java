@@ -1,5 +1,6 @@
 package com.skku.sucpi.service.user;
 
+import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.user.SSOUserDto;
@@ -94,7 +95,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<StudentDto.BasicInfo> searchStudentsList(
+    public PaginationDto<StudentDto.BasicInfo> searchStudentsList(
             String name,
             String department,
             String studentId,

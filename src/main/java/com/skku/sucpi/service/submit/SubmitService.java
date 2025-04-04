@@ -1,5 +1,6 @@
 package com.skku.sucpi.service.submit;
 
+import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
@@ -81,7 +82,7 @@ public class SubmitService {
                 .build();
     }
 
-    public Page<SubmitDto.ListInfo> searchSubmitList(
+    public PaginationDto<SubmitDto.ListInfo> searchSubmitList(
             String userName,
             Integer state,
             Pageable pageable
