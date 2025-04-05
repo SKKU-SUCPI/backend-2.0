@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.skku.sucpi.controller.AdminControllerTest.AdminControllerTestForSuperAdmin" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-04-05T08:37:52" hostname="sinjingeon-ui-MacBookPro.local" time="0.121">
+  <properties/>
+  <testcase name="LQ, CQ, RQ 값 가져오기" classname="com.skku.sucpi.controller.AdminControllerTest.AdminControllerTestForSuperAdmin" time="0.121"/>
+  <system-out><![CDATA[2025-04-05T17:37:52.823+09:00  INFO 17044 --- [sucpi] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.skku.sucpi.controller.AdminControllerTest.AdminControllerTestForSuperAdmin]: AdminControllerTestForSuperAdmin does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-04-05T17:37:52.825+09:00  INFO 17044 --- [sucpi] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.skku.sucpi.SucpiApplication for test class com.skku.sucpi.controller.AdminControllerTest.AdminControllerTestForSuperAdmin
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

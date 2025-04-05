@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.skku.sucpi.controller.SuperAdminControllerTest.SuperAdminControllerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2025-04-05T08:37:52" hostname="sinjingeon-ui-MacBookPro.local" time="0.566">
+  <properties/>
+  <testcase name="[성공] LQ, CQ, RQ 값 변경" classname="com.skku.sucpi.controller.SuperAdminControllerTest.SuperAdminControllerTest" time="0.407"/>
+  <testcase name="[에러] LQ, CQ, RQ 합이 0이 아닐 때" classname="com.skku.sucpi.controller.SuperAdminControllerTest.SuperAdminControllerTest" time="0.159"/>
+  <system-out><![CDATA[2025-04-05T17:37:52.948+09:00  INFO 17044 --- [sucpi] [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.skku.sucpi.controller.SuperAdminControllerTest.SuperAdminControllerTest]: SuperAdminControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-04-05T17:37:52.954+09:00  INFO 17044 --- [sucpi] [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.skku.sucpi.SucpiApplication for test class com.skku.sucpi.controller.SuperAdminControllerTest.SuperAdminControllerTest
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

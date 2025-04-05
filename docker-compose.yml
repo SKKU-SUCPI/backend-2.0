@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: ./db
+    container_name: local-sucpi-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: sucpi-db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+    networks:
+      - test
+    ports:
+      - "4510:3306"
+    healthcheck: # MySQL 초기화 확인
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  backend:
+    build:
+      context: ./
+    container_name: sucpi-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://local-sucpi-dev:3306/sucpi-db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234
+    depends_on:
+      db:
+        condition: service_healthy # MySQL이 준비되면 시작
+    networks:
+      - test
+    ports:
+      - "4502:8080"
+
+
+networks:
+  test:
+    driver: bridge
