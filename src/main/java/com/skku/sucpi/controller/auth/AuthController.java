@@ -7,6 +7,7 @@ import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.auth.SSOService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.JWTUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +37,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
+    @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
             HttpServletResponse response
@@ -85,6 +87,7 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
+    @Operation(summary = "로그아웃 API")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setMaxAge(0);
@@ -95,6 +98,7 @@ public class AuthController {
     }
 
     @GetMapping("/reissue")
+    @Operation(summary = "AccessToken 재발급 API", description = "쿠키에 RefreshToken 이 포함되어야 합니다.")
     public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
 
@@ -127,6 +131,7 @@ public class AuthController {
 
     // test api
     @PostMapping("/login/student")
+    @Operation(summary = "개발용 student 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginStudent(
             HttpServletRequest request,
             HttpServletResponse response
@@ -153,6 +158,7 @@ public class AuthController {
 
     // test api
     @PostMapping("/login/admin")
+    @Operation(summary = "개발용 admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginAdmin(
             HttpServletRequest request,
             HttpServletResponse response
@@ -179,6 +185,7 @@ public class AuthController {
 
     // test api
     @PostMapping("/login/super-admin")
+    @Operation(summary = "개발용 super-admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginSuperAdmin(
             HttpServletRequest request,
             HttpServletResponse response
@@ -205,6 +212,7 @@ public class AuthController {
 
     // 검증용 api
     @PostMapping("/student")
+    @Operation(summary = "개발용 student 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('student')")
     public String checkStudent() {
         return "학생입니다.";
@@ -212,6 +220,7 @@ public class AuthController {
 
     // 검증용 api
     @PostMapping("/admin")
+    @Operation(summary = "개발용 admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('admin')")
     public String checkAdmin() {
         return "admin 입니다.";
@@ -219,6 +228,7 @@ public class AuthController {
 
     // 검증용 api
     @PostMapping("/super-admin")
+    @Operation(summary = "개발용 super-admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('super-admin')")
     public String checkSuperAdmin() {
         return "super-admin 입니다.";
