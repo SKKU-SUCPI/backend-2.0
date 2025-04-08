@@ -42,4 +42,24 @@ public class Category {
     public void updateRatio(Double ratio) {
         this.ratio = ratio;
     }
+
+    public void updateSumAndSquareSum(Double score, boolean isYuljeon) {
+        Double square = score * score;
+
+        if (isYuljeon) {
+            sumY += score;
+            if (score >= 0) {
+                this.squareSumY += square;
+            } else {
+                this.squareSumY -= square;
+            }
+        } else {
+            sumM += score;
+            if (score >= 0) {
+                this.squareSumM += square;
+            } else {
+                this.squareSumM -= square;
+            }
+        }
+    }
 }

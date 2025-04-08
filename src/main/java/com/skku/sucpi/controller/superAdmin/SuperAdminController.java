@@ -22,7 +22,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/super-admin")
+@RequestMapping("/api/super-admin")
 public class SuperAdminController {
 
     private final CategoryService categoryService;
