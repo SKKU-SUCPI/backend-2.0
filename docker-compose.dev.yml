@@ -10,7 +10,7 @@ services:
       - VIRTUAL_HOST=siop-dev.skku.edu
       - LETSENCRYPT_HOST=siop-dev.skku.edu
     ports:
-      - "4501:80"
+      - "4501:5173"
     networks:
       - net
     extra_hosts:
