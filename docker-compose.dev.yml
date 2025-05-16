@@ -3,7 +3,8 @@ version: '3.8'
 services:
   # nginx 설정 때문에 무조건 4501 포트가 열려있어야 함.
   sucpi-frontend:
-    image: nginx:alpine
+    build:
+      context: ../frontend-2.0/
     container_name: sucpi-frontend
     environment:
       - VIRTUAL_HOST=siop-dev.skku.edu
