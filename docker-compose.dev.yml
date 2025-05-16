@@ -26,9 +26,6 @@ services:
       - SKKU_SSO_HOST=${SKKU_SSO_HOST}
       - SKKU_SSO_PORT=${SKKU_SSO_PORT}
       - SECRET_KEY=${SECRET_KEY}
-    depends_on:
-      sucpi-db:
-        condition: service_healthy # MySQL이 준비되면 시작
     restart: always
     networks:
       - net
