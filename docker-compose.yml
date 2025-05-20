@@ -21,8 +21,6 @@ services:
       context: ./
     container_name: sucpi-backend
     environment:
-      - VIRTUAL_HOST=sucpi.skku.edu
-      - LETSENCRYPT_HOST=sucpi.skku.edu
       - SKKU_SSO_API_KEY=${SKKU_SSO_API_KEY}
       - SKKU_SSO_HOST=${SKKU_SSO_HOST}
       - SKKU_SSO_PORT=${SKKU_SSO_PORT}
