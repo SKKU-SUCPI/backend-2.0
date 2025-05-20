@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  sucpi-db:
+    build:
+      context: ./src/main/db
+    container_name: sucpi-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: sucpi-db
+    networks:
+      - net
+    ports:
+      - "4510:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  net:
+    external: true

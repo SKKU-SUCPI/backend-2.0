@@ -2,35 +2,17 @@ version: '3.8'
 
 services:
   # nginx 설정 때문에 무조건 4501 포트가 열려있어야 함.
-  fake-frontend:
-    image: nginx:alpine
-    container_name: fake-frontend
-    environment:
-      - VIRTUAL_HOST=siop-dev.skku.edu
-      - LETSENCRYPT_HOST=siop-dev.skku.edu
-    ports:
-      - "4501:80"
-    networks:
-      - net
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  sucpi-db:
+  sucpi-frontend:
     build:
-      context: ./src/main/db
-    container_name: local-sucpi-dev
+      context: ../frontend-2.0/
+    container_name: sucpi-frontend
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: sucpi-db
+      - VIRTUAL_HOST=sucpi.skku.edu
+      - LETSENCRYPT_HOST=sucpi.skku.edu
+    ports:
+      - "4501:5173"
     networks:
       - net
-    ports:
-      - "4510:3306"
-    healthcheck: # MySQL 초기화 확인
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -39,22 +21,17 @@ services:
       context: ./
     container_name: sucpi-backend
     environment:
-      - VIRTUAL_HOST=siop-dev.skku.edu
-      - LETSENCRYPT_HOST=siop-dev.skku.edu
+      - VIRTUAL_HOST=sucpi.skku.edu
+      - LETSENCRYPT_HOST=sucpi.skku.edu
       - SKKU_SSO_API_KEY=${SKKU_SSO_API_KEY}
       - SKKU_SSO_HOST=${SKKU_SSO_HOST}
       - SKKU_SSO_PORT=${SKKU_SSO_PORT}
       - SECRET_KEY=${SECRET_KEY}
-    depends_on:
-      sucpi-db:
-        condition: service_healthy # MySQL이 준비되면 시작
     restart: always
     networks:
       - net
     ports:
       - "4502:8080"
-
-
 
 networks:
   net:
