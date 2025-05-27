@@ -69,6 +69,8 @@ public class AuthController {
          * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기)
          * 기존 유저 : User 엔티티 가져오기
          */
+        ssoService.getInfoFromSSO(pToken);
+
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("신진건")
