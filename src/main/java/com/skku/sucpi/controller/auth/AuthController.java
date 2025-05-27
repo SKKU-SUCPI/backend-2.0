@@ -175,7 +175,7 @@ public class AuthController {
 
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
         return ResponseEntity.ok("student login success");
@@ -202,7 +202,7 @@ public class AuthController {
 
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
         return ResponseEntity.ok("admin login success");
@@ -229,7 +229,7 @@ public class AuthController {
 
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
         return ResponseEntity.ok("super-admin login success");
@@ -263,10 +263,21 @@ public class AuthController {
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지
-//        cookie.setSecure(true);  // HTTPS에서만 전송
+        cookie.setSecure(true);  // HTTPS에서만 전송
         cookie.setPath("/");  // 모든 경로에서 사용 가능
         cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
         cookie.setAttribute("SameSite", "Strict"); // CSRF 방지
+
+        response.addCookie(cookie);
+    }
+
+    private void addCookieDev(HttpServletResponse response, String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);  // JavaScript 접근 방지
+//        cookie.setSecure(true);  // HTTPS에서만 전송
+        cookie.setPath("/");  // 모든 경로에서 사용 가능
+        cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
+        cookie.setAttribute("SameSite", "None"); // CSRF 방지
 
         response.addCookie(cookie);
     }
