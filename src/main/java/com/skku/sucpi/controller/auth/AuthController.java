@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.ApiResponse;
+import com.skku.sucpi.dto.user.UserDto;
+import com.skku.sucpi.util.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -167,14 +170,14 @@ public class AuthController {
     // test api
     @GetMapping("/login/student")
     @Operation(summary = "개발용 student 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginStudent(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginStudent(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
-                .userName("신진건")
-                .hakbun("2020310328")
+                .userName("건진신")
+                .hakbun("12221222")
                 .role("student")
                 .build();
 
@@ -187,14 +190,21 @@ public class AuthController {
         response.addHeader("Authorization", "Bearer " + accessToken);
         addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
+                .build();
 
-        return ResponseEntity.ok("student login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // test api
     @GetMapping("/login/admin")
     @Operation(summary = "개발용 admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginAdmin(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginAdmin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
@@ -210,18 +220,25 @@ public class AuthController {
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department("")
+                .build();
 
         response.addHeader("Authorization", "Bearer " + accessToken);
         addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("admin login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // test api
     @GetMapping("/login/super-admin")
     @Operation(summary = "개발용 super-admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginSuperAdmin(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginSuperAdmin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
@@ -237,12 +254,19 @@ public class AuthController {
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department("")
+                .build();
 
         response.addHeader("Authorization", "Bearer " + accessToken);
         addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("super-admin login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // 검증용 api
