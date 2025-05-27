@@ -263,7 +263,7 @@ public class AuthController {
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지
-        cookie.setSecure(true);  // HTTPS에서만 전송
+//        cookie.setSecure(true);  // HTTPS에서만 전송
         cookie.setPath("/");  // 모든 경로에서 사용 가능
         cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
         cookie.setAttribute("SameSite", "Strict"); // CSRF 방지
