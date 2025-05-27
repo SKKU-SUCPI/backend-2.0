@@ -2,6 +2,7 @@ package com.skku.sucpi.controller.auth;
 
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -103,27 +104,36 @@ public class AuthController {
     public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                if (!jwtUtil.isValidToken(c.getValue())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                }
-
-                if (c.getName().equals("refreshToken")) {
-                    Long userId = jwtUtil.getUserId(c.getValue());
-                    Optional<User> user = userRepository.findById(userId);
-
-                    if (user.isEmpty()) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                    }
-
-                    User u = user.get();
-                    String accessToken = jwtUtil.generateAccessToken(u.getName(), u.getId(), u.getRole());
-
-                    response.addHeader("Authorization", "Bearer " + accessToken);
-                }
-            }
+        if (cookies == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        Optional<Cookie> refreshTokenCookie = Arrays.stream(cookies)
+                .filter(c -> c.getName().equals("refreshToken"))
+                .findFirst();
+
+        if (refreshTokenCookie.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String tokenValue = refreshTokenCookie.get().getValue();
+
+        // refreshToken 유효성 검사
+        if (!jwtUtil.isValidToken(tokenValue)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId = jwtUtil.getUserId(tokenValue);
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        User u = user.get();
+        String accessToken = jwtUtil.generateAccessToken(u.getName(), u.getId(), u.getRole());
+
+        response.addHeader("Authorization", "Bearer " + accessToken);
 
         return ResponseEntity.ok("Reissue Successfully");
     }
