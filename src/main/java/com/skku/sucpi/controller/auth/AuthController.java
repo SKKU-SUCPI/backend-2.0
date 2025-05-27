@@ -277,7 +277,7 @@ public class AuthController {
         cookie.setSecure(false);  // HTTPS에서만 전송
         cookie.setPath("/");  // 모든 경로에서 사용 가능
         cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
-        cookie.setAttribute("SameSite", "None"); // CSRF 방지
+        cookie.setAttribute("SameSite", "Lax"); // CSRF 방지
 
         response.addCookie(cookie);
     }
