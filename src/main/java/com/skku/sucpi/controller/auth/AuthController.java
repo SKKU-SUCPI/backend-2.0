@@ -1,19 +1,9 @@
 package com.skku.sucpi.controller.auth;
 
 
-import com.skku.sucpi.dto.user.SSOUserDto;
-import com.skku.sucpi.entity.User;
-import com.skku.sucpi.repository.UserRepository;
-import com.skku.sucpi.service.auth.SSOService;
-import com.skku.sucpi.service.user.UserService;
-import com.skku.sucpi.util.JWTUtil;
-import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
+import java.io.IOException;
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,8 +12,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.Optional;
+import com.skku.sucpi.dto.user.SSOUserDto;
+import com.skku.sucpi.entity.User;
+import com.skku.sucpi.repository.UserRepository;
+import com.skku.sucpi.service.auth.SSOService;
+import com.skku.sucpi.service.user.UserService;
+import com.skku.sucpi.util.JWTUtil;
+
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -125,6 +126,30 @@ public class AuthController {
         }
 
         return ResponseEntity.ok("Reissue Successfully");
+    }
+
+    // 테스트용 학생 로그인 API (윤붰뤴, 2020919319)
+    @PostMapping("/login/student-test")
+    @Operation(summary = "학생 테스트 로그인 API", description = "윤붰뤴 학생으로 로그인하여 JWT 토큰(Access, Refresh)을 발급합니다.")
+    public ResponseEntity<String> loginStudentTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // 테스트용 학생 정보를 설정 (이미 DB에 존재하면 해당 정보 사용, 없으면 새로 생성)
+        SSOUserDto ssoUserDto = SSOUserDto.builder()
+                .userName("윤붰뤴")
+                .hakbun("2020919319")
+                .role("student")
+                .build();
+        User user = userService.getOrCreateUser(ssoUserDto);
+
+        // JWT 토큰 생성 (AccessToken: 15분, RefreshToken: 7일)
+        String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
+
+        // 응답 헤더에 AccessToken 설정
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        // Cookie에 RefreshToken 설정 (HTTP 전용, Secure 설정 등 적용)
+        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);
+
+        return ResponseEntity.ok("학생 테스트 로그인 성공");
     }
 
 
