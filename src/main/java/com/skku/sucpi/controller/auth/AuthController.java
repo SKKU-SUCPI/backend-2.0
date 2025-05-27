@@ -37,7 +37,7 @@ public class AuthController {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
@@ -48,9 +48,21 @@ public class AuthController {
          * pToken 없으면 SSO Login redirect
          * pToken 있으면 토큰 검증, User Info 가져오기
          */
-//        response.sendRedirect("https://login.skku.edu" + "/?retUrl=");
-//        return ResponseEntity.status(HttpStatus.FOUND).build();
+        Cookie[] cookies = request.getCookies();
+        String pToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("pToken")) {
+                    pToken = cookie.getValue();
+                }
+            }
+        }
 
+        if (!ssoService.verifyToken(pToken)) {
+            response.sendRedirect("https://login.skku.edu" + "/?retUrl=g95g9m4j1221s7y8m0kv");
+//            return ResponseEntity.status(HttpStatus.FOUND).build();
+        }
+        log.info("리다이렉트가 되나요?");
 
         /**
          * userService 사용

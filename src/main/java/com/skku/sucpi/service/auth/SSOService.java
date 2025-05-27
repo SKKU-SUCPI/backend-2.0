@@ -25,8 +25,9 @@ public class SSOService {
         sso.setPortNumber(Integer.parseInt(SSO_PORT));
     }
 
-    public int verifyToken(String pToken) {
-        return sso.verifyToken(pToken);
+    public boolean verifyToken(String pToken) {
+        log.info("verfyToken 결과 : {}", sso.verifyToken(pToken));
+        return sso.verifyToken(pToken) >= 0;
     }
 
 }
