@@ -155,7 +155,7 @@ public class AuthController {
 
 
     // test api
-    @PostMapping("/login/student")
+    @GetMapping("/login/student")
     @Operation(summary = "개발용 student 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginStudent(
             HttpServletRequest request,
@@ -182,7 +182,7 @@ public class AuthController {
     }
 
     // test api
-    @PostMapping("/login/admin")
+    @GetMapping("/login/admin")
     @Operation(summary = "개발용 admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginAdmin(
             HttpServletRequest request,
@@ -209,7 +209,7 @@ public class AuthController {
     }
 
     // test api
-    @PostMapping("/login/super-admin")
+    @GetMapping("/login/super-admin")
     @Operation(summary = "개발용 super-admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
     public ResponseEntity<String> loginSuperAdmin(
             HttpServletRequest request,
@@ -236,7 +236,7 @@ public class AuthController {
     }
 
     // 검증용 api
-    @PostMapping("/student")
+    @GetMapping("/student")
     @Operation(summary = "개발용 student 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('student')")
     public String checkStudent() {
@@ -244,7 +244,7 @@ public class AuthController {
     }
 
     // 검증용 api
-    @PostMapping("/admin")
+    @GetMapping("/admin")
     @Operation(summary = "개발용 admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('admin')")
     public String checkAdmin() {
@@ -252,7 +252,7 @@ public class AuthController {
     }
 
     // 검증용 api
-    @PostMapping("/super-admin")
+    @GetMapping("/super-admin")
     @Operation(summary = "개발용 super-admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('super-admin')")
     public String checkSuperAdmin() {
@@ -274,10 +274,10 @@ public class AuthController {
     private void addCookieDev(HttpServletResponse response, String name, String value, int maxAge) {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지
-        cookie.setSecure(false);  // HTTPS에서만 전송
+        cookie.setSecure(false);
         cookie.setPath("/");  // 모든 경로에서 사용 가능
         cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
-        cookie.setAttribute("SameSite", "Lax"); // CSRF 방지
+        cookie.setAttribute("SameSite", "Lax");
 
         response.addCookie(cookie);
     }
