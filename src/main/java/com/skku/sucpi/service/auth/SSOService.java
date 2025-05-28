@@ -2,6 +2,8 @@ package com.skku.sucpi.service.auth;
 
 import SafeIdentity.SsoAuthInfo;
 import com.skku.sucpi.dto.user.SSOUserDto;
+import com.skku.sucpi.entity.User;
+import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import java.util.Arrays;
 @Service
 public class SSOService {
 
+    private final UserService userService;
     private SafeIdentity.SSO sso;
 
     @Value("${SSO_API_KEY}")
@@ -22,6 +25,10 @@ public class SSOService {
     private String SSO_HOST;
     @Value("${SSO_PORT}")
     private String SSO_PORT;
+
+    public SSOService(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostConstruct
     public void init() {
@@ -48,7 +55,10 @@ public class SSOService {
         // 관리자(교직원)일 때
         if (hakbun.equals("N/A")) {
             hakbun = getInfo(profileArr[15]);
+            User admin = userService.getAdminByHakbun(hakbun);
+            role = admin.getRole();
         }
+        // Super Admin 일 때
 
         return SSOUserDto.builder()
                 .userName(ssoAuthInfo.getUserName())
@@ -56,6 +66,7 @@ public class SSOService {
                 .hakgwaCd(UserUtil.getCodeFromDepartment(getInfo(profileArr[2])))
                 .department(getInfo(profileArr[2]))
                 .degree(getInfo(profileArr[4]))
+                .role(role)
                 .build();
     }
 

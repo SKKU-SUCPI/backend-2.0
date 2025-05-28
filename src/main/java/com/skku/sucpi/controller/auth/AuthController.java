@@ -187,6 +187,7 @@ public class AuthController {
                 .userName("건진신")
                 .hakbun("12221222")
                 .role("student")
+                .department("N/A")
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -221,6 +222,7 @@ public class AuthController {
                 .userName("Admin")
                 .hakbun("11111111")
                 .role("admin")
+                .department("N/A")
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -255,6 +257,7 @@ public class AuthController {
                 .userName("SuperAdmin")
                 .hakbun("00000000")
                 .role("super-admin")
+                .department("N/A")
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
