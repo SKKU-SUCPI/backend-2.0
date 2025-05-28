@@ -111,6 +111,32 @@ public class AuthController {
         return ResponseEntity.ok("Logged out successfully");
     }
 
+    @GetMapping("/profile")
+    @Operation(summary = "유저 정보 API")
+    public ResponseEntity<ApiResponse<UserDto.Response>> getProfileByAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            Long userId = jwtUtil.getUserId(token);
+
+            User user = userService.getUserById(userId);
+
+            UserDto.Response result = UserDto.Response.builder()
+                    .id(user.getId())
+                    .studentId(user.getHakbun())
+                    .name(user.getName())
+                    .role(user.getRole())
+                    .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
+                    .build();
+
+            return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
+
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("/reissue")
     @Operation(summary = "AccessToken 재발급 API", description = "쿠키에 RefreshToken 이 포함되어야 합니다.")
     public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
