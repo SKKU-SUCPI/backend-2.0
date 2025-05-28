@@ -215,6 +215,7 @@ public class AuthController {
                 .hakbun("12221222")
                 .role("student")
                 .department("N/A")
+                .hakgwaCd(0F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -250,6 +251,7 @@ public class AuthController {
                 .hakbun("11111111")
                 .role("admin")
                 .department("N/A")
+                .hakgwaCd(0F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -285,6 +287,7 @@ public class AuthController {
                 .hakbun("00000000")
                 .role("super-admin")
                 .department("N/A")
+                .hakgwaCd(0F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
