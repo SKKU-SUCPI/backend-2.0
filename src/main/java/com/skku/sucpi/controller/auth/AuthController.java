@@ -96,7 +96,8 @@ public class AuthController {
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("로그인 성공");
+        response.sendRedirect("http://sucpi.skku.edu");
+        return ResponseEntity.status(HttpStatus.FOUND).build();
     }
 
     @GetMapping("/logout")
