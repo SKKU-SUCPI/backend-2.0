@@ -1,5 +1,9 @@
 package com.skku.sucpi.repository;
 
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
+
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,11 +12,9 @@ import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.entity.QSubmit;
 import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.util.UserUtil;
+
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
@@ -72,6 +74,52 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .totalPage(total / pageable.getPageSize() + 1)
                 .size(pageable.getPageSize())
                 .totalElements(total)
+                .build();
+    }
+
+    @Override
+    public PaginationDto<SubmitDto.BasicInfo> searchMySubmitsByUser(
+            Long userId,
+            Integer state,
+            Pageable pageable) {
+
+        QSubmit submit = QSubmit.submit;
+        BooleanBuilder builder = new BooleanBuilder()
+            .and(submit.user.id.eq(userId));               // 본인 필터
+
+        if (state != null) {
+            builder.and(submit.state.eq(state));           // 상태 필터
+        }
+
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        // 1) 조회 쿼리
+        List<SubmitDto.BasicInfo> content = queryFactory
+            .select(submit)
+            .from(submit)
+            .where(builder)
+            .orderBy(submit.submitDate.desc())
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch()
+            .stream()
+            .map(SubmitDto::from)
+            .toList();
+
+        // 2) 전체 카운트
+        long total = queryFactory
+            .select(submit.count())
+            .from(submit)
+            .where(builder)
+            .fetchOne();
+
+        // 3) 페이징 DTO 빌드
+        return PaginationDto.<SubmitDto.BasicInfo>builder()
+                .content(content)
+                .page(pageable.getPageNumber())
+                .size(pageable.getPageSize())
+                .totalElements(total)
+                .totalPage((total + pageable.getPageSize() - 1) / pageable.getPageSize())
                 .build();
     }
 }

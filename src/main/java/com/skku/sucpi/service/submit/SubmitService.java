@@ -1,23 +1,32 @@
 package com.skku.sucpi.service.submit;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
+import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.entity.Activity;
+import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.entity.Submit;
+import com.skku.sucpi.entity.User;
+import com.skku.sucpi.repository.ActivityRepository;
+import com.skku.sucpi.repository.FileStorageRepository;
 import com.skku.sucpi.repository.SubmitRepository;
+import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Transactional
 @Service
@@ -28,6 +37,10 @@ public class SubmitService {
     private final FileStorageService fileStorageService;
     private final ScoreService scoreService;
     private final CategoryService categoryService;
+    private final ActivityRepository activityRepository;
+    private final UserRepository userRepository;
+    private final FileStorageRepository fileStorageRepository;
+    
 
     public SubmitStateDto.Response updateSubmitState(SubmitStateDto.Request request) {
         Submit submit = submitRepository.findById(request.getId())
@@ -89,4 +102,97 @@ public class SubmitService {
     ) {
         return submitRepository.searchSubmitList(userName, state, pageable);
     }
+
+    // 학생 본인의 제출 내역을 상태별로 페이징 조회
+    @Transactional(readOnly = true)
+    public PaginationDto<SubmitDto.BasicInfo> getMySubmits(
+            Long userId,
+            Integer state,
+            Pageable pageable
+    ) {
+        return submitRepository.searchMySubmitsByUser(userId, state, pageable);
+    }
+
+    //제출 삭제
+    @Transactional
+    public void deleteSubmit(Long userId, Long submitId) {
+        Submit submit = submitRepository.findById(submitId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
+
+        // 1) 본인 소유 확인
+        if (!submit.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 제출만 삭제할 수 있습니다.");
+        }
+        // 2) 승인된 제출은 삭제 불가
+        if (submit.getState() == 1) {
+            throw new IllegalArgumentException("승인된 제출은 삭제할 수 없습니다.");
+        }
+        // 3) 삭제 (연관된 FileStorage도 Cascade 삭제)
+        submitRepository.delete(submit);
+    }
+
+    
+    /**
+     * 학생 제출 생성
+     */
+    @Transactional
+    public SubmitDto.BasicInfo createSubmit(
+            Long userId,
+            SubmitCreateRequestDto dto,
+            List<MultipartFile> files
+    ) throws Exception {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Activity act = activityRepository.findById(dto.getActivityId())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 activity입니다."));
+
+        // 1) Submit 저장
+        Submit sub = Submit.builder()
+            .user(user)
+            .activity(act)
+            .content(dto.getContent())
+            .submitDate(LocalDateTime.now())
+            .state(0)
+            .build();
+        Submit saved = submitRepository.save(sub);
+
+        // 2) Multipart 파일 저장
+        if (files != null) {
+            for (MultipartFile f : files) {
+                String orig = f.getOriginalFilename();
+                String base = orig == null ? "" : orig.replaceFirst("\\.[^.]+$", "");
+                String ext  = orig != null && orig.contains(".")
+                              ? orig.substring(orig.lastIndexOf('.')+1)
+                              : "";
+                FileStorage fs = FileStorage.builder()
+                    .submit(saved)
+                    .fileName(base)
+                    .fileType(ext)
+                    .fileDate(f.getBytes())
+                    .build();
+                fileStorageRepository.save(fs);
+            }
+        }
+
+        return SubmitDto.from(saved);
+    }
+
+    @Transactional
+    public void saveFileBinary(
+            Long submitId,
+            String name,
+            String type,
+            byte[] data
+    ) {
+        Submit sub = submitRepository.findById(submitId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 submitId"));
+        FileStorage fs = FileStorage.builder()
+            .submit(sub)
+            .fileName(name)
+            .fileType(type)
+            .fileDate(data)
+            .build();
+        fileStorageRepository.save(fs);
+    }
+
 }

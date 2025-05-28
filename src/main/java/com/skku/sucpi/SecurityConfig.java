@@ -37,9 +37,9 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
-                .requestMatchers("/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
-                .requestMatchers("/student/**").hasAnyRole("student")  // student 접근 가능
+                .requestMatchers("api/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
+                .requestMatchers("api/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
+                .requestMatchers("api/student/**").hasAnyRole("student")  // student 접근 가능
                 .anyRequest().permitAll());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -51,7 +51,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000",           // 로컬 프론트엔드
+                "http://localhost:5173",           // 로컬 프론트엔드
                 "https://siop-dev.skku.edu",        // 배포 프론트엔드
                 "http://siop-dev.skku.edu"
         ));
