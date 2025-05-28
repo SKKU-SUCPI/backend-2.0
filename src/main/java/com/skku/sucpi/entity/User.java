@@ -68,7 +68,7 @@ public class User {
         this.name = ssoUserDto.getUserName();
         this.role = ssoUserDto.getRole();
         this.hakbun = ssoUserDto.getHakbun();
-        this.hakgwaCd = 1F; // sso 이후 수정 필요
-        this.year = 1D; // sso 이후 수정 필요
+        this.hakgwaCd = ssoUserDto.getHakgwaCd(); // sso 이후 수정 필요
+        this.year = 0D; // sso 이후 수정 필요
     }
 }

@@ -46,7 +46,7 @@ public class AuthController {
     public ResponseEntity<String> login(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         /**
          * ssoService 사용
          * pToken 없으면 SSO Login redirect
@@ -73,14 +73,8 @@ public class AuthController {
          * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기)
          * 기존 유저 : User 엔티티 가져오기
          */
-        ssoService.getInfoFromSSO(pToken);
-
-        SSOUserDto ssoUserDto = SSOUserDto
-                .builder()
-                .userName("신진건")
-                .hakbun("2020310328")
-                .role("student")
-                .build();
+        SSOUserDto ssoUserDto = ssoService.getInfoFromSSO(pToken);
+        log.info("getInfoFromSSO 결과: {}", ssoUserDto.toString());
 
         User user = userService.getOrCreateUser(ssoUserDto);
         log.info("유저 생성");
@@ -158,7 +152,7 @@ public class AuthController {
     // 테스트용 학생 로그인 API (윤붰뤴, 2020919319)
     @PostMapping("/login/student-test")
     @Operation(summary = "학생 테스트 로그인 API", description = "윤붰뤴 학생으로 로그인하여 JWT 토큰(Access, Refresh)을 발급합니다.")
-    public ResponseEntity<String> loginStudentTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<String> loginStudentTest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         // 테스트용 학생 정보를 설정 (이미 DB에 존재하면 해당 정보 사용, 없으면 새로 생성)
         SSOUserDto ssoUserDto = SSOUserDto.builder()
                 .userName("윤붰뤴")
@@ -187,7 +181,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginStudent(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("건진신")
@@ -221,7 +215,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginAdmin(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("Admin")
@@ -255,7 +249,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginSuperAdmin(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("SuperAdmin")

@@ -42,12 +42,21 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User getOrCreateUser(SSOUserDto ssoUserDto) {
+    public User getOrCreateUser(SSOUserDto ssoUserDto) throws Exception {
+        // 등록된 교직원이 아닐 때
+        if (ssoUserDto.getDepartment().equals("N/A") || ssoUserDto.getHakbun().length() != 10) {
+            throw new Exception("등록된 교직원만 이용하실 수 있습니다.");
+        }
+        // 솦융대 학생이 아닐 때
+        if (UserUtil.getCodeFromDepartment(ssoUserDto.getDepartment()) == 0F) {
+            throw new Exception("소프트웨어융합대학 학생만 이용하실 수 있습니다.");
+        }
+
         return userRepository.findByHakbun(ssoUserDto.getHakbun())
                 .orElseGet(() -> {
                     User newUser = new User(ssoUserDto);
                     return userRepository.save(newUser);
-        });
+                });
     }
 
     @Transactional(readOnly = true)
