@@ -37,9 +37,9 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
-                .requestMatchers("/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
-                .requestMatchers("/student/**").hasAnyRole("student")  // student 접근 가능
+                .requestMatchers("api/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
+                .requestMatchers("api/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
+                .requestMatchers("api/student/**").hasAnyRole("student")  // student 접근 가능
                 .anyRequest().permitAll());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

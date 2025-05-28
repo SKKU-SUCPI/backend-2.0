@@ -2,8 +2,12 @@ package com.skku.sucpi.controller.auth;
 
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.ApiResponse;
+import com.skku.sucpi.dto.user.UserDto;
+import com.skku.sucpi.util.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -117,27 +121,36 @@ public class AuthController {
     public ResponseEntity<String> reissue(HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
 
-        if (cookies != null) {
-            for (Cookie c : cookies) {
-                if (!jwtUtil.isValidToken(c.getValue())) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                }
-
-                if (c.getName().equals("refreshToken")) {
-                    Long userId = jwtUtil.getUserId(c.getValue());
-                    Optional<User> user = userRepository.findById(userId);
-
-                    if (user.isEmpty()) {
-                        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-                    }
-
-                    User u = user.get();
-                    String accessToken = jwtUtil.generateAccessToken(u.getName(), u.getId(), u.getRole());
-
-                    response.addHeader("Authorization", "Bearer " + accessToken);
-                }
-            }
+        if (cookies == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        Optional<Cookie> refreshTokenCookie = Arrays.stream(cookies)
+                .filter(c -> c.getName().equals("refreshToken"))
+                .findFirst();
+
+        if (refreshTokenCookie.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String tokenValue = refreshTokenCookie.get().getValue();
+
+        // refreshToken 유효성 검사
+        if (!jwtUtil.isValidToken(tokenValue)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Long userId = jwtUtil.getUserId(tokenValue);
+        Optional<User> user = userRepository.findById(userId);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        User u = user.get();
+        String accessToken = jwtUtil.generateAccessToken(u.getName(), u.getId(), u.getRole());
+
+        response.addHeader("Authorization", "Bearer " + accessToken);
 
         return ResponseEntity.ok("Reissue Successfully");
     }
@@ -169,16 +182,16 @@ public class AuthController {
 
 
     // test api
-    @PostMapping("/login/student")
+    @GetMapping("/login/student")
     @Operation(summary = "개발용 student 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginStudent(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginStudent(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
-                .userName("신진건")
-                .hakbun("2020310328")
+                .userName("건진신")
+                .hakbun("12221222")
                 .role("student")
                 .build();
 
@@ -189,16 +202,23 @@ public class AuthController {
 
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
+                .build();
 
-        return ResponseEntity.ok("student login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // test api
-    @PostMapping("/login/admin")
+    @GetMapping("/login/admin")
     @Operation(summary = "개발용 admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginAdmin(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginAdmin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
@@ -214,18 +234,25 @@ public class AuthController {
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department("")
+                .build();
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("admin login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // test api
-    @PostMapping("/login/super-admin")
+    @GetMapping("/login/super-admin")
     @Operation(summary = "개발용 super-admin 로그인 API", description = "AccessToken, RefreshToken 을 응답합니다.")
-    public ResponseEntity<String> loginSuperAdmin(
+    public ResponseEntity<ApiResponse<UserDto.Response>> loginSuperAdmin(
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
@@ -241,16 +268,23 @@ public class AuthController {
         String accessToken = jwtUtil.generateAccessToken(user.getName(), user.getId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getName(), user.getId());
 
+        UserDto.Response result = UserDto.Response.builder()
+                .id(user.getId())
+                .studentId(user.getHakbun())
+                .name(user.getName())
+                .role(user.getRole())
+                .department("")
+                .build();
 
         response.addHeader("Authorization", "Bearer " + accessToken);
-        addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
+        addCookieDev(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("super-admin login success");
+        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
     }
 
     // 검증용 api
-    @PostMapping("/student")
+    @GetMapping("/student")
     @Operation(summary = "개발용 student 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('student')")
     public String checkStudent() {
@@ -258,7 +292,7 @@ public class AuthController {
     }
 
     // 검증용 api
-    @PostMapping("/admin")
+    @GetMapping("/admin")
     @Operation(summary = "개발용 admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('admin')")
     public String checkAdmin() {
@@ -266,7 +300,7 @@ public class AuthController {
     }
 
     // 검증용 api
-    @PostMapping("/super-admin")
+    @GetMapping("/super-admin")
     @Operation(summary = "개발용 super-admin 로그인 확인 API", description = "성공 여부를 응답합니다.")
     @PreAuthorize("hasRole('super-admin')")
     public String checkSuperAdmin() {
@@ -281,6 +315,17 @@ public class AuthController {
         cookie.setPath("/");  // 모든 경로에서 사용 가능
         cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
         cookie.setAttribute("SameSite", "Strict"); // CSRF 방지
+
+        response.addCookie(cookie);
+    }
+
+    private void addCookieDev(HttpServletResponse response, String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);  // JavaScript 접근 방지
+        cookie.setSecure(false);
+        cookie.setPath("/");  // 모든 경로에서 사용 가능
+        cookie.setMaxAge(maxAge);  // 쿠키 유효 기간 설정
+        cookie.setAttribute("SameSite", "Lax");
 
         response.addCookie(cookie);
     }
