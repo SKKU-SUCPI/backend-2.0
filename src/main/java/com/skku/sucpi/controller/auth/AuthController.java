@@ -74,7 +74,7 @@ public class AuthController {
          * 기존 유저 : User 엔티티 가져오기
          */
         SSOUserDto ssoUserDto = ssoService.getInfoFromSSO(pToken);
-        log.info("getInfoFromSSO 결과: {}", ssoUserDto.toString());
+        log.info("getInfoFromSSO 결과: {} {} {} {} {}", ssoUserDto.getHakbun(), ssoUserDto.getUserName(), ssoUserDto.getDepartment(), ssoUserDto.getRole(), ssoUserDto.getHakgwaCd());
 
         User user = userService.getOrCreateUser(ssoUserDto);
         log.info("유저 생성");
