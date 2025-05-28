@@ -215,7 +215,7 @@ public class AuthController {
                 .hakbun("12221222")
                 .role("student")
                 .department("N/A")
-                .hakgwaCd(0F)
+                .hakgwaCd(1F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
