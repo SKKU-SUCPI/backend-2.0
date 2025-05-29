@@ -1,5 +1,6 @@
 package com.skku.sucpi.dto.submit;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ public class SubmitStateDto {
     @Getter
     @Setter
     @NoArgsConstructor
+    @Schema (name = "SubmitStateDto_Request")
     static public class Request {
         private Long id;
         private Integer state; // 0: 미승인, 1: 승인, 2: 거부
@@ -20,6 +22,7 @@ public class SubmitStateDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "SubmitStateDto_Response")
     static public class Response {
         private Long id;
         private Integer state; // 0: 미승인, 1: 승인, 2: 거부

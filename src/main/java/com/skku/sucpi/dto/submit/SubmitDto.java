@@ -2,6 +2,7 @@ package com.skku.sucpi.dto.submit;
 
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
 import com.skku.sucpi.entity.Submit;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -14,6 +15,7 @@ public class SubmitDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "SubmitDto_BasicInfo")
     static public class BasicInfo {
         private Long id;
         private LocalDateTime submitDate;
@@ -36,6 +38,7 @@ public class SubmitDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "SubmitDto_ListInfo")
     static public class ListInfo {
         // 목록 조회 용
         private BasicInfo basicInfo;
@@ -50,6 +53,7 @@ public class SubmitDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "SubmitDto_DetailInfo")
     static public class DetailInfo {
         private BasicInfo basicInfo;
         private List<FileInfoDto> fileInfoList;

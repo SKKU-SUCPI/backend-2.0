@@ -1,8 +1,10 @@
 package com.skku.sucpi.dto.user;
 
 import com.skku.sucpi.dto.submit.SubmitDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
@@ -13,6 +15,7 @@ public class StudentDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "StudentDto_BasicInfo")
     static public class BasicInfo {
         private Long id;
         private String name; // 이름
@@ -32,6 +35,7 @@ public class StudentDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema (name = "StudentDto_DetailInfo")
     static public class DetailInfo {
         private BasicInfo basicInfo;
         private List<SubmitDto.BasicInfo> submitsList;
