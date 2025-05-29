@@ -5,6 +5,7 @@ import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.ScoreRepository;
+import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
@@ -85,4 +86,6 @@ public class ScoreService {
 
         return tScore >= 33.3 ? 33.3 : tScore;
     }
+
+
 }
