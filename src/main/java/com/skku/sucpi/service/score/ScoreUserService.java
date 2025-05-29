@@ -26,8 +26,10 @@ public class ScoreUserService {
         Double rq = 0D;
 
         for (User user : users) {
-            if (user.getRole().equals("students")) {
+            if (user.getRole().equals("student")) {
                 studentNum++;
+            } else {
+                continue;
             }
 
             TScoreDto tScore = scoreService.getTScoreByUserId(user.getId());

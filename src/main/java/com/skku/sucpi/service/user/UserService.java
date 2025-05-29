@@ -10,6 +10,7 @@ import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.ScoreRepository;
 import com.skku.sucpi.repository.UserRepository;
+import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.util.UserUtil;
@@ -34,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ScoreService scoreService;
     private final SubmitService submitService;
+    private final CategoryService categoryService;
 
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
@@ -61,7 +63,19 @@ public class UserService {
         return userRepository.findByHakbun(ssoUserDto.getHakbun())
                 .orElseGet(() -> {
                     User newUser = new User(ssoUserDto);
-                    return userRepository.save(newUser);
+                    userRepository.save(newUser);
+
+                    if (newUser.getRole().equals("student")) {
+                        Score score = new Score(newUser);
+                        scoreService.createScore(score);
+
+                        if (UserUtil.checkCampusY(newUser.getHakgwaCd())) {
+                            categoryService.increaseCountY();
+                        } else {
+                            categoryService.increaseCountM();
+                        }
+                    }
+                    return newUser;
                 });
     }
 

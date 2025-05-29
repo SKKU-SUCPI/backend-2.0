@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.user.UserDto;
+import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,7 @@ public class AuthController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final ScoreService scoreService;
 
     @GetMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
@@ -70,7 +72,7 @@ public class AuthController {
 
         /**
          * userService 사용
-         * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기)
+         * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기), Category 인원수 증가, Score 엔티티 생성
          * 기존 유저 : User 엔티티 가져오기
          */
         SSOUserDto ssoUserDto = ssoService.getInfoFromSSO(pToken);
@@ -78,6 +80,8 @@ public class AuthController {
 
         User user = userService.getOrCreateUser(ssoUserDto);
         log.info("유저 생성");
+
+
 
         /**
          * jwtService 사용
