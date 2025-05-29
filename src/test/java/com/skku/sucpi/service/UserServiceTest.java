@@ -54,7 +54,7 @@ public class UserServiceTest {
 
     @DisplayName("로그인 - 유저 조회하기")
     @Test
-    void getUser() {
+    void getUser() throws Exception {
         // given
         User user1 = User.builder()
                 .name("홍길동")
@@ -80,7 +80,7 @@ public class UserServiceTest {
 
     @DisplayName("로그인 - 유저 조회하기")
     @Test
-    void createUser() {
+    void createUser() throws Exception {
         // given
         User user1 = User.builder()
                 .name("홍길동")

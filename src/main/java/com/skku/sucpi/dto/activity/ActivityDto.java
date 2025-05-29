@@ -1,6 +1,7 @@
 package com.skku.sucpi.dto.activity;
 
 import com.skku.sucpi.entity.Activity;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
@@ -11,6 +12,7 @@ public class ActivityDto {
     @Getter
     @Jacksonized
     @Builder
+    @Schema(name = "ActivityDto_Response")
     static public class Response {
         private Long activityId;
         private String activityClass;
