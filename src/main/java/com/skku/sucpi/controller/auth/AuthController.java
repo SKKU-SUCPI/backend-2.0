@@ -41,7 +41,7 @@ public class AuthController {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
