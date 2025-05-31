@@ -4,6 +4,7 @@ import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
+import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
@@ -191,9 +192,9 @@ public class AdminController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
     })
-    public ResponseEntity<ApiResponse<TScoreDto>> get3QAverage(
+    public ResponseEntity<ApiResponse<ScoreAverageDto>> get3QAverage(
             HttpServletRequest r
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(scoreUserService.get3QAverage(), r.getRequestURI()));
+        return ResponseEntity.ok().body(ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI()));
     }
 }

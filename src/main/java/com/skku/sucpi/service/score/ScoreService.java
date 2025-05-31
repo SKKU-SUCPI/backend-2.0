@@ -1,5 +1,6 @@
 package com.skku.sucpi.service.score;
 
+import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
@@ -80,6 +81,14 @@ public class ScoreService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 학생입니다."));
 
         score.updateScore(categoryId, diff);
+    }
+
+    public ScoreAverageDto get3QAverage() {
+        return ScoreAverageDto.builder()
+                .lq(scoreRepository.findAverageLqScore())
+                .cq(scoreRepository.findAverageCqScore())
+                .rq(scoreRepository.findAverageRqScore())
+                .build();
     }
 
     public Double calculateStandardDeviation(Double squareSum, Double sum, Integer count) {
