@@ -1,6 +1,7 @@
 package com.skku.sucpi.service.score;
 
 import com.skku.sucpi.dto.score.ScoreAverageDto;
+import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
@@ -88,6 +89,14 @@ public class ScoreService {
                 .lq(scoreRepository.findAverageLqScore())
                 .cq(scoreRepository.findAverageCqScore())
                 .rq(scoreRepository.findAverageRqScore())
+                .build();
+    }
+
+    public ScoreDepartmentAverageDto scoreDepartmentAverage() {
+        return ScoreDepartmentAverageDto.builder()
+                .sw(scoreRepository.findAverageScoreOfSw())
+                .intelligentSw(scoreRepository.findAverageScoreOfIntelligentSw())
+                .soc(scoreRepository.findAverageScoreOfSoc())
                 .build();
     }
 

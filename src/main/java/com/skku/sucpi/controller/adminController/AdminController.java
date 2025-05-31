@@ -5,6 +5,7 @@ import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
+import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
@@ -197,4 +198,16 @@ public class AdminController {
     ) {
         return ResponseEntity.ok().body(ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI()));
     }
+
+    @GetMapping("/3q-average/department")
+    @Operation(summary = "학과별 3Q 평균")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<ScoreDepartmentAverageDto>> getDepartment3QAverage(
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(scoreService.scoreDepartmentAverage(), r.getRequestURI()));
+    }
+
 }
