@@ -51,9 +51,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173",           // 로컬 프론트엔드
+                "http://localhost:5173",            // 로컬 프론트엔드
                 "https://siop-dev.skku.edu",        // 배포 프론트엔드
-                "http://siop-dev.skku.edu"
+                "http://siop-dev.skku.edu",         // 배포 프론트엔드
+                "https://sucpi.skku.edu",           // 상용 프론트엔드
+                "https://login.skku.edu"            // SSO
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
