@@ -41,7 +41,7 @@ public class AuthController {
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
@@ -64,7 +64,7 @@ public class AuthController {
 
         if (!ssoService.verifyToken(pToken)) {
             response.sendRedirect("https://login.skku.edu" + "/?retUrl=g95g9m4j1221s7y8m0kv");
-//            return ResponseEntity.status(HttpStatus.FOUND).build();
+            return ResponseEntity.status(HttpStatus.FOUND).build();
         }
         log.info("리다이렉트가 되나요?");
 
