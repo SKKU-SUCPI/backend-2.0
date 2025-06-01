@@ -43,6 +43,14 @@ public class Category {
         this.ratio = ratio;
     }
 
+    public void increaseCountM() {
+        this.countM++;
+    }
+
+    public void increaseCountY() {
+        this.countY++;
+    }
+
     public void updateSumAndSquareSum(Double score, boolean isYuljeon) {
         Double square = score * score;
 

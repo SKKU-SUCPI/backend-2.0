@@ -1,7 +1,10 @@
 package com.skku.sucpi.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.querydsl.core.types.dsl.Expressions;
+import com.skku.sucpi.dto.submit.SubmitCountDto;
 import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.BooleanBuilder;
@@ -120,6 +123,144 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .size(pageable.getPageSize())
                 .totalElements(total)
                 .totalPage((total + pageable.getPageSize() - 1) / pageable.getPageSize())
+                .build();
+    }
+
+    @Override
+    public SubmitCountDto.Count countLQSubmissionsForThisAndLastMonth() {
+        QSubmit submit = QSubmit.submit;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        LocalDate prevMonth = now.minusMonths(1);
+        int prevYear = prevMonth.getYear();
+        int prevMonthValue = prevMonth.getMonthValue();
+
+        Long totalCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.state.eq(1),
+                        submit.activity.category.id.eq(1L))
+                .fetchOne();
+
+        Long currentMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(1L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(year),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(month))
+                .fetchOne();
+
+        Long lastMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(1L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(prevYear),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(prevMonthValue))
+                .fetchOne();
+
+
+        return SubmitCountDto.Count.builder()
+                .lastMonth(lastMonthCount)
+                .currentMonth(currentMonthCount)
+                .total(totalCount)
+                .build();
+    }
+
+    @Override
+    public SubmitCountDto.Count countRQSubmissionsForThisAndLastMonth() {
+        QSubmit submit = QSubmit.submit;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        LocalDate prevMonth = now.minusMonths(1);
+        int prevYear = prevMonth.getYear();
+        int prevMonthValue = prevMonth.getMonthValue();
+
+        Long totalCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.state.eq(1),
+                        submit.activity.category.id.eq(2L))
+                .fetchOne();
+
+        Long currentMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(2L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(year),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(month))
+                .fetchOne();
+
+        Long lastMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(2L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(prevYear),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(prevMonthValue))
+                .fetchOne();
+
+
+        return SubmitCountDto.Count.builder()
+                .lastMonth(lastMonthCount)
+                .currentMonth(currentMonthCount)
+                .total(totalCount)
+                .build();
+    }
+
+    @Override
+    public SubmitCountDto.Count countCQSubmissionsForThisAndLastMonth() {
+        QSubmit submit = QSubmit.submit;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        LocalDate prevMonth = now.minusMonths(1);
+        int prevYear = prevMonth.getYear();
+        int prevMonthValue = prevMonth.getMonthValue();
+
+        Long totalCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.state.eq(1),
+                        submit.activity.category.id.eq(3L))
+                .fetchOne();
+
+        Long currentMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(3L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(year),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(month))
+                .fetchOne();
+
+        Long lastMonthCount = queryFactory
+                .select(submit.count())
+                .from(submit)
+                .where(submit.activity.category.id.eq(3L),
+                        submit.state.eq(1),
+                        Expressions.numberTemplate(Integer.class, "year({0})", submit.submitDate).eq(prevYear),
+                        Expressions.numberTemplate(Integer.class, "month({0})", submit.submitDate).eq(prevMonthValue))
+                .fetchOne();
+
+
+        return SubmitCountDto.Count.builder()
+                .lastMonth(lastMonthCount)
+                .currentMonth(currentMonthCount)
+                .total(totalCount)
                 .build();
     }
 }

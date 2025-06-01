@@ -1,5 +1,7 @@
 package com.skku.sucpi.repository;
 
+import com.skku.sucpi.dto.submit.SubmitCountDto;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Pageable;
 
 import com.skku.sucpi.dto.PaginationDto;
@@ -17,4 +19,10 @@ public interface SubmitRepositoryCustom {
         Integer state,
         Pageable pageable
     );
+
+    SubmitCountDto.Count countLQSubmissionsForThisAndLastMonth();
+
+    SubmitCountDto.Count countRQSubmissionsForThisAndLastMonth();
+
+    SubmitCountDto.Count countCQSubmissionsForThisAndLastMonth();
 }
