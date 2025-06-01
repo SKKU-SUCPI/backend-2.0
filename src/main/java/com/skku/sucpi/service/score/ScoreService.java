@@ -1,10 +1,13 @@
 package com.skku.sucpi.service.score;
 
+import com.skku.sucpi.dto.score.ScoreAverageDto;
+import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.ScoreRepository;
+import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
@@ -21,6 +24,10 @@ public class ScoreService {
 
     private final ScoreRepository scoreRepository;
     private final CategoryService categoryService;
+
+    public Score createScore (Score score) {
+        return scoreRepository.save(score);
+    }
 
     public Score getScoreByUserId (Long userId) {
         return scoreRepository.findByUserId(userId)
@@ -55,11 +62,11 @@ public class ScoreService {
             }
 
             if (category.getName().equals("LQ")) {
-                tLq = calculateStandardDeviation(squareSum, sum, count);
+                tLq = calculateTscore(score.getLqScore(),sum / count ,calculateStandardDeviation(squareSum, sum, count));
             } else if (category.getName().equals("CQ")) {
-                tCq = calculateStandardDeviation(squareSum, sum, count);
+                tCq = calculateTscore(score.getCqScore(),sum / count ,calculateStandardDeviation(squareSum, sum, count));
             } else if (category.getName().equals("RQ")) {
-                tRq = calculateStandardDeviation(squareSum, sum, count);
+                tRq = calculateTscore(score.getRqScore(),sum / count ,calculateStandardDeviation(squareSum, sum, count));
             }
         }
 
@@ -77,12 +84,33 @@ public class ScoreService {
         score.updateScore(categoryId, diff);
     }
 
+    public ScoreAverageDto get3QAverage() {
+        return ScoreAverageDto.builder()
+                .lq(scoreRepository.findAverageLqScore())
+                .cq(scoreRepository.findAverageCqScore())
+                .rq(scoreRepository.findAverageRqScore())
+                .build();
+    }
+
+    public ScoreDepartmentAverageDto scoreDepartmentAverage() {
+        return ScoreDepartmentAverageDto.builder()
+                .sw(scoreRepository.findAverageScoreOfSw())
+                .intelligentSw(scoreRepository.findAverageScoreOfIntelligentSw())
+                .soc(scoreRepository.findAverageScoreOfSoc())
+                .build();
+    }
+
     public Double calculateStandardDeviation(Double squareSum, Double sum, Integer count) {
         if (count == 0) throw new IllegalArgumentException("모집단의 수가 1 이상이어야 합니다.");
         double meanSquare = sum * sum / count;
 
-        Double tScore = Math.sqrt((squareSum - meanSquare) / count);
+        double std = Math.sqrt((squareSum - meanSquare) / count);
 
-        return tScore >= 33.3 ? 33.3 : tScore;
+        return std;
     }
+
+    public Double calculateTscore (Double rq, Double avg, Double std) {
+        return (((rq - avg) / std) * 10 + 50) / 3;
+    }
+
 }

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.user.UserDto;
+import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,13 +41,14 @@ public class AuthController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final ScoreService scoreService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         /**
          * ssoService 사용
          * pToken 없으면 SSO Login redirect
@@ -64,26 +66,22 @@ public class AuthController {
 
         if (!ssoService.verifyToken(pToken)) {
             response.sendRedirect("https://login.skku.edu" + "/?retUrl=g95g9m4j1221s7y8m0kv");
-//            return ResponseEntity.status(HttpStatus.FOUND).build();
+            return ResponseEntity.status(HttpStatus.FOUND).build();
         }
         log.info("리다이렉트가 되나요?");
 
         /**
          * userService 사용
-         * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기)
+         * 첫 로그인 : 유저 생성, User 엔티티 생성 (학번으로 일단 찾기), Category 인원수 증가, Score 엔티티 생성
          * 기존 유저 : User 엔티티 가져오기
          */
-        ssoService.getInfoFromSSO(pToken);
-
-        SSOUserDto ssoUserDto = SSOUserDto
-                .builder()
-                .userName("신진건")
-                .hakbun("2020310328")
-                .role("student")
-                .build();
+        SSOUserDto ssoUserDto = ssoService.getInfoFromSSO(pToken);
+        log.info("getInfoFromSSO 결과: {} {} {} {} {}", ssoUserDto.getHakbun(), ssoUserDto.getUserName(), ssoUserDto.getDepartment(), ssoUserDto.getRole(), ssoUserDto.getHakgwaCd());
 
         User user = userService.getOrCreateUser(ssoUserDto);
         log.info("유저 생성");
+
+
 
         /**
          * jwtService 사용
@@ -102,7 +100,8 @@ public class AuthController {
         addCookie(response, "refreshToken", refreshToken, 7 * 24 * 60 * 60);  // 7일
 
 
-        return ResponseEntity.ok("로그인 성공");
+        response.sendRedirect("http://sucpi.skku.edu");
+        return ResponseEntity.status(HttpStatus.FOUND).build();
     }
 
     @GetMapping("/logout")
@@ -114,6 +113,32 @@ public class AuthController {
         response.addCookie(cookie);
 
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "유저 정보 API")
+    public ResponseEntity<ApiResponse<UserDto.Response>> getProfileByAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String token = authorizationHeader.substring(7);
+            Long userId = jwtUtil.getUserId(token);
+
+            User user = userService.getUserById(userId);
+
+            UserDto.Response result = UserDto.Response.builder()
+                    .id(user.getId())
+                    .studentId(user.getHakbun())
+                    .name(user.getName())
+                    .role(user.getRole())
+                    .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
+                    .build();
+
+            return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
+
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/reissue")
@@ -158,7 +183,7 @@ public class AuthController {
     // 테스트용 학생 로그인 API (윤붰뤴, 2020919319)
     @PostMapping("/login/student-test")
     @Operation(summary = "학생 테스트 로그인 API", description = "윤붰뤴 학생으로 로그인하여 JWT 토큰(Access, Refresh)을 발급합니다.")
-    public ResponseEntity<String> loginStudentTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<String> loginStudentTest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         // 테스트용 학생 정보를 설정 (이미 DB에 존재하면 해당 정보 사용, 없으면 새로 생성)
         SSOUserDto ssoUserDto = SSOUserDto.builder()
                 .userName("윤붰뤴")
@@ -187,12 +212,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginStudent(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("건진신")
                 .hakbun("12221222")
                 .role("student")
+                .department("N/A")
+                .hakgwaCd(1F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -221,12 +248,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginAdmin(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("Admin")
                 .hakbun("11111111")
                 .role("admin")
+                .department("N/A")
+                .hakgwaCd(0F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);
@@ -255,12 +284,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDto.Response>> loginSuperAdmin(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException {
+    ) throws Exception {
         SSOUserDto ssoUserDto = SSOUserDto
                 .builder()
                 .userName("SuperAdmin")
                 .hakbun("00000000")
                 .role("super-admin")
+                .department("N/A")
+                .hakgwaCd(0F)
                 .build();
 
         User user = userService.getOrCreateUser(ssoUserDto);

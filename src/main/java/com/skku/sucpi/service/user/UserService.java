@@ -10,10 +10,13 @@ import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.ScoreRepository;
 import com.skku.sucpi.repository.UserRepository;
+import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,9 +31,11 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final ScoreService scoreService;
     private final SubmitService submitService;
+    private final CategoryService categoryService;
 
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
@@ -38,16 +43,40 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public User getAdminByHakbun(String hakbun) {
+        return userRepository.findByHakbun(hakbun).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
+    }
+
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User getOrCreateUser(SSOUserDto ssoUserDto) {
+    public User getOrCreateUser(SSOUserDto ssoUserDto) throws Exception {
+        // 솦융대 학생이 아닐 때
+        log.info("{} {}", ssoUserDto.getHakbun(), UserUtil.getCodeFromDepartment(ssoUserDto.getDepartment()));
+
+        if (ssoUserDto.getHakbun().length() == 10 && UserUtil.getCodeFromDepartment(ssoUserDto.getDepartment()) == 0F) {
+            throw new Exception("소프트웨어융합대학 학생만 이용하실 수 있습니다.");
+        }
+
         return userRepository.findByHakbun(ssoUserDto.getHakbun())
                 .orElseGet(() -> {
                     User newUser = new User(ssoUserDto);
-                    return userRepository.save(newUser);
-        });
+                    userRepository.save(newUser);
+
+                    if (newUser.getRole().equals("student")) {
+                        Score score = new Score(newUser);
+                        scoreService.createScore(score);
+
+                        if (UserUtil.checkCampusY(newUser.getHakgwaCd())) {
+                            categoryService.increaseCountY();
+                        } else {
+                            categoryService.increaseCountM();
+                        }
+                    }
+                    return newUser;
+                });
     }
 
     @Transactional(readOnly = true)
