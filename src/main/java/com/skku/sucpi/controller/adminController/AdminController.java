@@ -7,6 +7,7 @@ import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.score.TScoreDto;
+import com.skku.sucpi.dto.submit.SubmitCountDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.dto.user.StudentDto;
@@ -210,4 +211,14 @@ public class AdminController {
         return ResponseEntity.ok().body(ApiResponse.success(scoreService.scoreDepartmentAverage(), r.getRequestURI()));
     }
 
+    @GetMapping("/submit/summary")
+    @Operation(summary = "3Q의 총, 이번달, 저번달 활동 제출 내역 횟수")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<SubmitCountDto.Response>> countSubmissionsForThisAndLastMonth(
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI()));
+    }
 }
