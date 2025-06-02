@@ -6,6 +6,7 @@ import com.skku.sucpi.entity.User;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,10 @@ public class SSOService {
                 .degree(getInfo(profileArr[4]))
                 .role(role)
                 .build();
+    }
+
+    public void logout(String pToken) {
+        sso.unregUserSession(pToken);
     }
 
     private String getInfo(String str) {
