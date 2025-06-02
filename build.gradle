@@ -46,7 +46,7 @@ dependencies {
 	//implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
 	// springdoc OpenAPI
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 
 	//QueryDsl
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
