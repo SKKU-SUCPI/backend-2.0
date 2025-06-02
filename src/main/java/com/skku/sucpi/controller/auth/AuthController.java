@@ -107,13 +107,17 @@ public class AuthController {
     @GetMapping("/logout")
     @Operation(summary = "로그아웃 API")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie ssoCookie = new Cookie("pToken", null);
-        ssoCookie.setHttpOnly(true);  // JavaScript 접근 방지
-        ssoCookie.setSecure(true);  // HTTPS에서만 전송
-        ssoCookie.setAttribute("SameSite", "Strict"); // CSRF 방지
-        ssoCookie.setMaxAge(0);
-        ssoCookie.setPath("/");
-        response.addCookie(ssoCookie);
+        Cookie[] cookies = request.getCookies();
+        String pToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("pToken")) {
+                    pToken = cookie.getValue();
+                }
+            }
+        }
+
+        ssoService.logout(pToken);
 
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);  // JavaScript 접근 방지
