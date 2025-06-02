@@ -8,10 +8,10 @@ import lombok.extern.jackson.Jacksonized;
 @Getter
 @Jacksonized
 @Builder
-@Schema(name = "TScoreDto")
-public class TScoreDto {
+@Schema(name = "ScoreDepartmentAverageDto")
+public class ScoreDepartmentAverageDto {
 
-    private Double tLq;
-    private Double tCq;
-    private Double tRq;
+    private ScoreAverageDto sw;
+    private ScoreAverageDto intelligentSw;
+    private ScoreAverageDto soc;
 }

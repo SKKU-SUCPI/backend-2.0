@@ -4,6 +4,10 @@ import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
+import com.skku.sucpi.dto.score.ScoreAverageDto;
+import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
+import com.skku.sucpi.dto.score.TScoreDto;
+import com.skku.sucpi.dto.submit.SubmitCountDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.dto.user.StudentDto;
@@ -11,6 +15,8 @@ import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.service.activity.ActivityService;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
+import com.skku.sucpi.service.score.ScoreService;
+import com.skku.sucpi.service.score.ScoreUserService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +44,8 @@ public class AdminController {
     private final UserService userService;
     private final SubmitService submitService;
     private final FileStorageService fileStorageService;
+    private final ScoreService scoreService;
+    private final ScoreUserService scoreUserService;
 
     @GetMapping("/ratio")
     @Operation(summary = "RQ, LQ, CQ 비율 조회", description = "")
@@ -178,5 +186,39 @@ public class AdminController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "." + fileType + "\"")
                 .body(file.getFileDate());
+    }
+
+
+    @GetMapping("/3q-average")
+    @Operation(summary = "전체 학생에 대한 3Q 평균")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<ScoreAverageDto>> get3QAverage(
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI()));
+    }
+
+    @GetMapping("/3q-average/department")
+    @Operation(summary = "학과별 3Q 평균")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<ScoreDepartmentAverageDto>> getDepartment3QAverage(
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(scoreService.scoreDepartmentAverage(), r.getRequestURI()));
+    }
+
+    @GetMapping("/submit/summary")
+    @Operation(summary = "3Q의 총, 이번달, 저번달 활동 제출 내역 횟수")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<SubmitCountDto.Response>> countSubmissionsForThisAndLastMonth(
+            HttpServletRequest r
+    ) {
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI()));
     }
 }

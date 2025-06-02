@@ -3,6 +3,7 @@ package com.skku.sucpi.service.submit;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.skku.sucpi.dto.submit.SubmitCountDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -195,4 +196,11 @@ public class SubmitService {
         fileStorageRepository.save(fs);
     }
 
+    public SubmitCountDto.Response countSubmissionsForThisAndLastMonth () {
+        return SubmitCountDto.Response.builder()
+                .lq(submitRepository.countLQSubmissionsForThisAndLastMonth())
+                .rq(submitRepository.countRQSubmissionsForThisAndLastMonth())
+                .cq(submitRepository.countCQSubmissionsForThisAndLastMonth())
+                .build();
+    }
 }

@@ -3,6 +3,7 @@ package com.skku.sucpi.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,5 +40,12 @@ public class Score {
         } else {
             throw new IllegalArgumentException("lq, rq, cq 가 모두 아닙니다.");
         }
+    }
+
+    public Score(User user) {
+        this.lqScore = 0D;
+        this.rqScore = 0D;
+        this.cqScore = 0D;
+        this.user = user;
     }
 }

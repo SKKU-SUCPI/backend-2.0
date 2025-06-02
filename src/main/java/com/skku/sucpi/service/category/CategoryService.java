@@ -29,6 +29,22 @@ public class CategoryService {
         }
     }
 
+    public void increaseCountY() {
+        List<Category> categories = categoryRepository.findAll();
+
+        for (Category category : categories) {
+            category.increaseCountY();
+        }
+    }
+
+    public void increaseCountM() {
+        List<Category> categories = categoryRepository.findAll();
+
+        for (Category category : categories) {
+            category.increaseCountM();
+        }
+    }
+
     @Transactional(readOnly = true)
     public RatioResponseDto getAllRatio() {
         List<Category> categories = categoryRepository.findAll();
