@@ -43,7 +43,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final ScoreService scoreService;
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "SSO 로그인 API", description = "추후 개발 예정입니다....")
     public ResponseEntity<String> login(
             HttpServletRequest request,
@@ -66,7 +66,7 @@ public class AuthController {
 
         if (!ssoService.verifyToken(pToken)) {
             response.sendRedirect("https://login.skku.edu" + "/?retUrl=g95g9m4j1221s7y8m0kv");
-//            return ResponseEntity.status(HttpStatus.FOUND).build();
+            return ResponseEntity.status(HttpStatus.FOUND).build();
         }
         log.info("리다이렉트가 되나요?");
 
@@ -107,10 +107,26 @@ public class AuthController {
     @GetMapping("/logout")
     @Operation(summary = "로그아웃 API")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        String pToken = "";
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("pToken")) {
+                    pToken = cookie.getValue();
+                }
+            }
+        }
+
+        ssoService.logout(pToken);
+
         Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);  // JavaScript 접근 방지
+        cookie.setSecure(true);  // HTTPS에서만 전송
+        cookie.setAttribute("SameSite", "Strict"); // CSRF 방지
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
+
 
         return ResponseEntity.ok("Logged out successfully");
     }
