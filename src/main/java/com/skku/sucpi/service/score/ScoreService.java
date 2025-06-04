@@ -2,6 +2,7 @@ package com.skku.sucpi.service.score;
 
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
+import com.skku.sucpi.dto.score.StudentScoreDto;
 import com.skku.sucpi.dto.score.TScoreDto;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
@@ -12,6 +13,8 @@ import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ScoreService {
 
+    private static final Logger log = LoggerFactory.getLogger(ScoreService.class);
     private final ScoreRepository scoreRepository;
     private final CategoryService categoryService;
 
@@ -97,6 +101,37 @@ public class ScoreService {
                 .sw(scoreRepository.findAverageScoreOfSw())
                 .intelligentSw(scoreRepository.findAverageScoreOfIntelligentSw())
                 .soc(scoreRepository.findAverageScoreOfSoc())
+                .build();
+    }
+
+    public StudentScoreDto.Response getStudent3QInfo(Long userId) {
+        StudentScoreDto.ScoreInfoInterface studentLqInfo = scoreRepository.findStudentLqInfo(userId);
+        StudentScoreDto.ScoreInfo lqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentLqInfo.getScore())
+                .average(studentLqInfo.getAverage())
+                .percentile((double) studentLqInfo.getRank() / studentLqInfo.getTotal())
+                .build();
+
+        log.info("{} {}", studentLqInfo.getRank(), studentLqInfo.getTotal());
+
+        StudentScoreDto.ScoreInfoInterface studentRqInfo = scoreRepository.findStudentRqInfo(userId);
+        StudentScoreDto.ScoreInfo rqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentRqInfo.getScore())
+                .average(studentRqInfo.getAverage())
+                .percentile((double) studentRqInfo.getRank() / studentRqInfo.getTotal())
+                .build();
+
+        StudentScoreDto.ScoreInfoInterface studentCqInfo = scoreRepository.findStudentCqInfo(userId);
+        StudentScoreDto.ScoreInfo cqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentCqInfo.getScore())
+                .average(studentCqInfo.getAverage())
+                .percentile((double) studentCqInfo.getRank() / studentCqInfo.getTotal())
+                .build();
+
+        return StudentScoreDto.Response.builder()
+                .lq(lqInfo)
+                .rq(rqInfo)
+                .cq(cqInfo)
                 .build();
     }
 

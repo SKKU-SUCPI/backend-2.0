@@ -3,6 +3,8 @@ package com.skku.sucpi.controller.student;
 import java.util.List;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.score.StudentScoreDto;
+import com.skku.sucpi.service.score.ScoreService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -48,6 +50,7 @@ public class StudentController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final SubmitService submitService;
+    private final ScoreService scoreService;
 
     @Operation(
         summary = "내 프로필 조회",
@@ -264,5 +267,25 @@ public class StudentController {
         @RequestBody byte[] data
     ) {
         submitService.saveFileBinary(submitId, name, type, data);
+    }
+
+    @Operation(summary = "학생 본인의 3Q 지표 요약")
+    @GetMapping("/3q-info")
+    public ApiResponse<StudentScoreDto.Response> getStudent3QInfo(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreDto.Response result = scoreService.getStudent3QInfo(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    private String parseJWT(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        } else {
+            throw new IllegalArgumentException("인증 토큰이 없습니다.");
+        }
     }
 }
