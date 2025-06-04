@@ -22,6 +22,7 @@ public class SubmitDto {
         private Integer state;
         private LocalDateTime approvedDate;
         private String content;
+        private String comment;
 
         private Long activityId;
         private String activityClass;
@@ -71,6 +72,7 @@ public class SubmitDto {
                 .state(s.getState())
                 .approvedDate(s.getApprovedDate())
                 .content(s.getContent())
+                .comment(s.getComment())
                 .activityId(s.getActivity().getId())
                 .activityClass(s.getActivity().getActivityClass())
                 .activityName(s.getActivity().getName())
