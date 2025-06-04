@@ -89,10 +89,15 @@ public class SubmitService {
     public SubmitDto.DetailInfo getSubmitDetailInfoById(Long id) {
         Submit submit = submitRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
         List<FileInfoDto> fileInfoList = fileStorageService.getFileInfoBySubmitId(id);
+        User user = submit.getUser();
 
         return SubmitDto.DetailInfo.builder()
                 .basicInfo(SubmitDto.from(submit))
                 .fileInfoList(fileInfoList)
+                .userId(user.getId())
+                .userName(user.getName())
+                .studentId(user.getHakbun())
+                .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
                 .build();
     }
 

@@ -57,6 +57,11 @@ public class SubmitDto {
     static public class DetailInfo {
         private BasicInfo basicInfo;
         private List<FileInfoDto> fileInfoList;
+
+        private Long userId;
+        private String userName;
+        private String studentId;
+        private String department;
     }
 
     static public BasicInfo from(Submit s) {
