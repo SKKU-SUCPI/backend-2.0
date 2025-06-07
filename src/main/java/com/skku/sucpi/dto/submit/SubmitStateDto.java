@@ -26,5 +26,6 @@ public class SubmitStateDto {
     static public class Response {
         private Long id;
         private Integer state; // 0: 미승인, 1: 승인, 2: 거부
+        private String comment;
     }
 }
