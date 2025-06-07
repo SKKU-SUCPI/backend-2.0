@@ -1,9 +1,6 @@
 package com.skku.sucpi.service.score;
 
-import com.skku.sucpi.dto.score.ScoreAverageDto;
-import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
-import com.skku.sucpi.dto.score.StudentScoreDto;
-import com.skku.sucpi.dto.score.TScoreDto;
+import com.skku.sucpi.dto.score.*;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
@@ -132,6 +129,35 @@ public class ScoreService {
                 .lq(lqInfo)
                 .rq(rqInfo)
                 .cq(cqInfo)
+                .build();
+    }
+
+    public StudentScoreAverageDto getStudent3QWithAverages(Long userId) {
+        Score score = scoreRepository.findByUserId(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Float code = score.getUser().getHakgwaCd();
+        ScoreAverageDto department = ScoreAverageDto.builder().build();
+
+        if (code == 1F) {
+            department = scoreRepository.findAverageScoreOfSw();
+        } else if (code == 2F) {
+            department = scoreRepository.findAverageScoreOfIntelligentSw();
+        } else if (code == 3F) {
+            department = scoreRepository.findAverageScoreOfSoc();
+        }
+
+
+        return StudentScoreAverageDto.builder()
+                .student(ScoreAverageDto.builder()
+                        .lq(score.getLqScore())
+                        .rq(score.getRqScore())
+                        .cq(score.getCqScore())
+                        .build())
+                .department(department)
+                .total(ScoreAverageDto.builder()
+                        .lq(scoreRepository.findAverageLqScore())
+                        .rq(scoreRepository.findAverageRqScore())
+                        .cq(scoreRepository.findAverageCqScore())
+                        .build())
                 .build();
     }
 

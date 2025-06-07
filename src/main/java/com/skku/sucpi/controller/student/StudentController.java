@@ -3,6 +3,7 @@ package com.skku.sucpi.controller.student;
 import java.util.List;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.score.StudentScoreAverageDto;
 import com.skku.sucpi.dto.score.StudentScoreDto;
 import com.skku.sucpi.service.score.ScoreService;
 import org.springframework.data.domain.Pageable;
@@ -276,6 +277,16 @@ public class StudentController {
         Long userId = jwtUtil.getUserId(token);
 
         StudentScoreDto.Response result = scoreService.getStudent3QInfo(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @GetMapping("/3q-averages")
+    public ApiResponse<StudentScoreAverageDto> getStudent3QWithAverages(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreAverageDto result = scoreService.getStudent3QWithAverages(userId);
         return ApiResponse.success(result, r.getRequestURI());
     }
 
