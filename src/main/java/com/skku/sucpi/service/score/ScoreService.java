@@ -10,6 +10,7 @@ import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,10 @@ import java.util.List;
 
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class ScoreService {
 
-    private static final Logger log = LoggerFactory.getLogger(ScoreService.class);
     private final ScoreRepository scoreRepository;
     private final CategoryService categoryService;
 
@@ -109,7 +110,7 @@ public class ScoreService {
                 .percentile((double) studentLqInfo.getRank() / studentLqInfo.getTotal())
                 .build();
 
-        log.info("{} {}", studentLqInfo.getRank(), studentLqInfo.getTotal());
+//        log.info("{} {}", studentLqInfo.getRank(), studentLqInfo.getTotal());
 
         StudentScoreDto.ScoreInfoInterface studentRqInfo = scoreRepository.findStudentRqInfo(userId);
         StudentScoreDto.ScoreInfo rqInfo = StudentScoreDto.ScoreInfo.builder()

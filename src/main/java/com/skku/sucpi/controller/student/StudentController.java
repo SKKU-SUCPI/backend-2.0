@@ -3,9 +3,11 @@ package com.skku.sucpi.controller.student;
 import java.util.List;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.score.MonthlyScoreDto;
 import com.skku.sucpi.dto.score.StudentScoreAverageDto;
 import com.skku.sucpi.dto.score.StudentScoreDto;
 import com.skku.sucpi.service.score.ScoreService;
+import com.skku.sucpi.service.score.ScoreSubmitService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -52,6 +54,7 @@ public class StudentController {
     private final JWTUtil jwtUtil;
     private final SubmitService submitService;
     private final ScoreService scoreService;
+    private final ScoreSubmitService scoreSubmitService;
 
     @Operation(
         summary = "내 프로필 조회",
@@ -287,6 +290,16 @@ public class StudentController {
         Long userId = jwtUtil.getUserId(token);
 
         StudentScoreAverageDto result = scoreService.getStudent3QWithAverages(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @GetMapping("/3q-change/month")
+    public ApiResponse<List<MonthlyScoreDto>> getStudentMonthlyScoreDto(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        List<MonthlyScoreDto> result = scoreSubmitService.getStudentMonthlyScoreDto(userId);
         return ApiResponse.success(result, r.getRequestURI());
     }
 

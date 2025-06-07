@@ -1,9 +1,12 @@
 package com.skku.sucpi.repository;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.querydsl.core.types.dsl.Expressions;
+import com.skku.sucpi.dto.score.MonthlyScoreDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
 import org.springframework.data.domain.Pageable;
 
@@ -262,5 +265,31 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .currentMonth(currentMonthCount)
                 .total(totalCount)
                 .build();
+    }
+
+    @Override
+    public List<MonthlyScoreDto> searchStudentMonthlyScore(Long userId) {
+        QSubmit submit = QSubmit.submit;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        LocalDate now = LocalDate.now();
+        LocalDate sixMonthsAgo = now.minusMonths(5).withDayOfMonth(1);
+
+        JPAQuery<Submit> jpaQuery = queryFactory
+                .select(submit)
+                .from(submit)
+                .where(submit.state.eq(1),
+                        submit.user.id.eq(userId),
+                        submit.submitDate.between(sixMonthsAgo.atStartOfDay(), now.atTime(23, 59, 59))
+                );
+
+
+        return jpaQuery.fetch().stream().map(t -> MonthlyScoreDto.builder()
+                        .month(t.getSubmitDate().format(DateTimeFormatter.ofPattern("yyyy-MM")))
+                        .lq(t.getActivity().getCategory().getId() == 1 ? t.getActivity().getWeight() : 0)
+                        .rq(t.getActivity().getCategory().getId() == 2 ? t.getActivity().getWeight() : 0)
+                        .cq(t.getActivity().getCategory().getId() == 3 ? t.getActivity().getWeight() : 0)
+                        .build())
+                .toList();
     }
 }
