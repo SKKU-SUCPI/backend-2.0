@@ -205,6 +205,8 @@ public class AuthController {
                 .userName("윤붰뤴")
                 .hakbun("2020919319")
                 .role("student")
+                .department("소프트웨어학과")
+                .hakgwaCd(1F)
                 .build();
         User user = userService.getOrCreateUser(ssoUserDto);
 

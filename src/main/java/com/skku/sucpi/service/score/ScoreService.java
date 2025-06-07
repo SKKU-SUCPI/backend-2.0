@@ -1,8 +1,6 @@
 package com.skku.sucpi.service.score;
 
-import com.skku.sucpi.dto.score.ScoreAverageDto;
-import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
-import com.skku.sucpi.dto.score.TScoreDto;
+import com.skku.sucpi.dto.score.*;
 import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
@@ -12,6 +10,9 @@ import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @Transactional
+@Slf4j
 @RequiredArgsConstructor
 public class ScoreService {
 
@@ -97,6 +99,66 @@ public class ScoreService {
                 .sw(scoreRepository.findAverageScoreOfSw())
                 .intelligentSw(scoreRepository.findAverageScoreOfIntelligentSw())
                 .soc(scoreRepository.findAverageScoreOfSoc())
+                .build();
+    }
+
+    public StudentScoreDto.Response getStudent3QInfo(Long userId) {
+        StudentScoreDto.ScoreInfoInterface studentLqInfo = scoreRepository.findStudentLqInfo(userId);
+        StudentScoreDto.ScoreInfo lqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentLqInfo.getScore())
+                .average(studentLqInfo.getAverage())
+                .percentile((double) studentLqInfo.getRank() / studentLqInfo.getTotal())
+                .build();
+
+//        log.info("{} {}", studentLqInfo.getRank(), studentLqInfo.getTotal());
+
+        StudentScoreDto.ScoreInfoInterface studentRqInfo = scoreRepository.findStudentRqInfo(userId);
+        StudentScoreDto.ScoreInfo rqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentRqInfo.getScore())
+                .average(studentRqInfo.getAverage())
+                .percentile((double) studentRqInfo.getRank() / studentRqInfo.getTotal())
+                .build();
+
+        StudentScoreDto.ScoreInfoInterface studentCqInfo = scoreRepository.findStudentCqInfo(userId);
+        StudentScoreDto.ScoreInfo cqInfo = StudentScoreDto.ScoreInfo.builder()
+                .score(studentCqInfo.getScore())
+                .average(studentCqInfo.getAverage())
+                .percentile((double) studentCqInfo.getRank() / studentCqInfo.getTotal())
+                .build();
+
+        return StudentScoreDto.Response.builder()
+                .lq(lqInfo)
+                .rq(rqInfo)
+                .cq(cqInfo)
+                .build();
+    }
+
+    public StudentScoreAverageDto getStudent3QWithAverages(Long userId) {
+        Score score = scoreRepository.findByUserId(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        Float code = score.getUser().getHakgwaCd();
+        ScoreAverageDto department = ScoreAverageDto.builder().build();
+
+        if (code == 1F) {
+            department = scoreRepository.findAverageScoreOfSw();
+        } else if (code == 2F) {
+            department = scoreRepository.findAverageScoreOfIntelligentSw();
+        } else if (code == 3F) {
+            department = scoreRepository.findAverageScoreOfSoc();
+        }
+
+
+        return StudentScoreAverageDto.builder()
+                .student(ScoreAverageDto.builder()
+                        .lq(score.getLqScore())
+                        .rq(score.getRqScore())
+                        .cq(score.getCqScore())
+                        .build())
+                .department(department)
+                .total(ScoreAverageDto.builder()
+                        .lq(scoreRepository.findAverageLqScore())
+                        .rq(scoreRepository.findAverageRqScore())
+                        .cq(scoreRepository.findAverageCqScore())
+                        .build())
                 .build();
     }
 

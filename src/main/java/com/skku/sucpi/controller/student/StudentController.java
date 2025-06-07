@@ -3,6 +3,11 @@ package com.skku.sucpi.controller.student;
 import java.util.List;
 import java.util.Optional;
 
+import com.skku.sucpi.dto.score.MonthlyScoreDto;
+import com.skku.sucpi.dto.score.StudentScoreAverageDto;
+import com.skku.sucpi.dto.score.StudentScoreDto;
+import com.skku.sucpi.service.score.ScoreService;
+import com.skku.sucpi.service.score.ScoreSubmitService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -48,6 +53,8 @@ public class StudentController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final SubmitService submitService;
+    private final ScoreService scoreService;
+    private final ScoreSubmitService scoreSubmitService;
 
     @Operation(
         summary = "내 프로필 조회",
@@ -264,5 +271,45 @@ public class StudentController {
         @RequestBody byte[] data
     ) {
         submitService.saveFileBinary(submitId, name, type, data);
+    }
+
+    @Operation(summary = "학생 본인의 3Q 지표 요약")
+    @GetMapping("/3q-info")
+    public ApiResponse<StudentScoreDto.Response> getStudent3QInfo(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreDto.Response result = scoreService.getStudent3QInfo(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @GetMapping("/3q-averages")
+    public ApiResponse<StudentScoreAverageDto> getStudent3QWithAverages(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreAverageDto result = scoreService.getStudent3QWithAverages(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @GetMapping("/3q-change/month")
+    public ApiResponse<List<MonthlyScoreDto>> getStudentMonthlyScoreDto(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        List<MonthlyScoreDto> result = scoreSubmitService.getStudentMonthlyScoreDto(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    private String parseJWT(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        } else {
+            throw new IllegalArgumentException("인증 토큰이 없습니다.");
+        }
     }
 }
