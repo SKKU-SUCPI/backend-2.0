@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -186,6 +187,19 @@ public class StudentController {
         return ApiResponse.success(result, request.getRequestURI());
     }
 
+    @Operation(summary = "제출 내역 상세 조회")
+    @GetMapping("/submit/{id}")
+    public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+        submitService.checkSubmitOwnedByStudent(userId, id);
+
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
+    }
+
     @Operation(
         summary = "내 제출 내역 삭제",
         description = """
@@ -223,54 +237,37 @@ public class StudentController {
      * 학생 제출 API
      * - activityId, content 는 필수, files 는 선택(다중 첨부 가능)
      */
-    @Operation(summary = "학생 활동 제출 (multipart/form-data)",
-               description = "activityId, content 필수. files는 선택(다중 첨부 가능)")
-    @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="200", description="제출 성공",
-                     content=@Content(mediaType="application/json")),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="400", description="잘못된 요청"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="401", description="인증 실패"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="403", description="권한 없음")
+    @Operation(summary = "학생 활동 제출 (activity id, content)" )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
-    @PostMapping(value="/submits",
-                 consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/submits")
     @PreAuthorize("hasRole('student')")
     public ApiResponse<SubmitDto.BasicInfo> createSubmit(
-        @Parameter(description="activityId, content JSON", required=true,
-                   in=ParameterIn.DEFAULT)
-        @RequestPart("requestDto") SubmitCreateRequestDto dto,
-
-        @Parameter(description="첨부파일들 (선택)", in=ParameterIn.DEFAULT,
-                   content=@Content(mediaType="application/octet-stream"))
-        @RequestPart(value="files", required=false)
-        List<MultipartFile> files,
-
-        HttpServletRequest request
+            @RequestBody SubmitCreateRequestDto dto,
+            HttpServletRequest request
     ) throws Exception {
         // JWT에서 userId 추출
-        String token = Optional.ofNullable(request.getHeader("Authorization"))
-            .filter(h -> h.startsWith("Bearer "))
-            .map(h -> h.substring(7))
-            .orElseThrow(() -> new IllegalArgumentException("인증 토큰이 없습니다."));
+        String token = parseJWT(request);
         Long userId = jwtUtil.getUserId(token);
 
         // 서비스 호출
-        SubmitDto.BasicInfo result = submitService.createSubmit(userId, dto, files);
+        SubmitDto.BasicInfo result = submitService.createSubmit(userId, dto);
         return ApiResponse.success(result, request.getRequestURI());
     }
 
-    @Operation(summary = "학생 활동 제출 (raw binary)",
+    @Operation(summary = "학생 활동 첨부파일 제출 (multipart/form-data)",
                description = "미리 생성된 submitId에 binary file 저장")
-    @PostMapping(value="/submits/{submitId}/file",
-                 consumes=MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @PreAuthorize("hasRole('student')")
-    public void uploadBinaryFile(
-        @PathVariable Long submitId,
-        @RequestHeader("file-name") String name,
-        @RequestHeader("file-type") String type,
-        @RequestBody byte[] data
-    ) {
-        submitService.saveFileBinary(submitId, name, type, data);
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
+    })
+    @PostMapping(value="/submits/{id}/file",
+            consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadFiles(
+            @PathVariable Long id,
+            @RequestPart(value="files", required=false) List<MultipartFile> files
+    ) throws Exception {
+        submitService.saveFiles(id, files);
     }
 
     @Operation(summary = "학생 본인의 3Q 지표 요약")
@@ -293,7 +290,7 @@ public class StudentController {
         return ApiResponse.success(result, r.getRequestURI());
     }
 
-    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @Operation(summary = "학생 본인의 월별 3Q 변화")
     @GetMapping("/3q-change/month")
     public ApiResponse<List<MonthlyScoreDto>> getStudentMonthlyScoreDto(HttpServletRequest r) {
         String token = parseJWT(r);
