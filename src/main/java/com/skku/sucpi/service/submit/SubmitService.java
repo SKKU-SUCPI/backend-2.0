@@ -41,7 +41,16 @@ public class SubmitService {
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final FileStorageRepository fileStorageRepository;
-    
+
+    public void checkSubmitOwnedByStudent(Long userId, Long submitId) {
+        Submit submit = submitRepository.findById(submitId)
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + submitId));
+
+        if (submit.getUser().getId() != userId) {
+            throw new IllegalArgumentException("학생은 본인의 제출 내역만 확인할 수 있습니다.");
+        }
+    }
+
 
     public SubmitStateDto.Response updateSubmitState(SubmitStateDto.Request request) {
         Submit submit = submitRepository.findById(request.getId())

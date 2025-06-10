@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -186,6 +187,19 @@ public class StudentController {
         return ApiResponse.success(result, request.getRequestURI());
     }
 
+    @Operation(summary = "제출 내역 상세 조회")
+    @GetMapping("/submit/{id}")
+    public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+        submitService.checkSubmitOwnedByStudent(userId, id);
+
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
+    }
+
     @Operation(
         summary = "내 제출 내역 삭제",
         description = """
@@ -293,7 +307,7 @@ public class StudentController {
         return ApiResponse.success(result, r.getRequestURI());
     }
 
-    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @Operation(summary = "학생 본인의 월별 3Q 변화")
     @GetMapping("/3q-change/month")
     public ApiResponse<List<MonthlyScoreDto>> getStudentMonthlyScoreDto(HttpServletRequest r) {
         String token = parseJWT(r);
