@@ -28,10 +28,12 @@ import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubmitService {
 
     private final SubmitRepository submitRepository;
@@ -46,7 +48,7 @@ public class SubmitService {
         Submit submit = submitRepository.findById(submitId)
                 .orElseThrow(() -> new IllegalArgumentException("No submit id : " + submitId));
 
-        if (submit.getUser().getId() != userId) {
+        if (!submit.getUser().getId().equals(userId)) {
             throw new IllegalArgumentException("학생은 본인의 제출 내역만 확인할 수 있습니다.");
         }
     }
