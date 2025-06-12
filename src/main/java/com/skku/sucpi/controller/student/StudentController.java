@@ -2,16 +2,19 @@ package com.skku.sucpi.controller.student;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.StringTokenizer;
 
 import com.skku.sucpi.dto.score.MonthlyScoreDto;
 import com.skku.sucpi.dto.score.StudentScoreAverageDto;
 import com.skku.sucpi.dto.score.StudentScoreDto;
+import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.score.ScoreSubmitService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +22,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -31,6 +33,7 @@ import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.user.StudentDto;
+import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.JWTUtil;
@@ -56,6 +59,7 @@ public class StudentController {
     private final SubmitService submitService;
     private final ScoreService scoreService;
     private final ScoreSubmitService scoreSubmitService;
+    private final FileStorageService fileStorageService;
 
     @Operation(
         summary = "내 프로필 조회",
@@ -198,6 +202,33 @@ public class StudentController {
         submitService.checkSubmitOwnedByStudent(userId, id);
 
         return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
+    }
+
+    @GetMapping("/files/{id}/download")
+    @Operation(summary = "", description = "Media Type 확인해주세요. api request 요청하면 브라우저에서 다운로드가 됩니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    public ResponseEntity<byte[]> downloadFile(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+        submitService.checkSubmitOwnedByStudent(userId, id);
+
+        FileStorage file = fileStorageService.getFileStorageById(id);
+
+        String fileName = new StringTokenizer(file.getFileName(), ".").nextToken();
+        String fileType = file.getFileType();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "." + fileType + "\"")
+                .body(file.getFileDate());
     }
 
     @Operation(
