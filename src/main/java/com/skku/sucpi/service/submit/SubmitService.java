@@ -28,10 +28,12 @@ import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubmitService {
 
     private final SubmitRepository submitRepository;
@@ -41,7 +43,16 @@ public class SubmitService {
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final FileStorageRepository fileStorageRepository;
-    
+
+    public void checkSubmitOwnedByStudent(Long userId, Long submitId) {
+        Submit submit = submitRepository.findById(submitId)
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + submitId));
+
+        if (!submit.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("학생은 본인의 제출 내역만 확인할 수 있습니다.");
+        }
+    }
+
 
     public SubmitStateDto.Response updateSubmitState(SubmitStateDto.Request request) {
         Submit submit = submitRepository.findById(request.getId())
@@ -78,6 +89,7 @@ public class SubmitService {
         return SubmitStateDto.Response.builder()
                 .id(submit.getId())
                 .state(submit.getState())
+                .comment(submit.getComment())
                 .build();
 
     }
@@ -89,10 +101,15 @@ public class SubmitService {
     public SubmitDto.DetailInfo getSubmitDetailInfoById(Long id) {
         Submit submit = submitRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
         List<FileInfoDto> fileInfoList = fileStorageService.getFileInfoBySubmitId(id);
+        User user = submit.getUser();
 
         return SubmitDto.DetailInfo.builder()
                 .basicInfo(SubmitDto.from(submit))
                 .fileInfoList(fileInfoList)
+                .userId(user.getId())
+                .userName(user.getName())
+                .studentId(user.getHakbun())
+                .department(UserUtil.getDepartmentFromCode(user.getHakgwaCd()))
                 .build();
     }
 
@@ -139,8 +156,7 @@ public class SubmitService {
     @Transactional
     public SubmitDto.BasicInfo createSubmit(
             Long userId,
-            SubmitCreateRequestDto dto,
-            List<MultipartFile> files
+            SubmitCreateRequestDto dto
     ) throws Exception {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
@@ -158,6 +174,36 @@ public class SubmitService {
         Submit saved = submitRepository.save(sub);
 
         // 2) Multipart 파일 저장
+//        if (files != null) {
+//            for (MultipartFile f : files) {
+//                String orig = f.getOriginalFilename();
+//                String base = orig == null ? "" : orig.replaceFirst("\\.[^.]+$", "");
+//                String ext  = orig != null && orig.contains(".")
+//                              ? orig.substring(orig.lastIndexOf('.')+1)
+//                              : "";
+//                FileStorage fs = FileStorage.builder()
+//                    .submit(saved)
+//                    .fileName(base)
+//                    .fileType(ext)
+//                    .fileDate(f.getBytes())
+//                    .build();
+//                fileStorageRepository.save(fs);
+//            }
+//        }
+
+        return SubmitDto.from(saved);
+    }
+
+    public void saveFiles(
+            Long submitId,
+            List<MultipartFile> files
+    ) throws Exception
+    {
+        Submit submit = submitRepository.findById(submitId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
+
+        fileStorageService.deleteAllFileBySubmitId(submitId);
+
         if (files != null) {
             for (MultipartFile f : files) {
                 String orig = f.getOriginalFilename();
@@ -166,7 +212,7 @@ public class SubmitService {
                               ? orig.substring(orig.lastIndexOf('.')+1)
                               : "";
                 FileStorage fs = FileStorage.builder()
-                    .submit(saved)
+                    .submit(submit)
                     .fileName(base)
                     .fileType(ext)
                     .fileDate(f.getBytes())
@@ -174,8 +220,6 @@ public class SubmitService {
                 fileStorageRepository.save(fs);
             }
         }
-
-        return SubmitDto.from(saved);
     }
 
     @Transactional

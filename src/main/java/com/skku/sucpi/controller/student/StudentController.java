@@ -2,18 +2,26 @@ package com.skku.sucpi.controller.student;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.StringTokenizer;
 
+import com.skku.sucpi.dto.score.MonthlyScoreDto;
+import com.skku.sucpi.dto.score.StudentScoreAverageDto;
+import com.skku.sucpi.dto.score.StudentScoreDto;
+import com.skku.sucpi.service.fileStorage.FileStorageService;
+import com.skku.sucpi.service.score.ScoreService;
+import com.skku.sucpi.service.score.ScoreSubmitService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -25,6 +33,7 @@ import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.user.StudentDto;
+import com.skku.sucpi.entity.FileStorage;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.JWTUtil;
@@ -48,6 +57,9 @@ public class StudentController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final SubmitService submitService;
+    private final ScoreService scoreService;
+    private final ScoreSubmitService scoreSubmitService;
+    private final FileStorageService fileStorageService;
 
     @Operation(
         summary = "내 프로필 조회",
@@ -179,6 +191,46 @@ public class StudentController {
         return ApiResponse.success(result, request.getRequestURI());
     }
 
+    @Operation(summary = "제출 내역 상세 조회")
+    @GetMapping("/submit/{id}")
+    public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+        submitService.checkSubmitOwnedByStudent(userId, id);
+
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
+    }
+
+    @GetMapping("/files/{id}/download")
+    @Operation(summary = "", description = "Media Type 확인해주세요. api request 요청하면 브라우저에서 다운로드가 됩니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    public ResponseEntity<byte[]> downloadFile(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        FileStorage file = fileStorageService.getFileStorageById(id);
+        submitService.checkSubmitOwnedByStudent(userId, file.getSubmit().getId());
+
+        String fileName = new StringTokenizer(file.getFileName(), ".").nextToken();
+        String fileType = file.getFileType();
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "." + fileType + "\"")
+                .body(file.getFileDate());
+    }
+
     @Operation(
         summary = "내 제출 내역 삭제",
         description = """
@@ -216,53 +268,76 @@ public class StudentController {
      * 학생 제출 API
      * - activityId, content 는 필수, files 는 선택(다중 첨부 가능)
      */
-    @Operation(summary = "학생 활동 제출 (multipart/form-data)",
-               description = "activityId, content 필수. files는 선택(다중 첨부 가능)")
-    @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="200", description="제출 성공",
-                     content=@Content(mediaType="application/json")),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="400", description="잘못된 요청"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="401", description="인증 실패"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode="403", description="권한 없음")
+    @Operation(summary = "학생 활동 제출 (activity id, content)" )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
-    @PostMapping(value="/submits",
-                 consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/submits")
     @PreAuthorize("hasRole('student')")
     public ApiResponse<SubmitDto.BasicInfo> createSubmit(
-        @Parameter(description="activityId, content JSON", required=true,
-                   in=ParameterIn.DEFAULT)
-        @RequestPart("requestDto") SubmitCreateRequestDto dto,
-
-        @Parameter(description="첨부파일들 (선택)", in=ParameterIn.DEFAULT,
-                   content=@Content(mediaType="application/octet-stream"))
-        @RequestPart(value="files", required=false)
-        List<MultipartFile> files,
-
-        HttpServletRequest request
+            @RequestBody SubmitCreateRequestDto dto,
+            HttpServletRequest request
     ) throws Exception {
         // JWT에서 userId 추출
-        String token = Optional.ofNullable(request.getHeader("Authorization"))
-            .filter(h -> h.startsWith("Bearer "))
-            .map(h -> h.substring(7))
-            .orElseThrow(() -> new IllegalArgumentException("인증 토큰이 없습니다."));
+        String token = parseJWT(request);
         Long userId = jwtUtil.getUserId(token);
 
         // 서비스 호출
-        SubmitDto.BasicInfo result = submitService.createSubmit(userId, dto, files);
+        SubmitDto.BasicInfo result = submitService.createSubmit(userId, dto);
         return ApiResponse.success(result, request.getRequestURI());
     }
 
-    @Operation(summary = "학생 활동 제출 (raw binary)",
+    @Operation(summary = "학생 활동 첨부파일 제출 (multipart/form-data)",
                description = "미리 생성된 submitId에 binary file 저장")
-    @PostMapping(value="/submits/{submitId}/file",
-                 consumes=MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    @PreAuthorize("hasRole('student')")
-    public void uploadBinaryFile(
-        @PathVariable Long submitId,
-        @RequestHeader("file-name") String name,
-        @RequestHeader("file-type") String type,
-        @RequestBody byte[] data
-    ) {
-        submitService.saveFileBinary(submitId, name, type, data);
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
+    })
+    @PostMapping(value="/submits/{id}/file",
+            consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void uploadFiles(
+            @PathVariable Long id,
+            @RequestPart(value="files", required=false) List<MultipartFile> files
+    ) throws Exception {
+        submitService.saveFiles(id, files);
+    }
+
+    @Operation(summary = "학생 본인의 3Q 지표 요약")
+    @GetMapping("/3q-info")
+    public ApiResponse<StudentScoreDto.Response> getStudent3QInfo(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreDto.Response result = scoreService.getStudent3QInfo(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 점수, 학과 평균, 전체 평균")
+    @GetMapping("/3q-averages")
+    public ApiResponse<StudentScoreAverageDto> getStudent3QWithAverages(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        StudentScoreAverageDto result = scoreService.getStudent3QWithAverages(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    @Operation(summary = "학생 본인의 월별 3Q 변화")
+    @GetMapping("/3q-change/month")
+    public ApiResponse<List<MonthlyScoreDto>> getStudentMonthlyScoreDto(HttpServletRequest r) {
+        String token = parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        List<MonthlyScoreDto> result = scoreSubmitService.getStudentMonthlyScoreDto(userId);
+        return ApiResponse.success(result, r.getRequestURI());
+    }
+
+    private String parseJWT(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        } else {
+            throw new IllegalArgumentException("인증 토큰이 없습니다.");
+        }
     }
 }

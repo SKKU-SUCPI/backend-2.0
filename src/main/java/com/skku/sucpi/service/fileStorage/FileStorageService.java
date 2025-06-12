@@ -25,4 +25,8 @@ public class FileStorageService {
     public FileStorage getFileStorageById(Long id) {
         return fileStorageRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id 입니다."));
     }
+
+    public void deleteAllFileBySubmitId(Long id) {
+        fileStorageRepository.deleteAllBySubmitId(id);
+    }
 }
