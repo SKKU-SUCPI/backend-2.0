@@ -218,9 +218,9 @@ public class StudentController {
     ) {
         String token = parseJWT(r);
         Long userId = jwtUtil.getUserId(token);
-        submitService.checkSubmitOwnedByStudent(userId, id);
 
         FileStorage file = fileStorageService.getFileStorageById(id);
+        submitService.checkSubmitOwnedByStudent(userId, file.getSubmit().getId());
 
         String fileName = new StringTokenizer(file.getFileName(), ".").nextToken();
         String fileType = file.getFileType();
