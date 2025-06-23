@@ -3,6 +3,7 @@ package com.skku.sucpi.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
@@ -35,6 +36,7 @@ public class Submit {
     private Long id;
 
     @Column(name = "submit_date")
+    @CreationTimestamp
     private LocalDateTime submitDate;
 
     @Column(name = "submit_state")
