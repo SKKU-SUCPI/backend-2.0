@@ -107,23 +107,25 @@ public class ScoreService {
         StudentScoreDto.ScoreInfo lqInfo = StudentScoreDto.ScoreInfo.builder()
                 .score(studentLqInfo.getScore())
                 .average(studentLqInfo.getAverage())
-                .percentile((double) studentLqInfo.getRank() / studentLqInfo.getTotal())
+                .percentile(studentLqInfo.getPercentRank())
                 .build();
 
-//        log.info("{} {}", studentLqInfo.getRank(), studentLqInfo.getTotal());
+//        log.info("{} {}, {}", studentLqInfo.getRank(), studentLqInfo.getTotal(), studentLqInfo.getPercentRank());
 
         StudentScoreDto.ScoreInfoInterface studentRqInfo = scoreRepository.findStudentRqInfo(userId);
         StudentScoreDto.ScoreInfo rqInfo = StudentScoreDto.ScoreInfo.builder()
                 .score(studentRqInfo.getScore())
                 .average(studentRqInfo.getAverage())
-                .percentile((double) studentRqInfo.getRank() / studentRqInfo.getTotal())
+                .percentile(studentRqInfo.getPercentRank())
                 .build();
+
+//        log.info("{} {}, {}", studentRqInfo.getRank(), studentRqInfo.getTotal(), studentRqInfo.getPercentRank());
 
         StudentScoreDto.ScoreInfoInterface studentCqInfo = scoreRepository.findStudentCqInfo(userId);
         StudentScoreDto.ScoreInfo cqInfo = StudentScoreDto.ScoreInfo.builder()
                 .score(studentCqInfo.getScore())
                 .average(studentCqInfo.getAverage())
-                .percentile((double) studentCqInfo.getRank() / studentCqInfo.getTotal())
+                .percentile(studentCqInfo.getPercentRank())
                 .build();
 
         return StudentScoreDto.Response.builder()
