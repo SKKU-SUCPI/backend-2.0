@@ -8,7 +8,6 @@ import com.skku.sucpi.dto.user.StudentDto;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.entity.User;
-import com.skku.sucpi.repository.ScoreRepository;
 import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.score.ScoreService;
@@ -17,14 +16,12 @@ import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Transactional
 @RequiredArgsConstructor
