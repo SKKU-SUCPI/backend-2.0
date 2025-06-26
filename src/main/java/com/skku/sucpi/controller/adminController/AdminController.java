@@ -98,7 +98,6 @@ public class AdminController {
     }
 
     @GetMapping("/student/{id}")
-
     @Operation(summary = "학생 상세 정보 조회", description = "")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
@@ -114,24 +113,80 @@ public class AdminController {
     }
 
     @GetMapping("/submits")
-    @Operation(summary = "제출 내역 목록 조회", description = """
-            name : 학생이름 <br />
-            state : 0, 1, 2 (미승인, 승인, 거부) <br />
-            sort : 최신순 default 
-            """)
+    @Operation(
+            summary = "제출 내역 목록 조회",
+            description = """
+        **설명**
+        - 모든 제출 내역을 조회하는 API
+        - Pagination 적용
+        - 필터링 : 승인 여부, 학생 이름
+        - 정렬 : 제출날짜 오름차순/내림차순
+        
+        **Header**
+        - Authorization: Bearer {accessToken}
+        
+        **Query Parameter**
+        - name (String, not required) : 학생 이름
+        - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
+        - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+        - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+        - sort (String, not required) : submitDate,desc(default) / submitDate,asc
+        
+        **사용법**
+        - GET /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
+        
+        **응답 예시**
+        ```json
+        {
+            "success": true,
+            "message": "Request Successful",
+            "data": {
+                "content": [
+                    {
+                        "basicInfo": {
+                            "id": 1,
+                            "submitDate": "2025-06-24T14:08:31",
+                            "state": 1,
+                            "approvedDate": "2025-06-24T14:10:40",
+                            "content": "제출 내역 설명입니다.",
+                            "comment": null,
+                            "activityId": 12,
+                            "activityClass": "swActivity",
+                            "activityName": "commitStar4",
+                            "activityDetail": "커미터로서의 활동 : 4점",
+                            "activityWeight": 4.0,
+                            "activityDomain": 0,
+                            "categoryId": 1,
+                            "categoryName": "LQ",
+                            "categoryRatio": 33.3
+                        },
+                        "userId": 2,
+                        "userName": "건진신",
+                        "studentId": "12221222",
+                        "grade": 0,
+                        "department": "소프트웨어학과"
+                    }
+                ],
+                "page": 0,
+                "totalPage": 364,
+                "size": 1,
+                "totalElements": 363
+            },
+            "path": "/api/admin/submits"
+        }
+        ```
+        """
+    )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     public ResponseEntity<ApiResponse<PaginationDto<SubmitDto.ListInfo>>> getSubmits(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer state,
-            @PageableDefault(size = 20) Pageable pageable,
-            HttpServletRequest r
+            @PageableDefault(size = 20, sort = "submitDate", direction = Sort.Direction.DESC) Pageable pageable,
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.searchSubmitList(name, state, pageable), r.getRequestURI()));
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.searchSubmitList(name, state, pageable), request.getRequestURI()));
     }
 
     @GetMapping("/submit/{id}")
