@@ -10,7 +10,6 @@ public interface UserRepositoryCustom {
             String name,
             String department,
             String studentId,
-            Integer grade,
             Pageable pageable
     );
 }

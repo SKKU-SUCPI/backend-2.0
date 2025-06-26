@@ -125,14 +125,12 @@ public class UserService {
             String name,
             String department,
             String studentId,
-            Integer grade,
             Pageable pageable
     ) {
         return userRepository.searchStudentsList(
                 name,
                 department,
                 studentId,
-                grade,
                 pageable
         );
     }

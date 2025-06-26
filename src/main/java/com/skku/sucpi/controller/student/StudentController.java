@@ -115,6 +115,7 @@ public class StudentController {
         return ApiResponse.success(detail.getBasicInfo(), request.getRequestURI());
     }
 
+    @GetMapping("/submits")
     @Operation(
         summary = "내 제출 내역 조회",
         description = """
@@ -128,7 +129,7 @@ public class StudentController {
         - Authorization: Bearer {accessToken}
         
         **Query Parameter**
-        - state (not required) : 0=미승인, 1=승인, 2=거부
+        - state (not required) : 0=미승인, 1=승인, 2=반려
         - size (not required) : 한 페이지 당 개수 (Integer, default = 20)
         - page (not required) : 페이지 번호 (Integer, default = 0, 첫 페이지 = 0)
         - sort (not required) : submitDate,desc(default) / submitDate,asc
@@ -172,7 +173,6 @@ public class StudentController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
     })
-    @GetMapping("/submits")
     @PreAuthorize("hasRole('student')")
     public ApiResponse<PaginationDto<SubmitDto.BasicInfo>> getMySubmits(
         @RequestParam(required = false) Integer state,

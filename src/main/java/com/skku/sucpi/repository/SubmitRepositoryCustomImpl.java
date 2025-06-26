@@ -39,28 +39,32 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
             String userName,
             Integer state,
             Pageable pageable) {
-        QSubmit submit = QSubmit.submit;
 
+        QSubmit submit = QSubmit.submit;
         BooleanBuilder builder = new BooleanBuilder();
 
+        // 이름 필터
         if (userName != null && !userName.isEmpty()) {
             builder.and(submit.user.name.containsIgnoreCase(userName));
         }
 
+        // 상태 필터
         if (state != null) {
             builder.and(submit.state.eq(state));
         }
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 
+        // 쿼리
         JPAQuery<Submit> jpaQuery = queryFactory
                 .select(submit)
                 .from(submit)
                 .where(builder)
-                .orderBy(submit.submitDate.desc())
+                .orderBy(getOrderSpecifier(pageable.getSort(), submit))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
+        // DTO 맵핑
         List<SubmitDto.ListInfo> result = jpaQuery.fetch().stream().map(t -> SubmitDto.ListInfo.builder()
                 .basicInfo(SubmitDto.from(t))
                 .userId(t.getUser().getId())
@@ -71,16 +75,15 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .build())
                 .toList();
 
+        // 총 제출 수
         Long total = queryFactory
                 .select(submit.count())
                 .from(submit)
                 .where(builder)
                 .fetchOne();
-
-
         total = total != null ? total : 0;
 
-//        return new PageImpl<>(result, pageable, total != null ? total : 0);
+        // 페이지네이션 DTO
         return PaginationDto.<SubmitDto.ListInfo>builder()
                 .content(result)
                 .page(pageable.getPageNumber())
@@ -363,10 +366,10 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .build();
     }
 
-    private OrderSpecifier<?>[] getOrderSpecifier(Sort sort, QSubmit score) {
+    private OrderSpecifier<?>[] getOrderSpecifier(Sort sort, QSubmit submit) {
         return sort.stream()
                 .map(order -> {
-                    PathBuilder<Submit> pathBuilder = new PathBuilder<>(score.getType(), score.getMetadata());
+                    PathBuilder<Submit> pathBuilder = new PathBuilder<>(submit.getType(), submit.getMetadata());
                     return new OrderSpecifier(
                             order.isAscending() ? Order.ASC : Order.DESC,
                             pathBuilder.get(order.getProperty())
