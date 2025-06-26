@@ -62,27 +62,68 @@ public class AdminController {
     }
 
     @GetMapping("/students")
-    @Operation(summary = "학생 목록 조회", description = """
-            name : 학생이름 <br />
-            department : 소프트웨어학과, 지능형소프트웨어학과, 글로벌융합학과 <br />
-            page : 페이지 번호 (0 부터 시작) <br />
-            size : 한 페이지 당 개수 (default : 20) <br />
-            sort : 항목/정렬 (항목 : lqScore, rqScore, cqScore / 정렬 : asc, desc / ex> lqScore,desc) <br />
-            <br />
-            예시 : http://siop-dev.skku.edu:8080/api/admin/students?sort=lqScore,asc&page=0 <br />
-            grade : 사용금지 <br />
-            """)
+    @Operation(
+            summary = "학생 목록 조회",
+            description = """
+            **설명**
+            - 학생 목록을 조회하는 API
+            - Pagination 적용
+            - 필터링 : 학생 이름, 학과, 학번
+            - 정렬 : 3Q 오름차순/내림차순 (다중 가능)
+            
+            **Header**
+            - Authorization: Bearer {accessToken}
+            
+            **Query Parameter**
+            - name (String, not required) : 학생 이름
+            - department (String, not required) : 소프트웨어학과, 지능형소프트웨어학과, 글로벌융합학과
+            - studentId (String, not required) : 학번
+            - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+            - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+            - sort (String, not required) : lqScore,desc / lqScore,asc / rqScore,desc / rqScore,asc / cqScore,desc / cqScore,asc (default = DB id 오름차순)
+            
+            **사용법**
+            - GET /api/admin/students?department={department}&page={page}&sort={sort}&sort={sort}
+            
+            **응답 예시**
+            ```json
+            {
+                "success": true,
+                "message": "Request Successful",
+                "data": {
+                    "content": [
+                        {
+                            "id": 57,
+                            "name": "이쌏팃",
+                            "department": "지능형소프트웨어학과",
+                            "studentId": "2023524105",
+                            "grade": 3,
+                            "lq": 5.0,
+                            "rq": 0.0,
+                            "cq": 0.0,
+                            "totalScore": 5.0,
+                            "tlq": 23.71886631333838,
+                            "tcq": 14.659535816653793,
+                            "trq": 13.758031050793377
+                        }
+                    ],
+                    "page": 0,
+                    "totalPage": 19,
+                    "size": 1,
+                    "totalElements": 18
+                },
+                "path": "/api/admin/students"
+            }
+            ```
+            """
+    )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
     })
     public ResponseEntity<ApiResponse<PaginationDto<StudentDto.BasicInfo>>> getStudents(
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
-            @RequestParam(required = false) Integer grade,      // 필터 (학년)
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
@@ -90,7 +131,6 @@ public class AdminController {
                 name,
                 department,
                 studentId,
-                grade,
                 pageable
         );
 
@@ -116,66 +156,66 @@ public class AdminController {
     @Operation(
             summary = "제출 내역 목록 조회",
             description = """
-        **설명**
-        - 모든 제출 내역을 조회하는 API
-        - Pagination 적용
-        - 필터링 : 승인 여부, 학생 이름
-        - 정렬 : 제출날짜 오름차순/내림차순
-        
-        **Header**
-        - Authorization: Bearer {accessToken}
-        
-        **Query Parameter**
-        - name (String, not required) : 학생 이름
-        - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
-        - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
-        - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
-        - sort (String, not required) : submitDate,desc(default) / submitDate,asc
-        
-        **사용법**
-        - GET /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
-        
-        **응답 예시**
-        ```json
-        {
-            "success": true,
-            "message": "Request Successful",
-            "data": {
-                "content": [
-                    {
-                        "basicInfo": {
-                            "id": 1,
-                            "submitDate": "2025-06-24T14:08:31",
-                            "state": 1,
-                            "approvedDate": "2025-06-24T14:10:40",
-                            "content": "제출 내역 설명입니다.",
-                            "comment": null,
-                            "activityId": 12,
-                            "activityClass": "swActivity",
-                            "activityName": "commitStar4",
-                            "activityDetail": "커미터로서의 활동 : 4점",
-                            "activityWeight": 4.0,
-                            "activityDomain": 0,
-                            "categoryId": 1,
-                            "categoryName": "LQ",
-                            "categoryRatio": 33.3
-                        },
-                        "userId": 2,
-                        "userName": "건진신",
-                        "studentId": "12221222",
-                        "grade": 0,
-                        "department": "소프트웨어학과"
-                    }
-                ],
-                "page": 0,
-                "totalPage": 364,
-                "size": 1,
-                "totalElements": 363
-            },
-            "path": "/api/admin/submits"
-        }
-        ```
-        """
+            **설명**
+            - 모든 제출 내역을 조회하는 API
+            - Pagination 적용
+            - 필터링 : 승인 여부, 학생 이름
+            - 정렬 : 제출날짜 오름차순/내림차순
+            
+            **Header**
+            - Authorization: Bearer {accessToken}
+            
+            **Query Parameter**
+            - name (String, not required) : 학생 이름
+            - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
+            - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+            - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+            - sort (String, not required) : submitDate,desc(default) / submitDate,asc
+            
+            **사용법**
+            - GET /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
+            
+            **응답 예시**
+            ```json
+            {
+                "success": true,
+                "message": "Request Successful",
+                "data": {
+                    "content": [
+                        {
+                            "basicInfo": {
+                                "id": 1,
+                                "submitDate": "2025-06-24T14:08:31",
+                                "state": 1,
+                                "approvedDate": "2025-06-24T14:10:40",
+                                "content": "제출 내역 설명입니다.",
+                                "comment": null,
+                                "activityId": 12,
+                                "activityClass": "swActivity",
+                                "activityName": "commitStar4",
+                                "activityDetail": "커미터로서의 활동 : 4점",
+                                "activityWeight": 4.0,
+                                "activityDomain": 0,
+                                "categoryId": 1,
+                                "categoryName": "LQ",
+                                "categoryRatio": 33.3
+                            },
+                            "userId": 2,
+                            "userName": "건진신",
+                            "studentId": "12221222",
+                            "grade": 0,
+                            "department": "소프트웨어학과"
+                        }
+                    ],
+                    "page": 0,
+                    "totalPage": 364,
+                    "size": 1,
+                    "totalElements": 363
+                },
+                "path": "/api/admin/submits"
+            }
+            ```
+            """
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
