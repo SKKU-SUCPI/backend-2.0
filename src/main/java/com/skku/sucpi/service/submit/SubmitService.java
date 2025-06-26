@@ -204,8 +204,13 @@ public class SubmitService {
         Submit submit = submitRepository.findById(submitId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
 
+        // (1) 제출 삳태 반려로 변경
+        submit.updateState(0);
+
+        // (2) 기존 제출 내역 삭제
         fileStorageService.deleteAllFileBySubmitId(submitId);
 
+        // (3) 새로운 첨부파일 저장
         if (files != null) {
             for (MultipartFile f : files) {
                 String orig = f.getOriginalFilename();

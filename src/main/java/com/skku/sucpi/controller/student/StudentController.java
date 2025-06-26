@@ -118,15 +118,25 @@ public class StudentController {
     @Operation(
         summary = "내 제출 내역 조회",
         description = """
-        **사용법**  
-        GET /api/student/submits?state={state}&page={page}&size={size}&sort=submitDate,desc  
-        **헤더**  
-        Authorization: Bearer {accessToken}  
+        **설명**
+        - 학생의 제출 내역을 조회하는 API
+        - Pagination 적용
+        - 필터링 : 승인 여부
+        - 정렬 : 제출날짜 오름차순/내림차순
         
-        **쿼리 파라미터**  
-        - state (선택) : 0=미승인, 1=승인, 2=거부  
+        **Header**
+        - Authorization: Bearer {accessToken}
         
-        **응답 예시**  
+        **Query Parameter**
+        - state (not required) : 0=미승인, 1=승인, 2=거부
+        - size (not required) : 한 페이지 당 개수 (Integer, default = 20)
+        - page (not required) : 페이지 번호 (Integer, default = 0, 첫 페이지 = 0)
+        - sort (not required) : submitDate,desc(default) / submitDate,asc
+        
+        **사용법**
+        - GET /api/student/submits?state={state}&page={page}&size={size}&sort=submitDate,desc
+        
+        **응답 예시**
         ```json
         {
           "success": true,
@@ -159,35 +169,20 @@ public class StudentController {
         ```
         """
     )
-    @ApiResponses({
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "제출 내역 조회 성공",
-            content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = PaginationDto.class))),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "인증 실패"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "권한 없음"),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
     })
     @GetMapping("/submits")
     @PreAuthorize("hasRole('student')")
     public ApiResponse<PaginationDto<SubmitDto.BasicInfo>> getMySubmits(
-        @Parameter(in = ParameterIn.QUERY, description = "제출 상태 (0:미승인, 1:승인, 2:거부)", example = "1")
         @RequestParam(required = false) Integer state,
-
-        @Parameter(hidden = true)
-        @PageableDefault(size = 20, sort = "submitDate", direction = Sort.Direction.DESC)
-        Pageable pageable,
-
+        @PageableDefault(size = 20, sort = "submitDate", direction = Sort.Direction.DESC) Pageable pageable,
         HttpServletRequest request
     ) {
-        String token = Optional.ofNullable(request.getHeader("Authorization"))
-                .filter(h -> h.startsWith("Bearer "))
-                .map(h -> h.substring(7))
-                .orElseThrow(() -> new IllegalArgumentException("인증 토큰이 없습니다."));
+        String token = parseJWT(request);
         Long userId = jwtUtil.getUserId(token);
 
-        PaginationDto<SubmitDto.BasicInfo> result =
-            submitService.getMySubmits(userId, state, pageable);
-
+        PaginationDto<SubmitDto.BasicInfo> result = submitService.getMySubmits(userId, state, pageable);
         return ApiResponse.success(result, request.getRequestURI());
     }
 
