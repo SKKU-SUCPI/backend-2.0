@@ -3,6 +3,7 @@ package com.skku.sucpi.controller.adminController;
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
+import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
@@ -24,11 +25,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -219,4 +224,33 @@ public class AdminController {
     ) {
         return ResponseEntity.ok().body(ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI()));
     }
+
+    @GetMapping("submit-count/activity/{activityId}")
+    @Operation(summary = "활동 별 제출 내역 횟수")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+    })
+    public ResponseEntity<ApiResponse<ActivityStatsDto.SubmitCount>> getSubmitCountByActivity(
+            @PathVariable(value = "activityId") Long activityId,
+            @RequestParam(value = "start", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Instant start,
+            @RequestParam(value = "end", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            Instant end,
+            HttpServletRequest request
+    ) throws Exception {
+        ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+
+        LocalDate startDate = (start != null)
+                ? start.atZone(seoulZone).toLocalDate()
+                : LocalDate.of(2000, 1, 1);
+
+        LocalDate endDate = (end != null)
+                ? end.atZone(seoulZone).toLocalDate()
+                : LocalDate.now(seoulZone);
+
+        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitCountByActivity(activityId, startDate, endDate), request.getRequestURI()));
+    };
+
 }
