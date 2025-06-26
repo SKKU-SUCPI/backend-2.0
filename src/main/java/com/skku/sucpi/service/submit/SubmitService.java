@@ -1,8 +1,10 @@
 package com.skku.sucpi.service.submit;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -220,6 +222,15 @@ public class SubmitService {
                 fileStorageRepository.save(fs);
             }
         }
+    }
+
+    // 활동의 제출 내역 수 조회
+    public ActivityStatsDto.SubmitCount getSubmitCountByActivity(
+            Long activityId,
+            LocalDate start,
+            LocalDate end
+    ) throws Exception {
+        return submitRepository.getSubmitCountByActivity(activityId, start, end);
     }
 
     @Transactional
