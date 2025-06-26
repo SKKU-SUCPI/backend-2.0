@@ -32,13 +32,15 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
             String name,
             String department,
             String studentId,
-            Integer grade,
             Pageable pageable) {
 
         QUser student = QUser.user;
         QScore score = QScore.score;
 
         BooleanBuilder builder = new BooleanBuilder();
+
+        // 학생만
+        builder.and(student.role.eq("student"));
 
         // 검색(이름)
         if (name != null && !name.isEmpty()) {
@@ -54,10 +56,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
         // 필터링(학번)
         if (studentId != null && !studentId.isEmpty()) {
             builder.and(student.hakbun.eq(studentId));
-        }
-        // 필터링(학년)
-        if (grade != null) {
-            builder.and(student.year.between(grade, grade + 0.9));
         }
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
@@ -109,7 +107,6 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
 
         total = total != null ? total : 0;
 
-//        return new PageImpl<>(result, pageable, total != null ? total : 0);
         return PaginationDto.<StudentDto.BasicInfo>builder()
                 .content(result)
                 .page(pageable.getPageNumber())
