@@ -33,12 +33,11 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     // 학생 본인의 lq 점수, rank, total
     @Query(value = """
-            SELECT score, `rank`, total, average
+            SELECT score, average, percentRank
             FROM (
                 SELECT lq_score AS score,
-                       RANK() OVER (ORDER BY lq_score DESC) AS `rank`,
-                       COUNT(*) OVER () AS total,
                        (SELECT AVG(s2.lq_score) FROM score s2) AS average,
+                       PERCENT_RANK() OVER (ORDER BY lq_score DESC) AS percentRank,
                        user_id
                 FROM score
             ) AS ranked
@@ -48,12 +47,11 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     // 학생 본인의 rq 점수, rank, total
     @Query(value = """
-            SELECT score, `rank`, total, average
+            SELECT score, average, percentRank
             FROM (
                 SELECT rq_score AS score,
-                       RANK() OVER (ORDER BY rq_score DESC) AS `rank`,
-                       COUNT(*) OVER () AS total,
                        (SELECT AVG(s2.rq_score) FROM score s2) AS average,
+                       PERCENT_RANK() OVER (ORDER BY rq_score DESC) AS percentRank,
                        user_id
                 FROM score
             ) AS ranked
@@ -63,12 +61,11 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
 
     // 학생 본인의 cq 점수, rank, total
     @Query(value = """
-            SELECT score, `rank`, total, average
+            SELECT score, average, percentRank
             FROM (
                 SELECT cq_score AS score,
-                       RANK() OVER (ORDER BY cq_score DESC) AS `rank`,
-                       COUNT(*) OVER () AS total,
                        (SELECT AVG(s2.cq_score) FROM score s2) AS average,
+                       PERCENT_RANK() OVER (ORDER BY rq_score DESC) AS percentRank,
                        user_id
                 FROM score
             ) AS ranked

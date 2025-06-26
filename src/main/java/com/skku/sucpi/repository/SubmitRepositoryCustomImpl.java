@@ -1,13 +1,20 @@
 package com.skku.sucpi.repository;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.PathBuilder;
+import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.score.MonthlyScoreDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
+import com.skku.sucpi.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 
 import com.querydsl.core.BooleanBuilder;
@@ -15,14 +22,14 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
-import com.skku.sucpi.entity.QSubmit;
-import com.skku.sucpi.entity.Submit;
 import com.skku.sucpi.util.UserUtil;
 
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 
 @RequiredArgsConstructor
+@Slf4j
 public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
 
     private final EntityManager em;
@@ -87,14 +94,17 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
     public PaginationDto<SubmitDto.BasicInfo> searchMySubmitsByUser(
             Long userId,
             Integer state,
-            Pageable pageable) {
-
+            Pageable pageable
+    ) {
         QSubmit submit = QSubmit.submit;
-        BooleanBuilder builder = new BooleanBuilder()
-            .and(submit.user.id.eq(userId));               // 본인 필터
 
+        // 본인 필터
+        BooleanBuilder builder = new BooleanBuilder()
+            .and(submit.user.id.eq(userId));
+
+        // 상태 필터
         if (state != null) {
-            builder.and(submit.state.eq(state));           // 상태 필터
+            builder.and(submit.state.eq(state));
         }
 
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
@@ -104,7 +114,7 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
             .select(submit)
             .from(submit)
             .where(builder)
-            .orderBy(submit.submitDate.desc())
+            .orderBy(getOrderSpecifier(pageable.getSort(), submit))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch()
@@ -113,11 +123,12 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
             .toList();
 
         // 2) 전체 카운트
-        long total = queryFactory
+        Long total = queryFactory
             .select(submit.count())
             .from(submit)
             .where(builder)
             .fetchOne();
+        total = total != null ? total : 0;
 
         // 3) 페이징 DTO 빌드
         return PaginationDto.<SubmitDto.BasicInfo>builder()
@@ -291,5 +302,76 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                         .cq(t.getActivity().getCategory().getId() == 3 ? t.getActivity().getWeight() : 0)
                         .build())
                 .toList();
+    }
+
+    @Override
+    public ActivityStatsDto.SubmitCount getSubmitCountByActivity(Long activityId, LocalDate start, LocalDate end) throws Exception {
+        QSubmit submit = QSubmit.submit;
+        QUser user = QUser.user;
+        JPAQueryFactory queryFactory = new JPAQueryFactory(em);
+
+        Tuple result = queryFactory
+                .select(
+                        new CaseBuilder()
+                                .when(user.hakgwaCd.eq(1F)
+                                        .and(submit.submitDate.goe(start.atStartOfDay()))
+                                        .and(submit.submitDate.lt(end.atStartOfDay().plusDays(1)))
+                                        .and(submit.state.eq(1))
+                                        .and(submit.activity.id.eq(activityId)))
+                                .then(1L)
+                                .otherwise(0L)
+                                .sum(),
+                        new CaseBuilder()
+                                .when(user.hakgwaCd.eq(2F)
+                                        .and(submit.submitDate.goe(start.atStartOfDay()))
+                                        .and(submit.submitDate.lt(end.atStartOfDay().plusDays(1)))
+                                        .and(submit.state.eq(1))
+                                        .and(submit.activity.id.eq(activityId)))
+                                .then(1L)
+                                .otherwise(0L)
+                                .sum(),
+                        new CaseBuilder()
+                                .when(user.hakgwaCd.eq(3F)
+                                        .and(submit.submitDate.goe(start.atStartOfDay()))
+                                        .and(submit.submitDate.lt(end.atStartOfDay().plusDays(1)))
+                                        .and(submit.state.eq(1))
+                                        .and(submit.activity.id.eq(activityId))).then(1L)
+                                .otherwise(0L)
+                                .sum()
+                )
+                .from(submit)
+                .join(submit.user, user)
+                .fetchOne();
+
+        if (result == null) {
+            log.info("getSubmitCountByActivity failed");
+            throw new Exception();
+        }
+
+        Long sw = result.get(0, Long.class);
+        Long intelligentSw = result.get(1, Long.class);
+        Long soc = result.get(2, Long.class);
+
+//        log.info("{} {}", start, end);
+//        log.info("{} {} {}", result.get(0, Long.class), result.get(1, Long.class), result.get(2, Long.class));
+
+        return ActivityStatsDto.SubmitCount.builder()
+                .sw(sw)
+                .intelligentSw(intelligentSw)
+                .soc(soc)
+                .total(sw + intelligentSw + soc)
+                .build();
+    }
+
+    private OrderSpecifier<?>[] getOrderSpecifier(Sort sort, QSubmit score) {
+        return sort.stream()
+                .map(order -> {
+                    PathBuilder<Submit> pathBuilder = new PathBuilder<>(score.getType(), score.getMetadata());
+                    return new OrderSpecifier(
+                            order.isAscending() ? Order.ASC : Order.DESC,
+                            pathBuilder.get(order.getProperty())
+                    );
+                })
+                .toArray(OrderSpecifier[]::new);
     }
 }

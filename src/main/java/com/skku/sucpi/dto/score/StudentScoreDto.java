@@ -12,8 +12,7 @@ public class StudentScoreDto {
     public interface ScoreInfoInterface {
         Double getScore();
         Double getAverage();
-        int getRank();
-        int getTotal();
+        Double getPercentRank();
     }
 
     @Getter

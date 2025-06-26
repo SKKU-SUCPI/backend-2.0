@@ -1,8 +1,10 @@
 package com.skku.sucpi.service.submit;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -202,8 +204,13 @@ public class SubmitService {
         Submit submit = submitRepository.findById(submitId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
 
+        // (1) 제출 삳태 반려로 변경
+        submit.updateState(0);
+
+        // (2) 기존 제출 내역 삭제
         fileStorageService.deleteAllFileBySubmitId(submitId);
 
+        // (3) 새로운 첨부파일 저장
         if (files != null) {
             for (MultipartFile f : files) {
                 String orig = f.getOriginalFilename();
@@ -220,6 +227,15 @@ public class SubmitService {
                 fileStorageRepository.save(fs);
             }
         }
+    }
+
+    // 활동의 제출 내역 수 조회
+    public ActivityStatsDto.SubmitCount getSubmitCountByActivity(
+            Long activityId,
+            LocalDate start,
+            LocalDate end
+    ) throws Exception {
+        return submitRepository.getSubmitCountByActivity(activityId, start, end);
     }
 
     @Transactional
