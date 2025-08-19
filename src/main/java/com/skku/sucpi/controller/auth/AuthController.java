@@ -65,7 +65,7 @@ public class AuthController {
         }
 
         if (!ssoService.verifyToken(pToken)) {
-            response.sendRedirect("https://login.skku.edu" + "/?retUrl=g95g9m4j1221s7y8m0kv");
+            response.sendRedirect("https://login.skku.edu" + "/?retUrl=202q8deoe1943545ozd0");
             return ResponseEntity.status(HttpStatus.FOUND).build();
         }
         log.info("리다이렉트가 되나요?");
