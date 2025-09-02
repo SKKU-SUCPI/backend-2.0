@@ -13,20 +13,25 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, X64]
-    defaults:
-      run:
-        working-directory: /home/siop-dev/backend-deploy-dev
+    runs-on: [self-hosted, linux, X64]  # 러너 라벨과 일치
     environment: development
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: /home/siop-dev/backend-deploy-dev
+        with: { fetch-depth: 0 }
 
-      - name: Check path
+      - nane: Check Path
         run: |
           pwd
 
+      - name: Create env file for compose
+        run: |
+          cat > .env.dev <<'EOF'
+          SKKU_SSO_API_KEY=${{ secrets.SKKU_SSO_API_KEY }}
+          SKKU_SSO_HOST=${{ secrets.SKKU_SSO_HOST }}
+          SKKU_SSO_PORT=${{ secrets.SKKU_SSO_PORT }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          EOF
+
       - name: Build & up
         run: |
-          docker compose -f docker-compose.dev.yml -p sucpi up -d --build
+          docker compose -f docker-compose.dev.backend.yml --env-file .env.dev -p sucpi up -d --build
