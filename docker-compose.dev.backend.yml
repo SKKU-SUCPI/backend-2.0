@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # nginx 설정 때문에 무조건 4501 포트가 열려있어야 함.
+  sucpi-backend:
+    build:
+      context: ./
+    container_name: sucpi-backend
+    environment:
+      - VIRTUAL_HOST=siop-dev.skku.edu
+      - LETSENCRYPT_HOST=siop-dev.skku.edu
+      - SKKU_SSO_API_KEY=${SKKU_SSO_API_KEY}
+      - SKKU_SSO_HOST=${SKKU_SSO_HOST}
+      - SKKU_SSO_PORT=${SKKU_SSO_PORT}
+      - SECRET_KEY=${SECRET_KEY}
+      - SPRING_PROFILES_ACTIVE=dev
+      - TZ=Asia/Seoul
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
+    restart: always
+    networks:
+      - net
+    ports:
+      - "4502:8080"
+
+networks:
+  net:
+    external: true
