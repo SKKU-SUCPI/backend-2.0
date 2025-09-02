@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
-      - nane: Check Path
+      - name: Check Path
         run: |
           pwd
 
