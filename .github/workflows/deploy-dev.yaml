@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: [self-hosted, linux, sucpi]  # 러너 라벨과 일치
+    runs-on: [self-hosted, linux, X64]  # 러너 라벨과 일치
     environment: development
     steps:
       - uses: actions/checkout@v4
