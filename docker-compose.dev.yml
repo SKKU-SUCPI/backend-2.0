@@ -27,6 +27,7 @@ services:
       - SKKU_SSO_HOST=${SKKU_SSO_HOST}
       - SKKU_SSO_PORT=${SKKU_SSO_PORT}
       - SECRET_KEY=${SECRET_KEY}
+      - SPRING_PROFILES_ACTIVE=dev
       - TZ=Asia/Seoul
       - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
     restart: always
