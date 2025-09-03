@@ -2,32 +2,18 @@ version: '3.8'
 
 services:
   # nginx 설정 때문에 무조건 4501 포트가 열려있어야 함.
-  sucpi-frontend:
-    build:
-      context: ../frontend-2.0/
-    container_name: sucpi-frontend
-    environment:
-      - VIRTUAL_HOST=siop-dev.skku.edu
-      - LETSENCRYPT_HOST=siop-dev.skku.edu
-    ports:
-      - "4501:5173"
-    networks:
-      - net
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
   sucpi-backend:
     build:
       context: ./
     container_name: sucpi-backend
     environment:
+      - SPRING_PROFILES_ACTIVE=dev
       - VIRTUAL_HOST=siop-dev.skku.edu
       - LETSENCRYPT_HOST=siop-dev.skku.edu
       - SKKU_SSO_API_KEY=${SKKU_SSO_API_KEY}
       - SKKU_SSO_HOST=${SKKU_SSO_HOST}
       - SKKU_SSO_PORT=${SKKU_SSO_PORT}
       - SECRET_KEY=${SECRET_KEY}
-      - SPRING_PROFILES_ACTIVE=dev
       - TZ=Asia/Seoul
       - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Seoul
     restart: always
