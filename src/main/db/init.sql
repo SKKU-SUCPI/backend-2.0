@@ -27,7 +27,6 @@ CREATE TABLE activity (
     activity_id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
     category_id                 BIGINT NOT NULL,
     activity_class              VARCHAR(100) NOT NULL,
-    activity_name               TEXT,
     activity_detail             TEXT,
     activity_weight             DOUBLE PRECISION,
     activity_domain             INT,
@@ -40,77 +39,77 @@ CREATE TABLE activity (
 
 -- 기본 activity들 삽입
 -- LQ
-INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), 'education', 'campus', '교내외의의 교육 활동', 0.2, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'education', 'TA','교육조교 활동(학부생 TA)', 0.5, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade40to45','학점 4.0 ~ 4.5', 3.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade35to40','학점 3.5 ~ 4.0', 2.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade30to35','학점 3.0 ~ 3.5', 1.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'achievement', 'grade00to30', '학점 3.0 미만',0.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute5','OS커뮤니티생성 및 활성도 : 5점', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute4','OS커뮤니티생성 및 활성도 : 4점', 4.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute3','OS커뮤니티생성 및 활성도 : 3점', 3.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'opensourceContribute0','OS커뮤니티생성 및 활성도 : 3점미만', 0.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar5','커미터로서의 활동 : 5점', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar4','커미터로서의 활동 : 4점', 4.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar3','커미터로서의 활동 : 3점', 3.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1),'swActivity', 'commitStar0','커미터로서의 활동 : 0점', 0.0, 0);
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '교육활동', '교내외의의 교육 활동(초/중/고/대 멘토링, 동료 티칭 등 학과장 승인건)', 0.2, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '교육활동', '교육조교 활동(학부생 TA, 학기당)', 0.5, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '교육성취도', '학점 4.0이상 4.5이하', 3.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '교육성취도', '학점 3.5이상 4.0미만', 2.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '교육성취도', '학점 3.0이상 3.5미만', 1.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', 'OS커뮤니티 생성 및 활성도 - 운영위 심사', 5.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', 'OS커뮤니티 생성 및 활성도 - 운영위 심사', 4.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', 'OS커뮤니티 생성 및 활성도 - 운영위 심사', 3.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', '커미터로서의 활동 - 운영위 심사', 5.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', '커미터로서의 활동 - 운영위 심사', 4.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='LQ' LIMIT 1), '오픈소스SW활동', '커미터로서의 활동 - 운영위 심사', 3.0, 0);
 
--- RQ, 그 중에서 학술지 파트
-INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr5Main','JCR 상위 5% 이내 학술지(주저)', 10.0, 1), -- 자연계열 학술지
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr5Part','JCR 상위 5% 이내 학술지 (공저)', 5.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr10Main','JCR 상위 10% 이내 학술지 (주저)', 5.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr10Part','JCR 상위 10% 이내 학술지 (공저)', 2.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr20Main','JCR 상위 20% 이내 학술지 (주저)', 3.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'jcr20Part','JCR 상위 20% 이내 학술지 (공저)', 1.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciOver','SCI, SSCI, A&HCI 급 학술지', 5.0, 2), -- 인문계 학술지
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciExcellent','KCI 우수 등재 학술지', 2.0, 2),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kci','KCI 등재', 3.0, 2),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'journal', 'kciCandidate','KCI 후보, 기타 국제', 2.0, 2); 
-
--- RQ, 그 중에서 학술대회 파트
-INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'conference', 'knownSpeech1','저명 국제학술대회 구두 발표', 4.0, 1), -- 자연계열 학술대회
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'knownPoster','저명 국제학술대회 포스터 발표', 2.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalSpeech1','일반 국제학술대회 구두 발표', 2.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalPoster','일반 국제학술대회 포스터 발표', 1.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalSpeech1','국내학술대회 구두 발표', 1.0, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalPoster','국내학술대회 포스터 발표', 0.5, 1),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'knownSpeech2','저명 국제학술대회 발표(BK 기준)', 4.0, 2), -- 인문계 학술대회회
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'normalSpeech2','일반 국제학술대회 발표', 1.0, 2),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1),'conference', 'nationalSpeech2','국내학술대회 발표', 0.5, 2); 
-       -- 자연계열과 인문계 중 항목이 비슷하게 중복되는 경우가 있어 knownSpeech1(자연이 domain 1), knownSpeech2(인문이 domain 2)이렇게 구분하긴 했으나, 너무 거추장스러운지추후 논의 필요.
-
--- RQ, 그 중에서 공모전/ICPC
-INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain)
-VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionTop','국제/대규모 공모전(ICPC, 공개SW개발자대회) 대상', 10.0, 0), -- 자연&인문계열 공모전/ICPC
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionWin','국제/대규모 공모전(ICPC, 공개SW개발자대회) 입상', 4.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'bigCompetitionPlay','국제/대규모 공모전(ICPC, 공개SW개발자대회) 참여', 2.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionTop','교내/지역 공모전 대상', 3.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionWin','교내/지역 공모전 입상', 1.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), 'contest', 'nationalCompetitionPlay','교내/지역 공모전 참여', 0.5, 0);
+-- RQ
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','SCI, SSCI, A&HCI 급 학술지 - JCR 상위 5% 이내 학술지(주저)', 10.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','SCI, SSCI, A&HCI 급 학술지 - JCR 상위 5% 이내 학술지 (공저)', 5.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','KCI 우수등재 학술지 - JCR 상위 10% 이내 학술지 (주저)', 5.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','KCI 우수등재 학술지 - JCR 상위 10% 이내 학술지 (공저)', 2.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','KCI 등재 - JCR 상위 20% 이내 학술지 (주저)', 3.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '학술지 논문 개재','KCI 후보, 기타국제 - JCR 상위 20% 이내 학술지 (공저)', 1.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 4) - 학술대회 구두발표', 10.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 4) - 포스터 발표', 5.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 3) - 학술대회 구두발표', 8.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 3) - 포스터 발표', 4.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 2) - 학술대회 구두발표', 6.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 2) - 포스터 발표', 3.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 1) - 학술대회 구두발표', 4.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '저명','국제학술대회 발표(BK 기준 1) - 포스터 발표', 2.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','국제/대규모 공모전(ICPC, 공개SW개발자대회) - 대상', 10.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','국제/대규모 공모전(ICPC, 공개SW개발자대회) - 입상', 4.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','국제/대규모 공모전(ICPC, 공개SW개발자대회) - 참여', 2.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','교내/지역 공모전 - 대상', 3.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','교내/지역 공모전 - 입상', 1.0, 0),
+         ((SELECT category_id FROM category WHERE category_name='RQ' LIMIT 1), '공모전/ICPC','교내/지역 공모전 - 참여', 0.5, 0);
 
 -- CQ
-INSERT INTO activity (category_id, activity_class, activity_name, activity_detail, activity_weight, activity_domain) -- cq의 경우 activity name == activity detail 인 것들이 종종 있음
-VALUES ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'coop', 'coop','산학프로젝트', 2.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'internship', 'internship','인턴십', 2.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'startup', 'startup','창업', 30.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'overseaVolunteer', 'overseaVolunteer','해외봉사', 10.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'seminar', 'seminar','화상강연 / 세미나 참여', 1.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiLeader','알리미-회장', 20.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiVice','알리미-부회장', 15.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'alimi', 'alimiMember','알리미-참여', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilLeader','학생회-회장', 20.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilVice','학생회-부회장', 15.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'council', 'councilMember','학생회-참여', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterLeader','기자단-회장', 10.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterVice','기자단-부회장', 8.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'reporter', 'reporterMember','기자단-참여', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studioContribution', 'studioContribution','스튜디오 기여 (ARS Electronica 작품 제공 등)', 2.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupLeader','SCG, MAV, 스꾸딩 등 - 회장', 5.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupVice','SCG, MAV, 스꾸딩 등 - 부회장', 3.0, 0),
-       ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'studyGroup', 'studyGroupMember','SCG, MAV, 스꾸딩 등 - 참여', 2.0, 0);
+INSERT INTO activity (category_id, activity_class, activity_detail, activity_weight, activity_domain)
+VALUES ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '산학프로젝트','수행 완료, 피평가점수(A)', 7.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '산학프로젝트','수행 완료, 피평가점수(B)', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '산학프로젝트','수행 완료, 피평가점수(C)', 3.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '산학프로젝트','수행 완료: 2점, 피평가점수(그 외)', 2.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '인턴십','수행 완료, 피평가점수(A)', 7.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '인턴십','수행 완료, 피평가점수(B)', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '인턴십','수행 완료, 피평가점수(C)', 3.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '인턴십','수행 완료, 피평가점수(그 외)', 2.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '창업','수행 완료', 30.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '해외봉사','수행 완료, 피평가점수(A)', 15.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '해외봉사','수행 완료, 피평가점수(B)', 13.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '해외봉사','수행 완료, 피평가점수(C)', 11.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '해외봉사','수행 완료, 피평가점수(그 외)', 10.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '화상강연/세미나 참여','수행 완료', 1.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '알리미','회장', 20.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '알리미','부회장', 15.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '알리미','임원진', 10.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '알리미','참여', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '학생회','회장', 20.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '학생회','부회장', 15.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '학생회','임원진', 10.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '학생회','참여', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'SCG','회장', 10.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'SCG','부회장', 8.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'SCG','임원진', 6.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), 'SCG','참여', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '미디어홍보','회장', 10.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '미디어홍보','부회장', 8.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '미디어홍보','임원진', 6.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '미디어홍보','참여', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '스튜디오기여','참여', 2.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '스터디그룹','회장', 5.0, 0),
+        ((SELECT category_id FROM category WHERE category_name='CQ' LIMIT 1), '스터디그룹','참여', 2.0, 0);
 
 -- User 테이블 삭제 및 생성
 DROP TABLE IF EXISTS users;
@@ -133,12 +132,11 @@ CREATE TABLE submit (
     submit_id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id                  BIGINT NOT NULL,
     activity_id              BIGINT NOT NULL,
+    comment_id               BIGINT NOT NULL,
     submit_date              TIMESTAMP,
-    -- submit_file              VARCHAR(100), -- 야는 사라진 attribute인 것이여여
+    submit_title             VARCHAR(100),
     submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
     submit_approved_date     TIMESTAMP,
-    submit_content           TEXT,
-    submit_comment           TEXT,
 
     CONSTRAINT fk_submit_user
         FOREIGN KEY (user_id)
@@ -148,6 +146,19 @@ CREATE TABLE submit (
     CONSTRAINT fk_submit_activity
         FOREIGN KEY (activity_id)
             REFERENCES activity (activity_id)
+            ON DELETE CASCADE
+);
+
+CREATE TABLE comment (
+    comment_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
+    submit_id   BIGINT NOT NULL,
+    comment_content TEXT,
+    comment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    comment_state INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
+
+    CONSTRAINT fk_comment_submit
+        FOREIGN KEY (submit_id)
+            REFERENCES submit (submit_id)
             ON DELETE CASCADE
 );
 
@@ -183,10 +194,4 @@ CREATE TABLE file_storage (
        FOREIGN KEY (submit_id)
            REFERENCES submit (submit_id)
            ON DELETE CASCADE
-);
-
-CREATE TABLE test_entity (
-     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-     title VARCHAR(255) NOT NULL,
-     content TEXT NOT NULL
 );
