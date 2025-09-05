@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "activity")
 @Entity(name = "activity")
 public class Activity {
 
@@ -21,9 +22,6 @@ public class Activity {
 
     @Column(name = "activity_class")
     private String activityClass;
-
-    @Column(name = "activity_name")
-    private String name;
 
     @Column(name = "activity_detail")
     private String detail;

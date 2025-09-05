@@ -3,20 +3,10 @@ package com.skku.sucpi.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +15,9 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)    // builder 전용 생성자
-@Builder                                              // Submit.builder()… .build() 사용 가능
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@Table(name = "submit")
 @Entity(name = "submit")
 public class Submit {
 
@@ -40,7 +31,7 @@ public class Submit {
     private LocalDateTime submitDate;
 
     @Column(name = "submit_state")
-    private Integer state;
+    private Integer state; // 0: 제출됨(미승인), 1: 승인, 2: 반려
 
     @Column(name = "submit_approved_date")
     @UpdateTimestamp
@@ -49,10 +40,6 @@ public class Submit {
     @Lob
     @Column(name = "submit_content")
     private String content;
-
-    @Lob
-    @Column(name = "submit_comment")
-    private String comment;
 
     // user
     @ManyToOne(fetch = FetchType.LAZY)
@@ -64,8 +51,12 @@ public class Submit {
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
 
+    // comment
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "submit", cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
     // file
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "submit",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "submit", cascade = CascadeType.ALL)
     List<FileStorage> files;
 
     public void updateState(Integer state) {
@@ -74,6 +65,6 @@ public class Submit {
     }
 
     public void updateComment(String comment) {
-        this.comment = comment;
+//        this.comment = comment;
     }
 }

@@ -1,13 +1,6 @@
 package com.skku.sucpi.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
+@Table(name = "file_storage")
 @Entity(name = "file_storage")
 public class FileStorage {
 
@@ -26,7 +20,7 @@ public class FileStorage {
     @Column(name = "file_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submit_id", nullable = false)
     private Submit submit;
 
@@ -39,5 +33,4 @@ public class FileStorage {
     @Lob
     @Column(name = "file_data", nullable = false, columnDefinition = "LONGBLOB")
     private byte[] fileDate;
-
 }
