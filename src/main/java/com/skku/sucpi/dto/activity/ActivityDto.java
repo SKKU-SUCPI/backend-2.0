@@ -29,7 +29,6 @@ public class ActivityDto {
             return Response.builder()
                     .activityId(activity.getId())
                     .activityClass(activity.getActivityClass())
-                    .activityName(activity.getName())
                     .activityDetail(activity.getDetail())
                     .activityWeight(activity.getWeight())
                     .activityDomain(activity.getDomain())
