@@ -91,7 +91,7 @@ public class SubmitService {
         return SubmitStateDto.Response.builder()
                 .id(submit.getId())
                 .state(submit.getState())
-                .comment(submit.getComment())
+                .comment("")
                 .build();
 
     }
