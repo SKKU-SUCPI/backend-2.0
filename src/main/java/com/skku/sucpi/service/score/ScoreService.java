@@ -5,14 +5,10 @@ import com.skku.sucpi.entity.Category;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
 import com.skku.sucpi.repository.ScoreRepository;
-import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
-import com.skku.sucpi.service.user.UserService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +23,8 @@ public class ScoreService {
     private final ScoreRepository scoreRepository;
     private final CategoryService categoryService;
 
-    public Score createScore (Score score) {
-        return scoreRepository.save(score);
+    public void createScore (Score score) {
+        scoreRepository.save(score);
     }
 
     public Score getScoreByUserId (Long userId) {

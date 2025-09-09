@@ -1,7 +1,6 @@
 package com.skku.sucpi.service.submit;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
@@ -133,7 +132,7 @@ public class SubmitService {
         return submitRepository.searchMySubmitsByUser(userId, state, pageable);
     }
 
-    //제출 삭제
+    // 제출 삭제
     @Transactional
     public void deleteSubmit(Long userId, Long submitId) {
         Submit submit = submitRepository.findById(submitId)
@@ -147,7 +146,7 @@ public class SubmitService {
         if (submit.getState() == 1) {
             throw new IllegalArgumentException("승인된 제출은 삭제할 수 없습니다.");
         }
-        // 3) 삭제 (연관된 FileStorage도 Cascade 삭제)
+        // 3) 삭제 (연관된 FileStorage Cascade 삭제)
         submitRepository.delete(submit);
     }
 
@@ -159,42 +158,25 @@ public class SubmitService {
     public SubmitDto.BasicInfo createSubmit(
             Long userId,
             SubmitCreateRequestDto dto
-    ) throws Exception {
+    ) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        Activity act = activityRepository.findById(dto.getActivityId())
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 activity입니다."));
+        Activity activity = activityRepository.findById(dto.getActivityId())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Activity 입니다."));
 
-        // 1) Submit 저장
-        Submit sub = Submit.builder()
+        Submit submit = Submit.builder()
             .user(user)
-            .activity(act)
+            .activity(activity)
+            .title(dto.getTitle())
             .content(dto.getContent())
-            .submitDate(LocalDateTime.now())
             .state(0)
             .build();
-        Submit saved = submitRepository.save(sub);
-
-        // 2) Multipart 파일 저장
-//        if (files != null) {
-//            for (MultipartFile f : files) {
-//                String orig = f.getOriginalFilename();
-//                String base = orig == null ? "" : orig.replaceFirst("\\.[^.]+$", "");
-//                String ext  = orig != null && orig.contains(".")
-//                              ? orig.substring(orig.lastIndexOf('.')+1)
-//                              : "";
-//                FileStorage fs = FileStorage.builder()
-//                    .submit(saved)
-//                    .fileName(base)
-//                    .fileType(ext)
-//                    .fileDate(f.getBytes())
-//                    .build();
-//                fileStorageRepository.save(fs);
-//            }
-//        }
+        Submit saved = submitRepository.save(submit);
 
         return SubmitDto.from(saved);
     }
+
+
 
     public void saveFiles(
             Long submitId,
@@ -204,7 +186,7 @@ public class SubmitService {
         Submit submit = submitRepository.findById(submitId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
 
-        // (1) 제출 삳태 반려로 변경
+        // (1) 제출 삳태 미승인으로 변경
         submit.updateState(0);
 
         // (2) 기존 제출 내역 삭제
@@ -229,6 +211,8 @@ public class SubmitService {
         }
     }
 
+
+
     // 활동의 제출 내역 수 조회
     public ActivityStatsDto.SubmitCount getSubmitCountByActivity(
             Long activityId,
@@ -237,6 +221,8 @@ public class SubmitService {
     ) throws Exception {
         return submitRepository.getSubmitCountByActivity(activityId, start, end);
     }
+
+
 
     @Transactional
     public void saveFileBinary(
@@ -255,6 +241,8 @@ public class SubmitService {
             .build();
         fileStorageRepository.save(fs);
     }
+
+
 
     public SubmitCountDto.Response countSubmissionsForThisAndLastMonth () {
         return SubmitCountDto.Response.builder()

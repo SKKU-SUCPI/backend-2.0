@@ -132,7 +132,6 @@ CREATE TABLE submit (
     submit_id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id                  BIGINT NOT NULL,
     activity_id              BIGINT NOT NULL,
-    comment_id               BIGINT NOT NULL,
     submit_date              TIMESTAMP,
     submit_content           TEXT,
     submit_title             VARCHAR(100),

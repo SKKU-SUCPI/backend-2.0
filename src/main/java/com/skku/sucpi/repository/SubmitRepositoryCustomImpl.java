@@ -105,7 +105,7 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
         BooleanBuilder builder = new BooleanBuilder()
             .and(submit.user.id.eq(userId));
 
-        // 상태 필터
+        // 제출 상태 필터
         if (state != null) {
             builder.and(submit.state.eq(state));
         }

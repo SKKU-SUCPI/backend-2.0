@@ -102,6 +102,7 @@ public class UserService {
                 .lq(score.getLqScore())
                 .rq(score.getRqScore())
                 .cq(score.getCqScore())
+                .totalScore(score.getLqScore() + score.getRqScore() + score.getCqScore())
                 .tLq(tScoreDto.getTLq())
                 .tCq(tScoreDto.getTCq())
                 .tRq(tScoreDto.getTRq())

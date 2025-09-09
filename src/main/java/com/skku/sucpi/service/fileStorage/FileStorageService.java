@@ -23,7 +23,7 @@ public class FileStorageService {
 
     @Transactional(readOnly = true)
     public FileStorage getFileStorageById(Long id) {
-        return fileStorageRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 id 입니다."));
+        return fileStorageRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파일 id 입니다."));
     }
 
     public void deleteAllFileBySubmitId(Long id) {

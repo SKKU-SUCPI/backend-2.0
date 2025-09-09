@@ -1,5 +1,6 @@
 package com.skku.sucpi.dto.submit;
 
+import com.skku.sucpi.dto.comment.CommentDto;
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
 import com.skku.sucpi.entity.Submit;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +14,6 @@ import java.util.List;
 public class SubmitDto {
 
     @Getter
-    @Jacksonized
     @Builder
     @Schema (name = "SubmitDto_BasicInfo")
     static public class BasicInfo {
@@ -21,12 +21,12 @@ public class SubmitDto {
         private LocalDateTime submitDate;
         private Integer state;
         private LocalDateTime approvedDate;
+        private String title;
         private String content;
-        private String comment;
+        private List<CommentDto.BasicInfo> comment;
 
         private Long activityId;
         private String activityClass;
-        private String activityName;
         private String activityDetail;
         private Double activityWeight;
         private Long activityDomain;
@@ -37,7 +37,6 @@ public class SubmitDto {
     }
 
     @Getter
-    @Jacksonized
     @Builder
     @Schema (name = "SubmitDto_ListInfo")
     static public class ListInfo {
@@ -52,7 +51,6 @@ public class SubmitDto {
     }
 
     @Getter
-    @Jacksonized
     @Builder
     @Schema (name = "SubmitDto_DetailInfo")
     static public class DetailInfo {
@@ -71,8 +69,9 @@ public class SubmitDto {
                 .submitDate(s.getSubmitDate())
                 .state(s.getState())
                 .approvedDate(s.getApprovedDate())
+                .title(s.getTitle())
                 .content(s.getContent())
-                .comment("")
+                .comment(CommentDto.from(s.getComments()))
                 .activityId(s.getActivity().getId())
                 .activityClass(s.getActivity().getActivityClass())
                 .activityDetail(s.getActivity().getDetail())
