@@ -59,6 +59,7 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
         JPAQuery<Submit> jpaQuery = queryFactory
                 .select(submit)
                 .from(submit)
+                .join(submit.user).fetchJoin()
                 .where(builder)
                 .orderBy(getOrderSpecifier(pageable.getSort(), submit))
                 .offset(pageable.getOffset())
@@ -70,7 +71,6 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
                 .userId(t.getUser().getId())
                 .userName(t.getUser().getName())
                 .studentId(t.getUser().getHakbun())
-                .grade(t.getUser().getYear().intValue())
                 .department(UserUtil.getDepartmentFromCode(t.getUser().getHakgwaCd()))
                 .build())
                 .toList();
@@ -87,7 +87,7 @@ public class SubmitRepositoryCustomImpl implements SubmitRepositoryCustom{
         return PaginationDto.<SubmitDto.ListInfo>builder()
                 .content(result)
                 .page(pageable.getPageNumber())
-                .totalPage(total / pageable.getPageSize() + 1)
+                .totalPage((int) Math.ceil((double) total / pageable.getPageSize()))
                 .size(pageable.getPageSize())
                 .totalElements(total)
                 .build();

@@ -16,7 +16,6 @@ public class ActivityDto {
     static public class Response {
         private Long activityId;
         private String activityClass;
-        private String activityName;
         private String activityDetail;
         private Double activityWeight;
         private Long activityDomain;

@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
+import com.skku.sucpi.dto.comment.CommentDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
+import com.skku.sucpi.entity.*;
+import com.skku.sucpi.repository.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,14 +18,6 @@ import com.skku.sucpi.dto.fileStorage.FileInfoDto;
 import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
-import com.skku.sucpi.entity.Activity;
-import com.skku.sucpi.entity.FileStorage;
-import com.skku.sucpi.entity.Submit;
-import com.skku.sucpi.entity.User;
-import com.skku.sucpi.repository.ActivityRepository;
-import com.skku.sucpi.repository.FileStorageRepository;
-import com.skku.sucpi.repository.SubmitRepository;
-import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
@@ -38,12 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SubmitService {
 
     private final SubmitRepository submitRepository;
-    private final FileStorageService fileStorageService;
-    private final ScoreService scoreService;
-    private final CategoryService categoryService;
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final FileStorageRepository fileStorageRepository;
+    private final CommentRepository commentRepository;
+
+    private final FileStorageService fileStorageService;
+    private final ScoreService scoreService;
+    private final CategoryService categoryService;
 
     public void checkSubmitOwnedByStudent(Long userId, Long submitId) {
         Submit submit = submitRepository.findById(submitId)
@@ -77,6 +74,7 @@ public class SubmitService {
         // 2. 승인 -> 거절
         else if ((curState == 1) && state == 2) {
             diff *= -1;
+
             // 카테고리 점수 수정
             categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
 
@@ -86,11 +84,16 @@ public class SubmitService {
 
         submit.updateComment(request.getComment());
         submit.updateState(request.getState());
+        commentRepository.save(Comment.builder().
+                content(request.getComment()).
+                state(request.getState()).
+                submit(submit).
+                build());
 
         return SubmitStateDto.Response.builder()
                 .id(submit.getId())
                 .state(submit.getState())
-                .comment("")
+                .comment(request.getComment())
                 .build();
 
     }
@@ -106,6 +109,7 @@ public class SubmitService {
 
         return SubmitDto.DetailInfo.builder()
                 .basicInfo(SubmitDto.from(submit))
+                .comment(CommentDto.from(submit.getComments()))
                 .fileInfoList(fileInfoList)
                 .userId(user.getId())
                 .userName(user.getName())

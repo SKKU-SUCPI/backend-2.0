@@ -104,7 +104,6 @@ public class StudentController {
                 - sort (not required) : submitDate,desc(default) / submitDate,asc
                 - size (not required) : 한 페이지 당 개수 (Integer, default = 20)
                 - page (not required) : 페이지 번호 (Integer, default = 0, 첫 페이지 = 0)
-                ```
                 """
     )
     public ApiResponse<PaginationDto<SubmitDto.BasicInfo>> getMySubmits(

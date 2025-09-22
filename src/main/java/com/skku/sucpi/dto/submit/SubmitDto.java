@@ -23,7 +23,7 @@ public class SubmitDto {
         private LocalDateTime approvedDate;
         private String title;
         private String content;
-        private List<CommentDto.BasicInfo> comment;
+//        private List<CommentDto.BasicInfo> comment;
 
         private Long activityId;
         private String activityClass;
@@ -46,7 +46,6 @@ public class SubmitDto {
         private Long userId;
         private String userName;
         private String studentId;
-        private Integer grade;
         private String department;
     }
 
@@ -56,6 +55,7 @@ public class SubmitDto {
     static public class DetailInfo {
         private BasicInfo basicInfo;
         private List<FileInfoDto> fileInfoList;
+        private List<CommentDto.BasicInfo> comment;
 
         private Long userId;
         private String userName;
@@ -71,7 +71,7 @@ public class SubmitDto {
                 .approvedDate(s.getApprovedDate())
                 .title(s.getTitle())
                 .content(s.getContent())
-                .comment(CommentDto.from(s.getComments()))
+//                .comment(CommentDto.from(s.getComments()))
                 .activityId(s.getActivity().getId())
                 .activityClass(s.getActivity().getActivityClass())
                 .activityDetail(s.getActivity().getDetail())
