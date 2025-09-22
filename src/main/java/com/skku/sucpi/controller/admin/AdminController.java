@@ -1,4 +1,4 @@
-package com.skku.sucpi.controller.adminController;
+package com.skku.sucpi.controller.admin;
 
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.PaginationDto;
@@ -19,7 +19,6 @@ import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
