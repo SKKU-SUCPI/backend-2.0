@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("api/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
                 .requestMatchers("api/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
                 .requestMatchers("api/student/**").hasAnyRole("student")  // student 접근 가능
+                .requestMatchers("/api/common/**").authenticated() // 공통 접근 가능
                 .anyRequest().permitAll());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
