@@ -20,6 +20,8 @@ import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +42,8 @@ import java.util.StringTokenizer;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin")
+@Tag(name = "Admin API", description = "관리자 전용 기능을 제공하는 API")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
     private final CategoryService categoryService;
@@ -49,78 +53,76 @@ public class AdminController {
     private final FileStorageService fileStorageService;
     private final ScoreService scoreService;
 
+
     @GetMapping("/ratio")
-    @Operation(summary = "RQ, LQ, CQ 비율 조회", description = "")
-    public ResponseEntity<ApiResponse<RatioResponseDto>> getAllRatio(HttpServletRequest request) {
-        return ResponseEntity.ok().body(ApiResponse.success(categoryService.getAllRatio(), request.getRequestURI()));
+    @Operation(
+            summary = "RQ, LQ, CQ 비율 조회",
+            description = """
+                    **설명**
+                    - RQ, LQ, CQ 비율을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/ratio
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<RatioResponseDto> getAllRatio(HttpServletRequest request) {
+        return ApiResponse.success(categoryService.getAllRatio(), request.getRequestURI());
     }
 
+
+
     @GetMapping("/activities")
-    @Operation(summary = "모든 활동 조회", description = "")
-    public ResponseEntity<ApiResponse<List<ActivityDto.Response>>> getAllActivities(HttpServletRequest request) {
-        return ResponseEntity.ok().body(ApiResponse.success(activityService.getAllActivities(), request.getRequestURI()));
+    @Operation(
+            summary = "모든 활동 조회",
+            description = """
+                    **설명**
+                    - 모든 활동을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/activities
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<List<ActivityDto.Response>> getAllActivities(HttpServletRequest request) {
+        return ApiResponse.success(activityService.getAllActivities(), request.getRequestURI());
     }
+
+
 
     @GetMapping("/students")
     @Operation(
             summary = "학생 목록 조회",
             description = """
-            **설명**
-            - 학생 목록을 조회하는 API
-            - Pagination 적용
-            - 필터링 : 학생 이름, 학과, 학번
-            - 정렬 : 3Q 오름차순/내림차순 (다중 가능)
-            
-            **Header**
-            - Authorization: Bearer {accessToken}
-            
-            **Query Parameter**
-            - name (String, not required) : 학생 이름
-            - department (String, not required) : 소프트웨어학과, 지능형소프트웨어학과, 글로벌융합학과
-            - studentId (String, not required) : 학번
-            - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
-            - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
-            - sort (String, not required) : lqScore,desc / lqScore,asc / rqScore,desc / rqScore,asc / cqScore,desc / cqScore,asc (default = DB id 오름차순)
-            
-            **사용법**
-            - GET /api/admin/students?department={department}&page={page}&sort={sort}&sort={sort}
-            
-            **응답 예시**
-            ```json
-            {
-                "success": true,
-                "message": "Request Successful",
-                "data": {
-                    "content": [
-                        {
-                            "id": 57,
-                            "name": "이쌏팃",
-                            "department": "지능형소프트웨어학과",
-                            "studentId": "2023524105",
-                            "grade": 3,
-                            "lq": 5.0,
-                            "rq": 0.0,
-                            "cq": 0.0,
-                            "totalScore": 5.0,
-                            "tlq": 23.71886631333838,
-                            "tcq": 14.659535816653793,
-                            "trq": 13.758031050793377
-                        }
-                    ],
-                    "page": 0,
-                    "totalPage": 19,
-                    "size": 1,
-                    "totalElements": 18
-                },
-                "path": "/api/admin/students"
-            }
-            ```
-            """
+                    **설명**
+                    - 학생 목록을 조회하는 API
+                    - Pagination 적용
+                    - 필터링 : 학생 이름, 학과, 학번
+                    - 정렬 : 3Q 오름차순/내림차순 (다중 가능)
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/students?department={department}&page={page}&sort={sort}&sort={sort}
+                
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                
+                    **Query Parameter**
+                    - name (String, not required) : 학생 이름
+                    - department (String, not required) : 소프트웨어학과, 지능형소프트웨어학과, 글로벌융합학과
+                    - studentId (String, not required) : 학번
+                    - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+                    - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+                    - sort (String, not required) : lqScore,desc / lqScore,asc / rqScore,desc / rqScore,asc / cqScore,desc / cqScore,asc (default = id 오름차순)
+                    """
     )
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<PaginationDto<StudentDto.BasicInfo>>> getStudents(
+    public ApiResponse<PaginationDto<StudentDto.BasicInfo>> getStudents(
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
@@ -133,144 +135,150 @@ public class AdminController {
                 studentId,
                 pageable
         );
-
-        return ResponseEntity.ok().body(ApiResponse.success(result, request.getRequestURI()));
+        return ApiResponse.success(result, request.getRequestURI());
     }
+
+
 
     @GetMapping("/student/{id}")
-    @Operation(summary = "학생 상세 정보 조회", description = "")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
-    })
-    public ResponseEntity<ApiResponse<StudentDto.DetailInfo>> getStudent(
+    @Operation(
+            summary = "학생 상세 정보 조회",
+            description = """
+                    **설명**
+                    - 특정 학생의 상세 정보를 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/student/{id}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - id (Long, required) : 학생의 고유 아이디
+                    """
+    )
+    public ApiResponse<StudentDto.DetailInfo> getStudent(
             @PathVariable Long id,
-            HttpServletRequest r
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(userService.searchStudentInfo(id), r.getRequestURI()));
+        return ApiResponse.success(userService.searchStudentInfo(id), request.getRequestURI());
     }
+
+
 
     @GetMapping("/submits")
     @Operation(
             summary = "제출 내역 목록 조회",
             description = """
-            **설명**
-            - 모든 제출 내역을 조회하는 API
-            - Pagination 적용
-            - 필터링 : 승인 여부, 학생 이름
-            - 정렬 : 제출날짜 오름차순/내림차순
+                **설명**
+                - 모든 제출 내역을 조회하는 API
+                - Pagination 적용
+                - 필터링 : 승인 여부, 학생 이름
+                - 정렬 : 제출날짜 오름차순/내림차순
             
-            **Header**
-            - Authorization: Bearer {accessToken}
+                **사용법**
+                - Method : GET
+                - Path : /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
             
-            **Query Parameter**
-            - name (String, not required) : 학생 이름
-            - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
-            - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
-            - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
-            - sort (String, not required) : submitDate,desc(default) / submitDate,asc
+                **Header**
+                - Authorization: Bearer {accessToken}
             
-            **사용법**
-            - GET /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
-            
-            **응답 예시**
-            ```json
-            {
-                "success": true,
-                "message": "Request Successful",
-                "data": {
-                    "content": [
-                        {
-                            "basicInfo": {
-                                "id": 1,
-                                "submitDate": "2025-06-24T14:08:31",
-                                "state": 1,
-                                "approvedDate": "2025-06-24T14:10:40",
-                                "content": "제출 내역 설명입니다.",
-                                "comment": null,
-                                "activityId": 12,
-                                "activityClass": "swActivity",
-                                "activityName": "commitStar4",
-                                "activityDetail": "커미터로서의 활동 : 4점",
-                                "activityWeight": 4.0,
-                                "activityDomain": 0,
-                                "categoryId": 1,
-                                "categoryName": "LQ",
-                                "categoryRatio": 33.3
-                            },
-                            "userId": 2,
-                            "userName": "건진신",
-                            "studentId": "12221222",
-                            "grade": 0,
-                            "department": "소프트웨어학과"
-                        }
-                    ],
-                    "page": 0,
-                    "totalPage": 364,
-                    "size": 1,
-                    "totalElements": 363
-                },
-                "path": "/api/admin/submits"
-            }
-            ```
-            """
+                **Query Parameter**
+                - name (String, not required) : 학생 이름
+                - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
+                - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+                - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+                - sort (String, not required) : submitDate,desc(default) / submitDate,asc
+                """
     )
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<PaginationDto<SubmitDto.ListInfo>>> getSubmits(
+    public ApiResponse<PaginationDto<SubmitDto.ListInfo>> getSubmits(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer state,
             @PageableDefault(size = 20, sort = "submitDate", direction = Sort.Direction.DESC) Pageable pageable,
             HttpServletRequest request
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.searchSubmitList(name, state, pageable), request.getRequestURI()));
+        return ApiResponse.success(submitService.searchSubmitList(name, state, pageable), request.getRequestURI());
     }
+
+
 
     @GetMapping("/submit/{id}")
-    @Operation(summary = "제출 내역 상세 조회", description = "")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
-    })
-    public ResponseEntity<ApiResponse<SubmitDto.DetailInfo>> getSubmitDetailInfo(
+    @Operation(
+            summary = "제출 내역 상세 조회",
+            description = """
+                    **설명**
+                    - 특정 제출 내역의 상세 정보를 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/submit/{id}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - id (Long, required) : 제출 내역의 고유 아이디
+                    """
+    )
+    public ApiResponse<SubmitDto.DetailInfo> getSubmitDetailInfo(
             @PathVariable Long id,
-            HttpServletRequest r
+            HttpServletRequest request
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitDetailInfoById(id), r.getRequestURI()));
+        return ApiResponse.success(submitService.getSubmitDetailInfoById(id), request.getRequestURI());
     }
 
+
+
     @PostMapping("/submit/state")
-    @Operation(summary = "제출 승인/거부 api", description = """
-            id : 제출 내역 id <br />
-            state : 0, 1, 2 (미승인, 승인, 거부) <br />
-            comment : 반려(= 거부) 이유. 반려일 때만 보내기
-            """)
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
-    })
-    public ResponseEntity<ApiResponse<SubmitStateDto.Response>> updateSubmitState(
+    @Operation(
+            summary = "제출 승인/거부 api",
+            description = """
+                    **설명**
+                    - 제출 내역을 승인 또는 반려하는 API
+                    - 반려 시, 반려 사유를 함께 전달
+
+                    **사용법**
+                    - Method : POST
+                    - Path : /api/admin/submit/state
+
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+
+                    **Request Body**
+                    - id (Long, required) : 제출 내역의 고유 아이디
+                    - state (Integer, required) : 0=미승인, 1=승인, 2=반려
+                    - comment (String, not required) : 사유
+                    """
+    )
+    public ApiResponse<SubmitStateDto.Response> updateSubmitState(
             @RequestBody SubmitStateDto.Request request,
             HttpServletRequest r
             ) {
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.updateSubmitState(request), r.getRequestURI()));
+        return ApiResponse.success(submitService.updateSubmitState(request), r.getRequestURI());
     }
 
+
+
     @GetMapping("/files/{id}/download")
-    @Operation(summary = "", description = "Media Type 확인해주세요. api request 요청하면 브라우저에서 다운로드가 됩니다.")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Forbidden"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Bad Request"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "Internal Server Error")
-    })
+    @Operation(
+            summary = "첨부 파일 다운로드",
+            description = """
+                    **설명**
+                    - 특정 파일 다운로드
+                    - 브라우저에서 다운로드
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/files/{id}/download
+                    - Media Type : application/octet-stream
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - id (Long, required) : 파일의 고유 아이디
+                    """)
     public ResponseEntity<byte[]> downloadFile(
             @PathVariable Long id,
             HttpServletRequest r
@@ -287,45 +295,99 @@ public class AdminController {
     }
 
 
+
     @GetMapping("/3q-average")
-    @Operation(summary = "전체 학생에 대한 3Q 평균")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<ScoreAverageDto>> get3QAverage(
+    @Operation(
+            summary = "전체 학생에 대한 3Q 평균",
+            description = """
+                    **설명**
+                    - 전체 학생에 대한 3Q 평균을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/3q-average
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """)
+    public ApiResponse<ScoreAverageDto> get3QAverage(
             HttpServletRequest r
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI()));
+        return ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI());
     }
+
+
 
     @GetMapping("/3q-average/department")
-    @Operation(summary = "학과별 3Q 평균")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<ScoreDepartmentAverageDto>> getDepartment3QAverage(
+    @Operation(
+            summary = "학과별 3Q 평균",
+            description = """
+                    **설명**
+                    - 학과별 3Q 평균을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/3q-average/department
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<ScoreDepartmentAverageDto> getDepartment3QAverage(
             HttpServletRequest r
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(scoreService.scoreDepartmentAverage(), r.getRequestURI()));
+        return ApiResponse.success(scoreService.scoreDepartmentAverage(), r.getRequestURI());
     }
+
+
 
     @GetMapping("/submit/summary")
-    @Operation(summary = "3Q의 총, 이번달, 저번달 활동 제출 내역 횟수")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<SubmitCountDto.Response>> countSubmissionsForThisAndLastMonth(
+    @Operation(
+            summary = "3Q의 총, 이번달, 저번달 활동 제출 내역 횟수",
+            description = """
+                    **설명**
+                    - 3Q의 총, 이번달, 저번달 활동 제출 내역 횟수를 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/submit/summary
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<SubmitCountDto.Response> countSubmissionsForThisAndLastMonth(
             HttpServletRequest r
     ) {
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI()));
+        return ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI());
     }
 
+
+
     @GetMapping("submit-count/activity/{activityId}")
-    @Operation(summary = "활동 별 제출 내역 횟수")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
-    })
-    public ResponseEntity<ApiResponse<ActivityStatsDto.SubmitCount>> getSubmitCountByActivity(
+    @Operation(
+            summary = "활동 별 제출 내역 횟수",
+            description = """
+                    **설명**
+                    - 특정 활동에 대한 제출 내역 횟수를 조회하는 API
+                    - 기간 설정 가능 (start, end)
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/submit-count/activity/{activityId}?start={start}&end={end}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - activityId (Long, required) : 활동의 고유 아이디
+                    
+                    **Query Parameter**
+                    - start (Instant, not required) : 조회 시작 날짜 (ISO 8601 포맷, 예: 2023-01-01T00:00:00Z), 미입력 시 2000-01-01로 설정
+                    - end (Instant, not required) : 조회 종료 날짜 (ISO 8601 포맷, 예: 2023-12-31T23:59:59Z), 미입력 시 현재 날짜로 설정
+                    """
+    )
+    public ApiResponse<ActivityStatsDto.SubmitCount> getSubmitCountByActivity(
             @PathVariable(value = "activityId") Long activityId,
             @RequestParam(value = "start", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -345,7 +407,7 @@ public class AdminController {
                 ? end.atZone(seoulZone).toLocalDate()
                 : LocalDate.now(seoulZone);
 
-        return ResponseEntity.ok().body(ApiResponse.success(submitService.getSubmitCountByActivity(activityId, startDate, endDate), request.getRequestURI()));
+        return ApiResponse.success(submitService.getSubmitCountByActivity(activityId, startDate, endDate), request.getRequestURI());
     };
 
 }

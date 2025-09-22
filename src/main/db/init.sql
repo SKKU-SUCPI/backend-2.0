@@ -132,8 +132,8 @@ CREATE TABLE submit (
     submit_id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id                  BIGINT NOT NULL,
     activity_id              BIGINT NOT NULL,
-    comment_id               BIGINT NOT NULL,
     submit_date              TIMESTAMP,
+    submit_content           TEXT,
     submit_title             VARCHAR(100),
     submit_state             INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
     submit_approved_date     TIMESTAMP,

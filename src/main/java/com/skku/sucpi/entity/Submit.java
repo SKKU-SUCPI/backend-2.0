@@ -37,6 +37,9 @@ public class Submit {
     @UpdateTimestamp
     private LocalDateTime approvedDate;
 
+    @Column(name = "submit_title")
+    private String title;
+
     @Lob
     @Column(name = "submit_content")
     private String content;
