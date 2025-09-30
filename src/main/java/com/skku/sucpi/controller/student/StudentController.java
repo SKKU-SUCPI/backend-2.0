@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import com.skku.sucpi.dto.score.MonthlyScoreDto;
 import com.skku.sucpi.dto.score.StudentScoreAverageDto;
 import com.skku.sucpi.dto.score.StudentScoreDto;
+import com.skku.sucpi.dto.submit.SubmitUpdateRequestDto;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.score.ScoreSubmitService;
@@ -16,15 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.skku.sucpi.dto.ApiResponse;
@@ -250,6 +243,40 @@ public class StudentController {
         return ApiResponse.success(submitService.createSubmit(userId, dto), request.getRequestURI());
     }
 
+    @PatchMapping(value = "/submits/{id}")
+    @Operation(
+            summary = "내 활동 제출 수정",
+            description = """
+                **설명**
+                - 학생이 본인의 활동 제출을 수정하는 API
+                - 승인된 제출은 수정할 수 없음
+               
+                **사용법**
+                - Method : PATCH
+                - Path : /api/student/submits/{id}
+                - Body : JSON
+                
+                **헤더**
+                - Authorization: Bearer {accessToken}
+                
+                **Path Variable**
+                - id : 제출 내역 ID
+                
+                **Request Body**
+                - title: String (nullable, 활동 제목)
+                - content: String (nullable, 활동 내용)
+                """
+    )
+    public ApiResponse<SubmitDto.BasicInfo> updateSubmit(
+            @PathVariable Long id,
+            @RequestBody SubmitUpdateRequestDto dto,
+            HttpServletRequest request
+    ) {
+        String token = jwtUtil.parseJWT(request);
+        Long userId = jwtUtil.getUserId(token);
+
+        return ApiResponse.success(submitService.updateSubmit(userId, id, dto), request.getRequestURI());
+    }
 
 
     @PostMapping(value="/submits/{id}/file", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)

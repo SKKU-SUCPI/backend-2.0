@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.comment.CommentDto;
-import com.skku.sucpi.dto.submit.SubmitCountDto;
+import com.skku.sucpi.dto.submit.*;
 import com.skku.sucpi.entity.*;
 import com.skku.sucpi.repository.*;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
-import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
-import com.skku.sucpi.dto.submit.SubmitDto;
-import com.skku.sucpi.dto.submit.SubmitStateDto;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
@@ -178,6 +175,38 @@ public class SubmitService {
         Submit saved = submitRepository.save(submit);
 
         return SubmitDto.from(saved);
+    }
+
+    @Transactional
+    public SubmitDto.BasicInfo updateSubmit(
+            Long userId,
+            Long submitId,
+            SubmitUpdateRequestDto dto
+    ) {
+        Submit submit = submitRepository.findById(submitId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
+
+        // 1) 본인 소유 확인
+        if (!submit.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 제출만 수정할 수 있습니다.");
+        }
+
+        // 2) 승인된 제출은 수정 불가
+        if (submit.getState() == 1) {
+            throw new IllegalArgumentException("승인된 제출은 수정할 수 없습니다.");
+        }
+
+        // 3) 수정, 상태를 미승인(0)으로 변경
+        if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
+            submit.updateTitle(dto.getTitle());
+        }
+        if (dto.getContent() != null && !dto.getContent().isEmpty()) {
+            submit.updateContent(dto.getContent());
+        }
+        submit.updateState(0);
+
+
+        return SubmitDto.from(submit);
     }
 
 
