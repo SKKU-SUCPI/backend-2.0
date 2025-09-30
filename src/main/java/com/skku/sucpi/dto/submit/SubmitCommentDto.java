@@ -5,24 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.jackson.Jacksonized;
 
-public class SubmitStateDto {
+public class SubmitCommentDto {
 
     @Getter
     @Setter
     @NoArgsConstructor
-    @Schema (name = "SubmitStateDto_Request")
+    @Schema (name = "SubmitCommentDto_Request")
     static public class Request {
         private Long id;
-        private Integer state; // 0: 미승인, 1: 승인, 2: 거부
+        private String content;
     }
 
     @Getter
     @Builder
-    @Schema (name = "SubmitStateDto_Response")
+    @Schema (name = "SubmitCommentDto_Response")
     static public class Response {
         private Long id;
-        private Integer state; // 0: 미승인, 1: 승인, 2: 거부
+        private String content;
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.comment.CommentDto;
+import com.skku.sucpi.dto.comment.CommentUpdateDto;
 import com.skku.sucpi.dto.submit.*;
 import com.skku.sucpi.entity.*;
 import com.skku.sucpi.repository.*;
@@ -60,39 +61,88 @@ public class SubmitService {
         Long categoryId = activity.getCategory().getId();
         Double diff = activity.getWeight();
 
-        // 1. 미승인, 거부 -> 승인
+        updateCategoryScore(curState, state, categoryId, diff, isYuljeon, submit);
+
+        submit.updateState(request.getState());
+
+        return SubmitStateDto.Response.builder()
+                .id(submit.getId())
+                .state(submit.getState())
+                .build();
+    }
+
+    public void deleteSubmitForAdmin(Long submitId) {
+        Submit submit = submitRepository.findById(submitId)
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + submitId));
+
+        Integer state = 2; // 반려 상태로 변경
+        Integer curState = submit.getState();
+        boolean isYuljeon = UserUtil.checkCampusY(submit.getUser().getHakgwaCd());
+        Activity activity = submit.getActivity();
+        Long categoryId = activity.getCategory().getId();
+        Double diff = activity.getWeight();
+
+        updateCategoryScore(curState, state, categoryId, diff, isYuljeon, submit);
+
+        submitRepository.delete(submit);
+    }
+
+
+    public SubmitCommentDto.Response createSubmitComment(SubmitCommentDto.Request request) {
+        Submit submit = submitRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + request.getId()));
+
+        Comment comment = Comment.builder()
+                .submit(submit)
+                .content(request.getContent())
+                .build();
+
+        commentRepository.save(comment);
+
+        return SubmitCommentDto.Response.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .build();
+    }
+
+    public CommentUpdateDto.Response updateSubmitComment(CommentUpdateDto.Request request) {
+        Comment comment = commentRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No comment id : " + request.getId()));
+
+        comment.updateContent(request.getContent());
+
+        return CommentUpdateDto.Response.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .build();
+    }
+
+    public void deleteSubmitComment(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("No comment id : " + commentId));
+        commentRepository.delete(comment);
+    }
+
+
+    private void updateCategoryScore(Integer curState, Integer state, Long categoryId, Double diff, boolean isYuljeon, Submit submit) {
+        // 1. 미승인, 반려 -> 승인
         if ((curState == 0 || curState == 2) && state == 1) {
             // 카테고리 점수 수정
             categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
 
             // 학생 점수 수정
-            scoreService.updateScore(submit.getUser().getId() ,categoryId, diff);
+            scoreService.updateScore(submit.getUser().getId() , categoryId, diff);
         }
-        // 2. 승인 -> 거절
-        else if ((curState == 1) && state == 2) {
+        // 2. 승인 -> 미승인, 반려
+        else if ((curState == 1) && (state == 0 || state == 2)) {
             diff *= -1;
 
             // 카테고리 점수 수정
             categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
 
             // 학생 점수 수정
-            scoreService.updateScore(submit.getUser().getId() ,categoryId, diff);
+            scoreService.updateScore(submit.getUser().getId() , categoryId, diff);
         }
-
-        submit.updateComment(request.getComment());
-        submit.updateState(request.getState());
-        commentRepository.save(Comment.builder().
-                content(request.getComment()).
-                state(request.getState()).
-                submit(submit).
-                build());
-
-        return SubmitStateDto.Response.builder()
-                .id(submit.getId())
-                .state(submit.getState())
-                .comment(request.getComment())
-                .build();
-
     }
 
     public List<Submit> getSubmitListByUserId(Long userId) {

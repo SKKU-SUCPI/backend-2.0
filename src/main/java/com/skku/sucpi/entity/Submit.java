@@ -64,7 +64,6 @@ public class Submit {
 
     public void updateState(Integer state) {
         this.state = state;
-        this.approvedDate = LocalDateTime.now();
     }
 
     public void updateComment(String comment) {
