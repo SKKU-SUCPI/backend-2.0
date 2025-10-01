@@ -64,10 +64,17 @@ public class Submit {
 
     public void updateState(Integer state) {
         this.state = state;
-        this.approvedDate = LocalDateTime.now();
     }
 
     public void updateComment(String comment) {
 //        this.comment = comment;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

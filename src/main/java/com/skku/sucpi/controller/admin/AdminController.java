@@ -5,8 +5,10 @@ import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
+import com.skku.sucpi.dto.comment.CommentUpdateDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
+import com.skku.sucpi.dto.submit.SubmitCommentDto;
 import com.skku.sucpi.dto.submit.SubmitCountDto;
 import com.skku.sucpi.dto.submit.SubmitDto;
 import com.skku.sucpi.dto.submit.SubmitStateDto;
@@ -231,11 +233,10 @@ public class AdminController {
 
     @PostMapping("/submit/state")
     @Operation(
-            summary = "제출 승인/거부 api",
+            summary = "제출 상태 변경",
             description = """
                     **설명**
-                    - 제출 내역을 승인 또는 반려하는 API
-                    - 반려 시, 반려 사유를 함께 전달
+                    - 제출 내역 상태를 변경하는 API
 
                     **사용법**
                     - Method : POST
@@ -246,8 +247,7 @@ public class AdminController {
 
                     **Request Body**
                     - id (Long, required) : 제출 내역의 고유 아이디
-                    - state (Integer, required) : 0=미승인, 1=승인, 2=반려
-                    - comment (String, not required) : 사유
+                    - state (Integer, required) : 0=미승인(대기), 1=승인, 2=반려
                     """
     )
     public ApiResponse<SubmitStateDto.Response> updateSubmitState(
@@ -255,6 +255,117 @@ public class AdminController {
             HttpServletRequest r
             ) {
         return ApiResponse.success(submitService.updateSubmitState(request), r.getRequestURI());
+    }
+
+    @DeleteMapping("/submit/{id}")
+    @Operation(
+            summary = "제출 내역 삭제",
+            description = """
+                    **설명**
+                    - 제출 내역을 삭제하는 API
+                    
+                    **사용법**
+                    - Method : DELETE
+                    - Path : /api/admin/submit/{id}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - id (Long, required) : 제출 내역의 고유 아이디
+                    """
+    )
+    public ApiResponse<Void> deleteSubmit(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        submitService.deleteSubmitForAdmin(id);
+        return ApiResponse.success(null, r.getRequestURI());
+    }
+
+
+
+    @PostMapping("/submit/comment")
+    @Operation(
+            summary = "제출 내역 댓글 작성",
+            description = """
+                    **설명**
+                    - 제출 내역 상태를 변경하는 API
+
+                    **사용법**
+                    - Method : POST
+                    - Path : /api/admin/submit/state
+
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+
+                    **Request Body**
+                    - id (Long, required) : 제출 내역의 고유 아이디
+                    - comment (String, required) : 댓글 내용
+                    """
+    )
+    public ApiResponse<SubmitCommentDto.Response> updateSubmitComment(
+            @RequestBody SubmitCommentDto.Request request,
+            HttpServletRequest r
+    ) {
+        return ApiResponse.success(submitService.createSubmitComment(request), r.getRequestURI());
+    }
+
+
+
+    @PatchMapping("/submit/comment")
+    @Operation(
+            summary = "제출 내역 댓글 수정",
+            description = """
+                    **설명**
+                    - 제출 내역 댓글을 수정하는 API
+                    
+                    **사용법**
+                    - Method : PATCH
+                    - Path : /api/admin/submit/comment/{id}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Request Body**
+                    - id (Long, required) : 댓글의 고유 아이디
+                    - content (String, required) : 댓글 내용
+                    """
+    )
+    public ApiResponse<CommentUpdateDto.Response> updateSubmitComment(
+            @RequestBody CommentUpdateDto.Request request,
+            HttpServletRequest r
+    ) {
+        return ApiResponse.success(submitService.updateSubmitComment(request), r.getRequestURI());
+    }
+
+
+
+    @DeleteMapping("/submit/comment/{id}")
+    @Operation(
+            summary = "제출 내역 댓글 삭제",
+            description = """
+                    **설명**
+                    - 제출 내역 댓글을 삭제하는 API
+                    
+                    **사용법**
+                    - Method : DELETE
+                    - Path : /api/admin/submit/comment/{id}
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Path Variable**
+                    - id (Long, required) : 댓글의 고유 아이디
+                    """
+    )
+    public ApiResponse<Void> deleteSubmitComment(
+            @PathVariable Long id,
+            HttpServletRequest r
+    ) {
+        submitService.deleteSubmitComment(id);
+
+        return ApiResponse.success(null, r.getRequestURI());
     }
 
 

@@ -16,7 +16,6 @@ public class CommentDto {
     static public class BasicInfo {
         private Long id;
         private String content;
-        private Integer state;
         private LocalDateTime date;
     }
 
@@ -33,7 +32,6 @@ public class CommentDto {
         return BasicInfo.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
-                .state(comment.getState())
                 .date(comment.getDate())
                 .build();
     }

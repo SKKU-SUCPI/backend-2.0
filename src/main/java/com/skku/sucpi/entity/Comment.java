@@ -28,10 +28,11 @@ public class Comment {
     @UpdateTimestamp
     private LocalDateTime date;
 
-    @Column(name = "comment_state")
-    private Integer state; // 0: 미확인(미승인), 1: 확인(승인), 2: 반려
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "submit_id", nullable = false)
     private Submit submit;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
