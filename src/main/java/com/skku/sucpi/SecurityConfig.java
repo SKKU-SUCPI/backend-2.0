@@ -58,7 +58,7 @@ public class SecurityConfig {
                 "https://sucpi.skku.edu",           // 상용 프론트엔드
                 "https://login.skku.edu"            // SSO
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
