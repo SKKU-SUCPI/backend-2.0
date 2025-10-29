@@ -243,7 +243,7 @@ public class StudentController {
         return ApiResponse.success(submitService.createSubmit(userId, dto), request.getRequestURI());
     }
 
-    @PatchMapping(value = "/submits/{id}")
+    @PostMapping(value = "/submits/{id}")
     @Operation(
             summary = "내 활동 제출 수정",
             description = """
