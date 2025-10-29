@@ -109,9 +109,13 @@ public class SubmitService {
                 .build();
     }
 
-    public CommentUpdateDto.Response updateSubmitComment(CommentUpdateDto.Request request) {
+    public CommentUpdateDto.Response updateSubmitComment(CommentUpdateDto.Request request, Long userId) {
         Comment comment = commentRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException("No comment id : " + request.getId()));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
+        }
 
         comment.updateContent(request.getContent());
 
@@ -121,9 +125,14 @@ public class SubmitService {
                 .build();
     }
 
-    public void deleteSubmitComment(Long commentId) {
+    public void deleteSubmitComment(Long commentId, Long userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalArgumentException("No comment id : " + commentId));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
+        }
+
         commentRepository.delete(comment);
     }
 

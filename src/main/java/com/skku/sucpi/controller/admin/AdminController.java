@@ -341,7 +341,10 @@ public class AdminController {
             @RequestBody CommentUpdateDto.Request request,
             HttpServletRequest r
     ) {
-        return ApiResponse.success(submitService.updateSubmitComment(request), r.getRequestURI());
+        String token = jwtUtil.parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        return ApiResponse.success(submitService.updateSubmitComment(request, userId), r.getRequestURI());
     }
 
 
@@ -368,7 +371,10 @@ public class AdminController {
             @PathVariable Long id,
             HttpServletRequest r
     ) {
-        submitService.deleteSubmitComment(id);
+        String token = jwtUtil.parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        submitService.deleteSubmitComment(id, userId);
 
         return ApiResponse.success(null, r.getRequestURI());
     }
