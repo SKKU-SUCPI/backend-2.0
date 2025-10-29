@@ -243,7 +243,7 @@ public class StudentController {
         return ApiResponse.success(submitService.createSubmit(userId, dto), request.getRequestURI());
     }
 
-    @PostMapping(value = "/submits/{id}")
+    @PatchMapping(value = "/submits/{id}")
     @Operation(
             summary = "내 활동 제출 수정",
             description = """
@@ -279,7 +279,7 @@ public class StudentController {
     }
 
 
-    @PatchMapping(value="/submits/{id}/file", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value="/submits/{id}/file", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "내 활동 첨부파일 제출",
             description = """
