@@ -152,6 +152,7 @@ CREATE TABLE submit (
 CREATE TABLE comment (
     comment_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
     submit_id   BIGINT NOT NULL,
+    user_id    BIGINT NOT NULL,
     comment_content TEXT,
     comment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 #     comment_state INT DEFAULT 0, -- 0 : 미승인, 1 : 승인, 2 : 거부
@@ -159,6 +160,11 @@ CREATE TABLE comment (
     CONSTRAINT fk_comment_submit
         FOREIGN KEY (submit_id)
             REFERENCES submit (submit_id)
+            ON DELETE CASCADE,
+
+    CONSTRAINT fk_comment_user
+        FOREIGN KEY (user_id)
+            REFERENCES users (user_id)
             ON DELETE CASCADE
 );
 

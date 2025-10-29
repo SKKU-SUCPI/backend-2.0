@@ -32,6 +32,10 @@ public class Comment {
     @JoinColumn(name = "submit_id", nullable = false)
     private Submit submit;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public void updateContent(String content) {
         this.content = content;
     }
