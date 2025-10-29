@@ -279,7 +279,7 @@ public class StudentController {
     }
 
 
-    @PostMapping(value="/submits/{id}/file", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value="/submits/{id}/file", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "내 활동 첨부파일 제출",
             description = """
