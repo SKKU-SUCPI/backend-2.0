@@ -17,6 +17,9 @@ public class CommentDto {
         private Long id;
         private String content;
         private LocalDateTime date;
+
+        private Long userId;
+        private String userName;
     }
 
     static public List<CommentDto.BasicInfo> from(List<Comment> comments) {
@@ -33,6 +36,8 @@ public class CommentDto {
                 .id(comment.getId())
                 .content(comment.getContent())
                 .date(comment.getDate())
+                .userId(comment.getUser().getId())
+                .userName(comment.getUser().getName())
                 .build();
     }
 }

@@ -88,13 +88,17 @@ public class SubmitService {
     }
 
 
-    public SubmitCommentDto.Response createSubmitComment(SubmitCommentDto.Request request) {
+    public SubmitCommentDto.Response createSubmitComment(SubmitCommentDto.Request request, Long userId) {
         Submit submit = submitRepository.findById(request.getId())
                 .orElseThrow(() -> new IllegalArgumentException("No submit id : " + request.getId()));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No user id : " + userId));
 
         Comment comment = Comment.builder()
                 .submit(submit)
                 .content(request.getContent())
+                .user(user)
                 .build();
 
         commentRepository.save(comment);

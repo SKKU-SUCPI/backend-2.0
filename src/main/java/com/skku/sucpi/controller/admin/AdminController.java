@@ -20,6 +20,7 @@ import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.service.submit.SubmitService;
 import com.skku.sucpi.service.user.UserService;
+import com.skku.sucpi.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,6 +54,7 @@ public class AdminController {
     private final SubmitService submitService;
     private final FileStorageService fileStorageService;
     private final ScoreService scoreService;
+    private final JWTUtil jwtUtil;
 
 
     @GetMapping("/ratio")
@@ -308,7 +310,10 @@ public class AdminController {
             @RequestBody SubmitCommentDto.Request request,
             HttpServletRequest r
     ) {
-        return ApiResponse.success(submitService.createSubmitComment(request), r.getRequestURI());
+        String token = jwtUtil.parseJWT(r);
+        Long userId = jwtUtil.getUserId(token);
+
+        return ApiResponse.success(submitService.createSubmitComment(request, userId), r.getRequestURI());
     }
 
 
