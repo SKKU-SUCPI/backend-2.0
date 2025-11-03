@@ -3,7 +3,9 @@ package com.skku.sucpi.controller.admin;
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.activity.ActivityDto;
+import com.skku.sucpi.dto.activity.ActivityRequestDto;
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
+import com.skku.sucpi.dto.category.RatioRequestDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.comment.CommentUpdateDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
@@ -25,12 +27,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,13 +60,12 @@ public class AdminController {
     private final ScoreService scoreService;
     private final JWTUtil jwtUtil;
 
-
     @GetMapping("/ratio")
     @Operation(
-            summary = "RQ, LQ, CQ 비율 조회",
+            summary = "LQ, RQ, CQ 비율 조회",
             description = """
                     **설명**
-                    - RQ, LQ, CQ 비율을 조회하는 API
+                    - LQ, RQ, CQ 비율을 조회하는 API
                     
                     **사용법**
                     - Method : GET
@@ -75,6 +78,10 @@ public class AdminController {
     public ApiResponse<RatioResponseDto> getAllRatio(HttpServletRequest request) {
         return ApiResponse.success(categoryService.getAllRatio(), request.getRequestURI());
     }
+
+
+
+
 
 
 
@@ -99,8 +106,12 @@ public class AdminController {
 
 
 
-    @GetMapping("/students")
-    @Operation(
+
+
+
+
+            @GetMapping("/students")
+            @Operation(
             summary = "학생 목록 조회",
             description = """
                     **설명**
