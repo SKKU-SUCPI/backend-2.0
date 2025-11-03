@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SubmitRepository extends JpaRepository<Submit, Long>, SubmitRepositoryCustom {
     List<Submit> findByUserId(Long userId);
+
+    void deleteAllByActivityId(Long activityId);
 }

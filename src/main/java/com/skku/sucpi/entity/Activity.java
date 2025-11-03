@@ -1,12 +1,13 @@
 package com.skku.sucpi.entity;
 
+import com.skku.sucpi.dto.activity.ActivityRequestDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "activity")
 @Entity(name = "activity")
 public class Activity {
@@ -31,4 +32,20 @@ public class Activity {
 
     @Column(name = "activity_domain")
     private Long domain;
+
+    public void updateFromDto(ActivityRequestDto dto, Category category) {
+
+        if (dto.getActivityClass() != null) {
+            this.activityClass = dto.getActivityClass();
+        }
+        if (dto.getActivityDetail() != null) {
+            this.detail = dto.getActivityDetail();
+        }
+        if (dto.getActivityWeight() != null) {
+            this.weight = dto.getActivityWeight();
+        }
+        if (category != null) {
+            this.category = category;
+        }
+    }
 }

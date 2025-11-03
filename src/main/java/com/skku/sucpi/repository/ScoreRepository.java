@@ -4,6 +4,7 @@ import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.StudentScoreDto;
 import com.skku.sucpi.entity.Score;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -72,5 +73,28 @@ public interface ScoreRepository extends JpaRepository<Score, Long> {
             WHERE user_id = :userId;
         """, nativeQuery = true)
     StudentScoreDto.ScoreInfoInterface findStudentCqInfo(@Param("userId") Long userId);
+
+    // 모든 학생 점수 재연산
+    @Modifying(clearAutomatically = true)
+    @Query(value = """
+        UPDATE score s
+        JOIN (
+            SELECT
+                u.user_id,
+                SUM(CASE WHEN c.category_id = 1 THEN a.activity_weight ELSE 0 END) AS lq_score,
+                SUM(CASE WHEN c.category_id = 2 THEN a.activity_weight ELSE 0 END) AS rq_score,
+                SUM(CASE WHEN c.category_id = 3 THEN a.activity_weight ELSE 0 END) AS cq_score
+            FROM users u
+            LEFT JOIN submit sb ON u.user_id = sb.user_id AND sb.submit_state = 1
+            LEFT JOIN activity a ON sb.activity_id = a.activity_id
+            LEFT JOIN category c ON a.category_id = c.category_id
+            GROUP BY u.user_id
+        ) AS calculated ON s.user_id = calculated.user_id
+        SET
+            s.lq_score = calculated.lq_score,
+            s.rq_score = calculated.rq_score,
+            s.cq_score = calculated.cq_score;
+        """, nativeQuery = true)
+    int updateAllScoresBasedOnSubmits(); // 업데이트된 레코드 수를 반환
 }
 
