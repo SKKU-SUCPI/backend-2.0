@@ -2,6 +2,7 @@ package com.skku.sucpi.controller.superAdmin;
 
 import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.activity.ActivityDto;
+import com.skku.sucpi.dto.activity.ActivityListRequestDto;
 import com.skku.sucpi.dto.activity.ActivityRequestDto;
 import com.skku.sucpi.dto.category.RatioRequestDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
@@ -116,10 +117,10 @@ public class SuperAdminController {
                     """
     )
     public ApiResponse<Void> updateActivity(
-            @RequestBody List<ActivityRequestDto> activities,
+            @RequestBody ActivityListRequestDto activities,
             HttpServletRequest request
     ) {
-        activityService.updateActivity(activities);
+        activityService.updateActivity(activities.getActivities());
 
         return ApiResponse.success(null, request.getRequestURI());
     }
