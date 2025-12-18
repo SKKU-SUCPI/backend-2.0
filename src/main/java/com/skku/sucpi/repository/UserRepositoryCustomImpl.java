@@ -39,7 +39,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        // 학생만
+        // 학생만 검색
         builder.and(student.role.eq("student"));
 
         // 검색(이름)
@@ -110,7 +110,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
         return PaginationDto.<StudentDto.BasicInfo>builder()
                 .content(result)
                 .page(pageable.getPageNumber())
-                .totalPage(total / pageable.getPageSize() + 1)
+                .totalPage((int) Math.ceil((double) total / pageable.getPageSize()))
                 .size(pageable.getPageSize())
                 .totalElements(total)
                 .build();

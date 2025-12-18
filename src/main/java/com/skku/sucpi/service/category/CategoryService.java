@@ -20,11 +20,19 @@ public class CategoryService {
     public void changeRatio(RatioRequestDto ratioRequestDto) {
         List<Category> categories = categoryRepository.findAll();
 
+        Double cq = ratioRequestDto.getCq();
+        Double lq = ratioRequestDto.getLq();
+        Double rq = ratioRequestDto.getRq();
+
+        if (cq + lq + rq != 100D) {
+            throw new IllegalArgumentException("The sum of LQ, CQ, RQ must be 100.");
+        }
+
         for (Category category : categories) {
             switch (category.getName()) {
-                case "LQ" -> category.updateRatio(ratioRequestDto.getLq());
-                case "RQ" -> category.updateRatio(ratioRequestDto.getRq());
-                case "CQ" -> category.updateRatio(ratioRequestDto.getCq());
+                case "LQ" -> category.updateRatio(lq);
+                case "RQ" -> category.updateRatio(rq);
+                case "CQ" -> category.updateRatio(cq);
             }
         }
     }

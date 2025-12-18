@@ -9,6 +9,7 @@ import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.user.UserDto;
 import com.skku.sucpi.service.score.ScoreService;
 import com.skku.sucpi.util.UserUtil;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,10 +32,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-@RequiredArgsConstructor
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@Slf4j
+@Tag(name = "Auth API", description = "인증 관련 API")
 public class AuthController {
 
     private final SSOService ssoService;

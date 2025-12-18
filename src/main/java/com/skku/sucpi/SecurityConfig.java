@@ -4,6 +4,7 @@ import com.skku.sucpi.util.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,9 +38,11 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("api/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
-                .requestMatchers("api/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
-                .requestMatchers("api/student/**").hasAnyRole("student")  // student 접근 가능
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // preflight 요청 허용
+                .requestMatchers("/api/super-admin/**").hasRole("super-admin") // super-admin 접근 가능
+                .requestMatchers("/api/admin/**").hasAnyRole("admin", "super-admin") // admin, super-admin 접근 가능
+                .requestMatchers("/api/student/**").hasAnyRole("student")  // student 접근 가능
+                .requestMatchers("/api/common/**").authenticated() // 공통 접근 가능
                 .anyRequest().permitAll());
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -57,7 +60,7 @@ public class SecurityConfig {
                 "https://sucpi.skku.edu",           // 상용 프론트엔드
                 "https://login.skku.edu"            // SSO
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

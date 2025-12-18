@@ -1,11 +1,14 @@
 package com.skku.sucpi.service.submit;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import com.skku.sucpi.dto.activity.ActivityStatsDto;
-import com.skku.sucpi.dto.submit.SubmitCountDto;
+import com.skku.sucpi.dto.comment.CommentDto;
+import com.skku.sucpi.dto.comment.CommentUpdateDto;
+import com.skku.sucpi.dto.submit.*;
+import com.skku.sucpi.entity.*;
+import com.skku.sucpi.repository.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,17 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.skku.sucpi.dto.PaginationDto;
 import com.skku.sucpi.dto.fileStorage.FileInfoDto;
-import com.skku.sucpi.dto.submit.SubmitCreateRequestDto;
-import com.skku.sucpi.dto.submit.SubmitDto;
-import com.skku.sucpi.dto.submit.SubmitStateDto;
-import com.skku.sucpi.entity.Activity;
-import com.skku.sucpi.entity.FileStorage;
-import com.skku.sucpi.entity.Submit;
-import com.skku.sucpi.entity.User;
-import com.skku.sucpi.repository.ActivityRepository;
-import com.skku.sucpi.repository.FileStorageRepository;
-import com.skku.sucpi.repository.SubmitRepository;
-import com.skku.sucpi.repository.UserRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.fileStorage.FileStorageService;
 import com.skku.sucpi.service.score.ScoreService;
@@ -39,12 +31,14 @@ import lombok.extern.slf4j.Slf4j;
 public class SubmitService {
 
     private final SubmitRepository submitRepository;
-    private final FileStorageService fileStorageService;
-    private final ScoreService scoreService;
-    private final CategoryService categoryService;
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final FileStorageRepository fileStorageRepository;
+    private final CommentRepository commentRepository;
+
+    private final FileStorageService fileStorageService;
+    private final ScoreService scoreService;
+    private final CategoryService categoryService;
 
     public void checkSubmitOwnedByStudent(Long userId, Long submitId) {
         Submit submit = submitRepository.findById(submitId)
@@ -67,33 +61,101 @@ public class SubmitService {
         Long categoryId = activity.getCategory().getId();
         Double diff = activity.getWeight();
 
-        // 1. 미승인, 거부 -> 승인
-        if ((curState == 0 || curState == 2) && state == 1) {
-            // 카테고리 점수 수정
-            categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
+        updateCategoryScore(curState, state, categoryId, diff, isYuljeon, submit);
 
-            // 학생 점수 수정
-            scoreService.updateScore(submit.getUser().getId() ,categoryId, diff);
-        }
-        // 2. 승인 -> 거절
-        else if ((curState == 1) && state == 2) {
-            diff *= -1;
-            // 카테고리 점수 수정
-            categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
-
-            // 학생 점수 수정
-            scoreService.updateScore(submit.getUser().getId() ,categoryId, diff);
-        }
-
-        submit.updateComment(request.getComment());
         submit.updateState(request.getState());
 
         return SubmitStateDto.Response.builder()
                 .id(submit.getId())
                 .state(submit.getState())
-                .comment(submit.getComment())
+                .build();
+    }
+
+    public void deleteSubmitForAdmin(Long submitId) {
+        Submit submit = submitRepository.findById(submitId)
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + submitId));
+
+        Integer state = 2; // 반려 상태로 변경
+        Integer curState = submit.getState();
+        boolean isYuljeon = UserUtil.checkCampusY(submit.getUser().getHakgwaCd());
+        Activity activity = submit.getActivity();
+        Long categoryId = activity.getCategory().getId();
+        Double diff = activity.getWeight();
+
+        updateCategoryScore(curState, state, categoryId, diff, isYuljeon, submit);
+
+        submitRepository.delete(submit);
+    }
+
+
+    public SubmitCommentDto.Response createSubmitComment(SubmitCommentDto.Request request, Long userId) {
+        Submit submit = submitRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No submit id : " + request.getId()));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("No user id : " + userId));
+
+        Comment comment = Comment.builder()
+                .submit(submit)
+                .content(request.getContent())
+                .user(user)
                 .build();
 
+        commentRepository.save(comment);
+
+        return SubmitCommentDto.Response.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .build();
+    }
+
+    public CommentUpdateDto.Response updateSubmitComment(CommentUpdateDto.Request request, Long userId) {
+        Comment comment = commentRepository.findById(request.getId())
+                .orElseThrow(() -> new IllegalArgumentException("No comment id : " + request.getId()));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 댓글만 수정할 수 있습니다.");
+        }
+
+        comment.updateContent(request.getContent());
+
+        return CommentUpdateDto.Response.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .build();
+    }
+
+    public void deleteSubmitComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("No comment id : " + commentId));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 댓글만 삭제할 수 있습니다.");
+        }
+
+        commentRepository.delete(comment);
+    }
+
+
+    private void updateCategoryScore(Integer curState, Integer state, Long categoryId, Double diff, boolean isYuljeon, Submit submit) {
+        // 1. 미승인, 반려 -> 승인
+        if ((curState == 0 || curState == 2) && state == 1) {
+            // 카테고리 점수 수정
+            categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
+
+            // 학생 점수 수정
+            scoreService.updateScore(submit.getUser().getId() , categoryId, diff);
+        }
+        // 2. 승인 -> 미승인, 반려
+        else if ((curState == 1) && (state == 0 || state == 2)) {
+            diff *= -1;
+
+            // 카테고리 점수 수정
+            categoryService.updateSumAndSquareSum(categoryId, diff, isYuljeon);
+
+            // 학생 점수 수정
+            scoreService.updateScore(submit.getUser().getId() , categoryId, diff);
+        }
     }
 
     public List<Submit> getSubmitListByUserId(Long userId) {
@@ -107,6 +169,7 @@ public class SubmitService {
 
         return SubmitDto.DetailInfo.builder()
                 .basicInfo(SubmitDto.from(submit))
+                .comment(CommentDto.from(submit.getComments()))
                 .fileInfoList(fileInfoList)
                 .userId(user.getId())
                 .userName(user.getName())
@@ -133,7 +196,7 @@ public class SubmitService {
         return submitRepository.searchMySubmitsByUser(userId, state, pageable);
     }
 
-    //제출 삭제
+    // 제출 삭제
     @Transactional
     public void deleteSubmit(Long userId, Long submitId) {
         Submit submit = submitRepository.findById(submitId)
@@ -147,7 +210,7 @@ public class SubmitService {
         if (submit.getState() == 1) {
             throw new IllegalArgumentException("승인된 제출은 삭제할 수 없습니다.");
         }
-        // 3) 삭제 (연관된 FileStorage도 Cascade 삭제)
+        // 3) 삭제 (연관된 FileStorage Cascade 삭제)
         submitRepository.delete(submit);
     }
 
@@ -159,42 +222,57 @@ public class SubmitService {
     public SubmitDto.BasicInfo createSubmit(
             Long userId,
             SubmitCreateRequestDto dto
-    ) throws Exception {
+    ) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
-        Activity act = activityRepository.findById(dto.getActivityId())
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 activity입니다."));
+        Activity activity = activityRepository.findById(dto.getActivityId())
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 Activity 입니다."));
 
-        // 1) Submit 저장
-        Submit sub = Submit.builder()
+        Submit submit = Submit.builder()
             .user(user)
-            .activity(act)
+            .activity(activity)
+            .title(dto.getTitle())
             .content(dto.getContent())
-            .submitDate(LocalDateTime.now())
             .state(0)
             .build();
-        Submit saved = submitRepository.save(sub);
-
-        // 2) Multipart 파일 저장
-//        if (files != null) {
-//            for (MultipartFile f : files) {
-//                String orig = f.getOriginalFilename();
-//                String base = orig == null ? "" : orig.replaceFirst("\\.[^.]+$", "");
-//                String ext  = orig != null && orig.contains(".")
-//                              ? orig.substring(orig.lastIndexOf('.')+1)
-//                              : "";
-//                FileStorage fs = FileStorage.builder()
-//                    .submit(saved)
-//                    .fileName(base)
-//                    .fileType(ext)
-//                    .fileDate(f.getBytes())
-//                    .build();
-//                fileStorageRepository.save(fs);
-//            }
-//        }
+        Submit saved = submitRepository.save(submit);
 
         return SubmitDto.from(saved);
     }
+
+    @Transactional
+    public SubmitDto.BasicInfo updateSubmit(
+            Long userId,
+            Long submitId,
+            SubmitUpdateRequestDto dto
+    ) {
+        Submit submit = submitRepository.findById(submitId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
+
+        // 1) 본인 소유 확인
+        if (!submit.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("본인의 제출만 수정할 수 있습니다.");
+        }
+
+        // 2) 승인된 제출은 수정 불가
+        if (submit.getState() == 1) {
+            throw new IllegalArgumentException("승인된 제출은 수정할 수 없습니다.");
+        }
+
+        // 3) 수정, 상태를 미승인(0)으로 변경
+        if (dto.getTitle() != null && !dto.getTitle().isEmpty()) {
+            submit.updateTitle(dto.getTitle());
+        }
+        if (dto.getContent() != null && !dto.getContent().isEmpty()) {
+            submit.updateContent(dto.getContent());
+        }
+        submit.updateState(0);
+
+
+        return SubmitDto.from(submit);
+    }
+
+
 
     public void saveFiles(
             Long submitId,
@@ -204,7 +282,7 @@ public class SubmitService {
         Submit submit = submitRepository.findById(submitId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 제출 내역입니다."));
 
-        // (1) 제출 삳태 반려로 변경
+        // (1) 제출 삳태 미승인으로 변경
         submit.updateState(0);
 
         // (2) 기존 제출 내역 삭제
@@ -229,6 +307,8 @@ public class SubmitService {
         }
     }
 
+
+
     // 활동의 제출 내역 수 조회
     public ActivityStatsDto.SubmitCount getSubmitCountByActivity(
             Long activityId,
@@ -237,6 +317,8 @@ public class SubmitService {
     ) throws Exception {
         return submitRepository.getSubmitCountByActivity(activityId, start, end);
     }
+
+
 
     @Transactional
     public void saveFileBinary(
@@ -255,6 +337,8 @@ public class SubmitService {
             .build();
         fileStorageRepository.save(fs);
     }
+
+
 
     public SubmitCountDto.Response countSubmissionsForThisAndLastMonth () {
         return SubmitCountDto.Response.builder()

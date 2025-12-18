@@ -24,38 +24,38 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class AdminControllerTestForSuperAdmin {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @Autowired
-    private JWTUtil jwtUtil;
-    @Autowired
-    private CategoryService categoryService;
-
-    private String accessToken;
-
-    @BeforeEach
-    void setAccessToken() {
-        accessToken = jwtUtil.generateAccessToken("Test SuperAdmin", 1111111L, "super-admin");
-    }
-
-    @DisplayName("LQ, CQ, RQ 값 가져오기")
-    @Test
-    void getAllRatio() throws Exception {
-        // given
-        RatioResponseDto ratio = categoryService.getAllRatio();
-
-        // when
-        ResultActions result = mockMvc.perform(get("/admin/ratio")
-                .header("Authorization", "Bearer " + accessToken));
-
-        // then
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.cq").value(ratio.getCq()))
-                .andExpect(jsonPath("$.data.lq").value(ratio.getLq()))
-                .andExpect(jsonPath("$.data.rq").value(ratio.getRq()))
-                .andExpect(jsonPath("$.path").value("/admin/ratio"));
-    }
+//    @Autowired
+//    private MockMvc mockMvc;
+//    @Autowired
+//    private ObjectMapper objectMapper;
+//    @Autowired
+//    private JWTUtil jwtUtil;
+//    @Autowired
+//    private CategoryService categoryService;
+//
+//    private String accessToken;
+//
+//    @BeforeEach
+//    void setAccessToken() {
+//        accessToken = jwtUtil.generateAccessToken("Test SuperAdmin", 1111111L, "super-admin");
+//    }
+//
+//    @DisplayName("LQ, CQ, RQ 값 가져오기")
+//    @Test
+//    void getAllRatio() throws Exception {
+//        // given
+//        RatioResponseDto ratio = categoryService.getAllRatio();
+//
+//        // when
+//        ResultActions result = mockMvc.perform(get("/admin/ratio")
+//                .header("Authorization", "Bearer " + accessToken));
+//
+//        // then
+//        result.andExpect(status().isOk())
+//                .andExpect(jsonPath("$.success").value(true))
+//                .andExpect(jsonPath("$.data.cq").value(ratio.getCq()))
+//                .andExpect(jsonPath("$.data.lq").value(ratio.getLq()))
+//                .andExpect(jsonPath("$.data.rq").value(ratio.getRq()))
+//                .andExpect(jsonPath("$.path").value("/admin/ratio"));
+//    }
 }

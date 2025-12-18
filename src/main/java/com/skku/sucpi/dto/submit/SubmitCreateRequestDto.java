@@ -8,9 +8,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SubmitCreateRequestDto {
-    @NotNull(message = "activityId는 필수입니다.")
+    @NotNull(message = "Activity ID is required.")
     private Long activityId;
 
-    @NotBlank(message = "content는 필수입니다.")
+    @NotBlank(message = "Title is required.")
+    private String title;
+
+    @NotBlank(message = "Content is required.")
     private String content;
 }

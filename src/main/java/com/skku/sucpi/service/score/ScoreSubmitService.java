@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,7 +25,7 @@ public class ScoreSubmitService {
     private final ScoreService scoreService;
     private final SubmitRepository submitRepository;
 
-    public List<MonthlyScoreDto> getStudentMonthlyScoreDto (Long userId) {
+    public List<MonthlyScoreDto> getStudentMonthlyScore(Long userId) {
         List<MonthlyScoreDto> monthlyScoreList = submitRepository.searchStudentMonthlyScore(userId);
         Score score = scoreService.getScoreByUserId(userId);
 
@@ -36,7 +35,7 @@ public class ScoreSubmitService {
         Double rq = 0D;
         Double cq = 0D;
 
-        List<MonthlyScoreDto> grouped = groupedMonthlyScoreDto(monthlyScoreList);
+        List<MonthlyScoreDto> grouped = groupedMonthlyScore(monthlyScoreList);
 
         for (MonthlyScoreDto scoreDto : grouped) {
             lq += scoreDto.getLq();
@@ -64,7 +63,7 @@ public class ScoreSubmitService {
         return result;
     }
 
-    private List<MonthlyScoreDto> groupedMonthlyScoreDto(List<MonthlyScoreDto> monthlyScore) {
+    private List<MonthlyScoreDto> groupedMonthlyScore(List<MonthlyScoreDto> monthlyScore) {
         Map<String, MonthlyScoreDto> groupedMap = monthlyScore.stream()
                 .collect(Collectors.toMap(
                         MonthlyScoreDto::getMonth,

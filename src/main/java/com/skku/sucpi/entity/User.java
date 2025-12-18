@@ -15,6 +15,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "users")
 @Entity(name = "users")
 public class User {
 
@@ -29,7 +30,7 @@ public class User {
     @Column(name = "user_role", length = 50)
     private String role = "student"; // 기본값: "student"
 
-    @Comment("학교에서 가져온 학번 또는 교직원번호 - 같은 경우가 있다면 변경 필요...")
+    @Comment("SSO에서 가져온 학번 또는 교직원번호")
     @Column(name = "user_hakbun", length = 20)
     private String hakbun;
 
@@ -41,19 +42,14 @@ public class User {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Submit> submits;
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 
     @Builder
     public User(String name, String role, String hakbun, Float hakgwaCd, Double year) {
@@ -68,7 +64,7 @@ public class User {
         this.name = ssoUserDto.getUserName();
         this.role = ssoUserDto.getRole();
         this.hakbun = ssoUserDto.getHakbun();
-        this.hakgwaCd = ssoUserDto.getHakgwaCd(); // sso 이후 수정 필요
-        this.year = 0D; // sso 이후 수정 필요
+        this.hakgwaCd = ssoUserDto.getHakgwaCd();
+        this.year = 0D;
     }
 }
