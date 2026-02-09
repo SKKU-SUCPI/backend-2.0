@@ -181,7 +181,7 @@ public class StudentController {
 
 
 
-    @DeleteMapping("/submits/{id}")
+    @PostMapping("/submits/delete/{id}")
     @Operation(
             summary = "내 제출 내역 삭제",
             description = """
@@ -191,8 +191,8 @@ public class StudentController {
                 - 승인된 제출 내역은 삭제할 수 없음
                 
                 **사용법**
-                - Method : DELETE
-                - Path : /api/student/submits/{id}
+                - Method : POST
+                - Path : /api/student/submits/delete/{id}
                 
                 **헤더**
                 - Authorization: Bearer {accessToken}
@@ -243,7 +243,7 @@ public class StudentController {
         return ApiResponse.success(submitService.createSubmit(userId, dto), request.getRequestURI());
     }
 
-    @PatchMapping(value = "/submits/{id}")
+    @PostMapping(value = "/submits/patch/{id}")
     @Operation(
             summary = "내 활동 제출 수정",
             description = """
@@ -252,8 +252,8 @@ public class StudentController {
                 - 승인된 제출은 수정할 수 없음
                
                 **사용법**
-                - Method : PATCH
-                - Path : /api/student/submits/{id}
+                - Method : POST
+                - Path : /api/student/submits/patch/{id}
                 - Body : JSON
                 
                 **헤더**
