@@ -36,7 +36,7 @@ public class SuperAdminController {
 //        return ResponseEntity.ok().body(ApiResponse.success(categoryService.getAllRatio(), request.getRequestURI()));
 //    }
 
-    @PutMapping("/ratio")
+    @PostMapping("/ratio")
     @Operation(
             summary = "LQ, RQ, CQ 비율 수정",
             description = """
@@ -45,7 +45,7 @@ public class SuperAdminController {
                     - 비율의 합은 100이어야 함
 
                     **사용법**
-                    - Method : PUT
+                    - Method : POST
                     - Path : /api/super-admin/ratio
                     
                     **헤더**
@@ -93,7 +93,7 @@ public class SuperAdminController {
         return ApiResponse.success(activityService.createActivity(activityRequestDto), request.getRequestURI());
     }
 
-    @PatchMapping("/activity")
+    @PostMapping("/activity/patch")
     @Operation(
             summary = "활동 수정",
             description = """
@@ -102,8 +102,8 @@ public class SuperAdminController {
                     - categoryId는 Request Body에 포함되지 않음
                     
                     **사용법**
-                    - Method : PATCH
-                    - Path : /api/super-admin/activity
+                    - Method : POST
+                    - Path : /api/super-admin/activity/patch
                     
                     **헤더**
                     - Authorization: Bearer {accessToken}
@@ -126,7 +126,7 @@ public class SuperAdminController {
     }
 
 
-    @DeleteMapping("/activity/{activityId}")
+    @PostMapping("/activity/delete/{activityId}")
     @Operation(
             summary = "활동 삭제",
             description = """
@@ -135,8 +135,8 @@ public class SuperAdminController {
                     - 활동과 관련된 제출물도 함께 삭제됨
                     
                     **사용법**
-                    - Method : DELETE
-                    - Path : /api/super-admin/activity/{activityId}
+                    - Method : POST
+                    - Path : /api/super-admin/activity/delete/{activityId}
                     
                     **헤더**
                     - Authorization: Bearer {accessToken}
