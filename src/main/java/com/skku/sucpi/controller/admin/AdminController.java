@@ -130,6 +130,7 @@ public class AdminController {
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
+            @RequestParam(required = false) String keyword,     // 통합 검색용
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
@@ -137,6 +138,7 @@ public class AdminController {
                 name,
                 department,
                 studentId,
+                keyword,
                 pageable
         );
         return ApiResponse.success(result, request.getRequestURI());
