@@ -44,7 +44,15 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
 
         // 검색(이름)
         if (name != null && !name.isEmpty()) {
-            builder.and(student.name.containsIgnoreCase(name));
+            // builder.and(student.name.containsIgnoreCase(name));
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+            searchBuilder.or(student.name.containsIgnoreCase(name));
+            searchBuilder.or(student.hakbun.containsIgnoreCase(name));
+            List<Float> matchedDeptCodes = UserUtil.getCodesByKeyword(name);
+            if (!matchedDeptCodes.isEmpty()) {
+                searchBuilder.or(student.hakgwaCd.in(matchedDeptCodes));
+            }
+            builder.and(searchBuilder);
         }
         // 필터링(학과)
         if (department != null && !department.isEmpty()) {
