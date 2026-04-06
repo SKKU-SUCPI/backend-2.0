@@ -9,7 +9,7 @@ public class UserUtil {
         return switch (department) {
             case "소프트웨어학과" -> 1F;
             case "지능형소프트웨어학과" -> 2F;
-            case "글로벌융합학과" -> 3F;
+            case "글로벌융합학부" -> 3F;
             default -> 0F;
         };
     }
@@ -18,7 +18,7 @@ public class UserUtil {
         return switch (code.intValue()) {
             case 1 ->"소프트웨어학과";
             case 2 -> "지능형소프트웨어학과";
-            case 3 -> "글로벌융합학과";
+            case 3 -> "글로벌융합학부";
             default -> "";
         };
     }
@@ -39,7 +39,7 @@ public class UserUtil {
 
         if ("소프트웨어학과".contains(keyword)) codes.add(1F);
         if ("지능형소프트웨어학과".contains(keyword)) codes.add(2F);
-        if ("글로벌융합학과".contains(keyword)) codes.add(3F);
+        if ("글로벌융합학부".contains(keyword)) codes.add(3F);
 
         return codes;
     }
