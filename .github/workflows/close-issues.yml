@@ -1,0 +1,53 @@
+name: Close Linked Issues on Merge
+
+on:
+  pull_request:
+    types:
+      - closed
+    # This tells the action to ONLY run for your specific frontend and backend branches
+    branches:
+      - dev
+
+jobs:
+  close-issues:
+    # Ensure this only runs if the PR was actually merged, not just closed unmerged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    # CRITICAL: The action needs permission to modify issues
+    permissions:
+      issues: write
+      pull-requests: read
+      
+    steps:
+      - name: Parse PR body and close issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prBody = context.payload.pull_request.body;
+            if (!prBody) {
+              console.log("No PR description found. Skipping.");
+              return;
+            }
+            
+            // This regex looks for standard GitHub keywords followed by an issue number (e.g., "Fixes #12")
+            const regex = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+#(\d+)/ig;
+            let match;
+            
+            while ((match = regex.exec(prBody)) !== null) {
+              const issueNumber = parseInt(match[1], 10);
+              console.log(`Found issue #${issueNumber}, attempting to close...`);
+              
+              try {
+                // Calls the GitHub API to close the issue
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  state: 'closed'
+                });
+                console.log(`Successfully closed issue #${issueNumber}`);
+              } catch (error) {
+                console.error(`Failed to close issue #${issueNumber}: ${error.message}`);
+              }
+            }
