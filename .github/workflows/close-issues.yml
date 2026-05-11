@@ -1,5 +1,4 @@
 name: Close Linked Issues on Merge
-
 on:
   pull_request:
     types:
@@ -7,7 +6,6 @@ on:
     # This tells the action to ONLY run for your specific frontend and backend branches
     branches:
       - dev
-
 jobs:
   close-issues:
     # Ensure this only runs if the PR was actually merged, not just closed unmerged
