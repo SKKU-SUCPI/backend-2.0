@@ -2,8 +2,10 @@ package com.skku.sucpi.service.score;
 
 import com.skku.sucpi.dto.score.*;
 import com.skku.sucpi.entity.Category;
+import com.skku.sucpi.entity.ProjectActivityRule;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
+import com.skku.sucpi.repository.ProjectActivityRuleRepository;
 import com.skku.sucpi.repository.ScoreRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.util.UserUtil;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ScoreService {
 
     private final ScoreRepository scoreRepository;
+    private final ProjectActivityRuleRepository ruleRepository;
     private final CategoryService categoryService;
 
     public void createScore (Score score) {
@@ -158,6 +161,18 @@ public class ScoreService {
                         .cq(scoreRepository.findAverageCqScore())
                         .build())
                 .build();
+    }
+
+    public StudentScoreDto.Response getStudent3QInfoByProject(Long userId, Long projectId) {
+        StudentScoreDto.Response defaultScores = getStudent3QInfo(userId);
+
+        List<ProjectActivityRule> rules = ruleRepository.findByProjectId(projectId);
+
+        if(rules.isEmpty()) {
+            return defaultScores;
+        }
+
+        return defaultScores;
     }
 
     public Double calculateStandardDeviation(Double squareSum, Double sum, Integer count) {

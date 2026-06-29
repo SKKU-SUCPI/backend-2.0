@@ -322,11 +322,14 @@ public class StudentController {
                 - Authorization: Bearer {accessToken}
                 """
     )
-    public ApiResponse<StudentScoreDto.Response> getStudent3QInfo(HttpServletRequest request) {
+    public ApiResponse<StudentScoreDto.Response> getStudent3QInfo(@RequestParam(required = false) Long projectId,
+                                                                      HttpServletRequest request) {
         String token = jwtUtil.parseJWT(request);
         Long userId = jwtUtil.getUserId(token);
 
-        StudentScoreDto.Response result = scoreService.getStudent3QInfo(userId);
+        StudentScoreDto.Response result = (projectId != null)
+            ? scoreService.getStudent3QInfoByProject(userId, projectId)
+            : scoreService.getStudent3QInfo(userId);
         return ApiResponse.success(result, request.getRequestURI());
     }
 

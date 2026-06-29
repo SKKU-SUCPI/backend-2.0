@@ -2,18 +2,20 @@ package com.skku.sucpi.service.activity;
 
 import com.skku.sucpi.dto.activity.ActivityDto;
 import com.skku.sucpi.dto.activity.ActivityRequestDto;
+import com.skku.sucpi.dto.project.ProjectActivityRulePatchDto;
+import com.skku.sucpi.dto.project.ProjectActivityRuleResponseDto;
 import com.skku.sucpi.entity.Activity;
 import com.skku.sucpi.entity.Category;
-import com.skku.sucpi.repository.ActivityRepository;
-import com.skku.sucpi.repository.CategoryRepository;
-import com.skku.sucpi.repository.ScoreRepository;
-import com.skku.sucpi.repository.SubmitRepository;
+import com.skku.sucpi.entity.Project;
+import com.skku.sucpi.entity.ProjectActivityRule;
+import com.skku.sucpi.repository.*;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.service.submit.SubmitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,8 @@ public class ActivityService {
     private final CategoryRepository categoryRepository;
     private final ScoreRepository scoreRepository;
     private final SubmitRepository submitRepository;
+    private final ProjectActivityRuleRepository ruleRepository;
+    private final ProjectRepository projectRepository;
 
     private final SubmitService submitService;
 
@@ -93,5 +97,31 @@ public class ActivityService {
 
         // 카테고리 테이블 통계 업데이트
         categoryRepository.calculateCategoryScores();
+    }
+
+    public List<ProjectActivityRuleResponseDto> getRulesByProjectId(Long projectId) {
+        return ruleRepository.findByProjectId(projectId).stream()
+                .map(rule -> new ProjectActivityRuleResponseDto(
+                        rule.getActivity().getId(),
+                        rule.getActivity().getActivityClass(),
+                        rule.getCustomWeight()
+                )).toList();
+    }
+
+    @Transactional
+    public void updateProjectActivityRules(ProjectActivityRulePatchDto dto) {
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        dto.getRules().forEach(ruleReq -> {
+            ProjectActivityRule rule = ruleRepository.findByProjectIdAndActivityId(project.getId(), ruleReq.getActivityId())
+                    .orElseGet(() -> {
+                        Activity activity = activityRepository.findById(ruleReq.getActivityId())
+                                .orElseThrow(() -> new IllegalArgumentException("Activity not found"));
+                        return ProjectActivityRule.builder().project(project).activity(activity).build();
+                    });
+            rule.setCustomWeight(ruleReq.getCustomWeight());
+            ruleRepository.save(rule);
+        });
     }
 }
