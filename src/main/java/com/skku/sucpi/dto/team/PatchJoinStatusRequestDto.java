@@ -13,5 +13,5 @@ public class PatchJoinStatusRequestDto {
     private Long teamId;
 
     @NotBlank
-    private String joinStatus;
+    private Integer joinStatus;
 }

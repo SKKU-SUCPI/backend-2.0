@@ -10,5 +10,5 @@ public class TeamRosterMemberDto {
     private Long userId;
     private String name;
     private String role;
-    private String joinStatus;
+    private Integer joinStatus;
 }

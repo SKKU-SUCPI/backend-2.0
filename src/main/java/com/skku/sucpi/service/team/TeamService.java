@@ -29,7 +29,7 @@ public class TeamService {
                         m.getUser().getId(),
                         m.getUser().getName(),
                         m.getMemberRole().name(),
-                        m.getJoinStatus().name()
+                        m.getJoinStatus()
                 )).toList();
 
         return new TeamRosterResponseDto(team.getId(), team.getTeamName(), members);
@@ -40,7 +40,7 @@ public class TeamService {
         TeamMember member = teamMemberRepository.findByTeamIdAndUserId(dto.getTeamId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invitation mapping not found for user"));
 
-        member.setJoinStatus(JoinStatus.valueOf(dto.getJoinStatus()));
+        member.setJoinStatus(dto.getJoinStatus());
         teamMemberRepository.save(member);
     }
 }

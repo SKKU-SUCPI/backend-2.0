@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProjectActivityRuleRepository extends JpaRepository<ProjectActivityRule, Long> {
+public interface ProjectActivityRuleRepository extends JpaRepository<ProjectActivityRule, ProjectActivityRule.ProjectActivityRuleId> {
     List<ProjectActivityRule> findByProjectId(Long projectId);
     Optional<ProjectActivityRule> findByProjectIdAndActivityId(Long projectId, Long activityId);
 }
