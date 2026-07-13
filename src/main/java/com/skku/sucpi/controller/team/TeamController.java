@@ -4,6 +4,8 @@ import com.skku.sucpi.dto.ApiResponse;
 import com.skku.sucpi.dto.team.TeamResponseDto;
 import com.skku.sucpi.dto.team.TeamRosterResponseDto;
 import com.skku.sucpi.dto.team.PatchJoinStatusRequestDto;
+import com.skku.sucpi.dto.team.CreateTeamRequestDto;
+import com.skku.sucpi.dto.team.AddTeamMemberRequestDto;
 import com.skku.sucpi.service.team.TeamService;
 import com.skku.sucpi.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,5 +75,54 @@ public class TeamController {
 
         teamService.UpdateTeamJoinStatus(userId, data);
         return ApiResponse.success(null, request.getRequestURI());
+    }
+
+    @PostMapping("")
+    @Operation(
+            summary = "새로운 팀 생성",
+            description = """
+                    **설명**
+                    - 특정 프로젝트 하위에 새로운 팀 브래킷을 생성하고 발급된 Team ID를 반환합니다.
+                    """
+    )
+    public ApiResponse<Long> createTeam(
+            @RequestBody CreateTeamRequestDto request,
+            HttpServletRequest httpServletRequest
+    ) {
+        Long newTeamId = teamService.createTeam(request);
+        return ApiResponse.success(newTeamId, httpServletRequest.getRequestURI());
+    }
+
+    @PostMapping("/{teamId}/members")
+    @Operation(
+            summary = "팀 멤버 등록",
+            description = """
+                    **설명**
+                    - 생성된 팀에 학생을 배정하거나 초대합니다. 관리자 등록 시 즉시 가입(joinStatus = 0) 처리됩니다.
+                    """
+    )
+    public ApiResponse<Void> addTeamMember(
+            @PathVariable Long teamId,
+            @RequestBody AddTeamMemberRequestDto request,
+            HttpServletRequest httpServletRequest
+    ) {
+        teamService.addMemberToTeam(teamId, request);
+        return ApiResponse.success(null, httpServletRequest.getRequestURI());
+    }
+
+    @DeleteMapping("/{teamId}")
+    @Operation(
+            summary = "팀 삭제",
+            description = """
+                    **설명**
+                    - 특정 팀과 팀 내 모든 소속 정보를 삭제합니다.
+                    """
+    )
+    public ApiResponse<Void> deleteTeam(
+            @PathVariable Long teamId,
+            HttpServletRequest httpServletRequest
+    ) {
+        teamService.deleteTeam(teamId);
+        return ApiResponse.success(null, httpServletRequest.getRequestURI());
     }
 }
