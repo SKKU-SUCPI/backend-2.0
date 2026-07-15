@@ -1,11 +1,7 @@
 package com.skku.sucpi.controller.team;
 
 import com.skku.sucpi.dto.ApiResponse;
-import com.skku.sucpi.dto.team.TeamResponseDto;
-import com.skku.sucpi.dto.team.TeamRosterResponseDto;
-import com.skku.sucpi.dto.team.PatchJoinStatusRequestDto;
-import com.skku.sucpi.dto.team.CreateTeamRequestDto;
-import com.skku.sucpi.dto.team.AddTeamMemberRequestDto;
+import com.skku.sucpi.dto.team.*;
 import com.skku.sucpi.service.team.TeamService;
 import com.skku.sucpi.util.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -107,6 +103,23 @@ public class TeamController {
             HttpServletRequest httpServletRequest
     ) {
         teamService.addMemberToTeam(teamId, request);
+        return ApiResponse.success(null, httpServletRequest.getRequestURI());
+    }
+
+    @PutMapping("/{teamId}")
+    @Operation(
+            summary = "팀 수정",
+            description = """
+                **설명**
+                - 팀의 이름과 소속 멤버 목록을 업데이트 합니다. 기존 멤버의 가입 시간은 보존됩니다.
+                """
+    )
+    public ApiResponse<Void> updateTeam(
+            @PathVariable Long teamId,
+            @RequestBody UpdateTeamRequestDto request,
+            HttpServletRequest httpServletRequest
+            ) {
+        teamService.updateTeam(teamId, request);
         return ApiResponse.success(null, httpServletRequest.getRequestURI());
     }
 

@@ -109,6 +109,49 @@ public class TeamService {
     }
 
     @Transactional
+    public void updateTeam(Long teamId, UpdateTeamRequestDto dto) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new IllegalArgumentException("Team not found"));
+        team.setTeamName(dto.getTeamName());
+
+        java.util.Map<Long, String> incomingMap = new java.util.HashMap<>();
+        for (AddTeamMemberRequestDto m : dto.getMembers()) {
+            incomingMap.put(m.getUserId().longValue(), m.getMemberRole());
+        }
+
+        team.getMembers().removeIf(existingMember -> {
+            Long existingUserId = existingMember.getUser().getId().longValue();
+            return !incomingMap.containsKey(existingUserId);
+        });
+
+        for (java.util.Map.Entry<Long, String> entry : incomingMap.entrySet()) {
+            Long userId = entry.getKey();
+            String role = entry.getValue();
+
+            TeamMember existingMember = team.getMembers().stream()
+                    .filter(m -> m.getUser().getId().longValue() == userId.longValue())
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingMember != null) {
+                existingMember.setMemberRole(MemberRole.valueOf(role));
+            } else {
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+                TeamMember newMember = TeamMember.builder()
+                        .team(team)
+                        .user(user)
+                        .memberRole(MemberRole.valueOf(role))
+                        .joinStatus(0)
+                        .build();
+
+                team.getMembers().add(newMember);
+            }
+        }
+    }
+
+    @Transactional
     public void deleteTeam(Long teamId) {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Team not found"));
