@@ -110,17 +110,25 @@ public class TeamService {
 
     @Transactional
     public void updateTeam(Long teamId, UpdateTeamRequestDto dto) {
+        long leaderCount = dto.getMembers().stream()
+                .filter(m -> "LEADER".equals(m.getMemberRole()))
+                .count();
+
+        if (leaderCount != 1) {
+            throw new IllegalArgumentException("A team must have exactly one LEADER.");
+        }
+
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Team not found"));
         team.setTeamName(dto.getTeamName());
 
         java.util.Map<Long, String> incomingMap = new java.util.HashMap<>();
         for (AddTeamMemberRequestDto m : dto.getMembers()) {
-            incomingMap.put(m.getUserId().longValue(), m.getMemberRole());
+            incomingMap.put(m.getUserId(), m.getMemberRole());
         }
 
         team.getMembers().removeIf(existingMember -> {
-            Long existingUserId = existingMember.getUser().getId().longValue();
+            Long existingUserId = existingMember.getUser().getId();
             return !incomingMap.containsKey(existingUserId);
         });
 
