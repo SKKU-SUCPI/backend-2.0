@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,4 +36,11 @@ public class Project {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "multiplier", nullable = false)
+    @Builder.Default
+    private Double multiplier = 1.0;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
+    private List<Team> teams;
 }

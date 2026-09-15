@@ -1,4 +1,4 @@
-package com.skku.sucpi.controller;
+package com.skku.sucpi.controller.project;
 
 import com.skku.sucpi.dto.project.ProjectResponseDto;
 import com.skku.sucpi.service.project.ProjectService;

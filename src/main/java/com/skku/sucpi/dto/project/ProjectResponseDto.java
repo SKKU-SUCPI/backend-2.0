@@ -8,4 +8,5 @@ import lombok.Getter;
 public class ProjectResponseDto {
     private Long projectId;
     private String projectName;
+    private Double multiplier;
 }
