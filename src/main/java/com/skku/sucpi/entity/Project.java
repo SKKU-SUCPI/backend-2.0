@@ -8,7 +8,6 @@ import org.springframework.cglib.core.Local;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -28,10 +27,10 @@ public class Project {
     private String projectName;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

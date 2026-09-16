@@ -22,7 +22,7 @@ public class ProjectService {
 
     public List<ProjectResponseDto> getAllProjects() {
         return projectRepository.findAll().stream()
-                .map(p -> new ProjectResponseDto(p.getId(), p.getProjectName(), p.getMultiplier()))
+                .map(p -> new ProjectResponseDto(p.getId(), p.getProjectName(), p.getMultiplier(), p.getStartDate(), p.getEndDate()))
                 .collect(Collectors.toList());
     }
 
@@ -31,6 +31,8 @@ public class ProjectService {
         Project project = Project.builder()
                 .projectName(dto.getProjectName())
                 .multiplier(dto.getMultiplier())
+                .startDate(dto.getStartDate())
+                .endDate(dto.getEndDate())
                 .build();
 
         Project savedProject = projectRepository.save(project);
@@ -68,6 +70,14 @@ public class ProjectService {
         }
         if (dto.getMultiplier() != null) {
             project.setMultiplier(dto.getMultiplier());
+        }
+
+        if(dto.getStartDate() != null) {
+            project.setStartDate(dto.getStartDate());
+        }
+
+        if(dto.getEndDate() != null) {
+            project.setEndDate(dto.getEndDate());
         }
     }
 

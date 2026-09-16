@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class UpdateProjectRequestDto {
     private String projectName;
     private Double multiplier;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     @PutMapping("/projects/{id}")
     public ResponseEntity<Void> updateProject(@PathVariable Long id, @RequestBody UpdateProjectRequestDto dto) {
