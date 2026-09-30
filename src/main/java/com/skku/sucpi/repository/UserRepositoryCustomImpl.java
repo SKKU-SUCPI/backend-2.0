@@ -32,6 +32,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
             String name,
             String department,
             String studentId,
+            String keyword,
             Pageable pageable) {
 
         QUser student = QUser.user;
@@ -45,6 +46,18 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom{
         // 검색(이름)
         if (name != null && !name.isEmpty()) {
             builder.and(student.name.containsIgnoreCase(name));
+        }
+        // 팀 페이지 검색용
+        if (keyword != null && !keyword.isEmpty()) {
+            BooleanBuilder searchBuilder = new BooleanBuilder();
+            searchBuilder.or(student.name.containsIgnoreCase(keyword));
+            searchBuilder.or(student.hakbun.containsIgnoreCase(keyword));
+
+            List<Float> matchedDeptCodes = UserUtil.getCodesByKeyword(keyword);
+            if (!matchedDeptCodes.isEmpty()) {
+                searchBuilder.or(student.hakgwaCd.in(matchedDeptCodes));
+            }
+            builder.and(searchBuilder);
         }
         // 필터링(학과)
         if (department != null && !department.isEmpty()) {

@@ -8,6 +8,7 @@ import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.category.RatioRequestDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.comment.CommentUpdateDto;
+import com.skku.sucpi.dto.project.ProjectActivityRulePatchDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.submit.SubmitCommentDto;
@@ -80,11 +81,6 @@ public class AdminController {
     }
 
 
-
-
-
-
-
     @GetMapping("/activities")
     @Operation(
             summary = "모든 활동 조회",
@@ -105,13 +101,8 @@ public class AdminController {
     }
 
 
-
-
-
-
-
-            @GetMapping("/students")
-            @Operation(
+    @GetMapping("/students")
+    @Operation(
             summary = "학생 목록 조회",
             description = """
                     **설명**
@@ -123,10 +114,10 @@ public class AdminController {
                     **사용법**
                     - Method : GET
                     - Path : /api/admin/students?department={department}&page={page}&sort={sort}&sort={sort}
-                
+                    
                     **헤더**
                     - Authorization: Bearer {accessToken}
-                
+                    
                     **Query Parameter**
                     - name (String, not required) : 학생 이름
                     - department (String, not required) : 소프트웨어학과, 지능형소프트웨어학과, 글로벌융합학과
@@ -140,6 +131,7 @@ public class AdminController {
             @RequestParam(required = false) String name,        // 검색 (이름)
             @RequestParam(required = false) String department,  // 필터 (학과)
             @RequestParam(required = false) String studentId,   // 필터 (학번)
+            @RequestParam(required = false) String keyword,     // 통합 검색용
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
             HttpServletRequest request
     ) {
@@ -147,11 +139,11 @@ public class AdminController {
                 name,
                 department,
                 studentId,
+                keyword,
                 pageable
         );
         return ApiResponse.success(result, request.getRequestURI());
     }
-
 
 
     @GetMapping("/student/{id}")
@@ -180,31 +172,30 @@ public class AdminController {
     }
 
 
-
     @GetMapping("/submits")
     @Operation(
             summary = "제출 내역 목록 조회",
             description = """
-                **설명**
-                - 모든 제출 내역을 조회하는 API
-                - Pagination 적용
-                - 필터링 : 승인 여부, 학생 이름
-                - 정렬 : 제출날짜 오름차순/내림차순
-            
-                **사용법**
-                - Method : GET
-                - Path : /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
-            
-                **Header**
-                - Authorization: Bearer {accessToken}
-            
-                **Query Parameter**
-                - name (String, not required) : 학생 이름
-                - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
-                - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
-                - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
-                - sort (String, not required) : submitDate,desc(default) / submitDate,asc
-                """
+                    **설명**
+                    - 모든 제출 내역을 조회하는 API
+                    - Pagination 적용
+                    - 필터링 : 승인 여부, 학생 이름
+                    - 정렬 : 제출날짜 오름차순/내림차순
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/submits?state={state}&page={page}&size={size}&sort=submitDate,desc&name={name}
+                    
+                    **Header**
+                    - Authorization: Bearer {accessToken}
+                    
+                    **Query Parameter**
+                    - name (String, not required) : 학생 이름
+                    - state (Integer, not required) : 0=미승인, 1=승인, 2=반려
+                    - size (Integer, not required) : 한 페이지 당 개수 (default = 20)
+                    - page (Integer, not required) : 페이지 번호 (default = 0, 첫 페이지 = 0)
+                    - sort (String, not required) : submitDate,desc(default) / submitDate,asc
+                    """
     )
     public ApiResponse<PaginationDto<SubmitDto.ListInfo>> getSubmits(
             @RequestParam(required = false) String name,
@@ -214,7 +205,6 @@ public class AdminController {
     ) {
         return ApiResponse.success(submitService.searchSubmitList(name, state, pageable), request.getRequestURI());
     }
-
 
 
     @GetMapping("/submit/{id}")
@@ -243,21 +233,20 @@ public class AdminController {
     }
 
 
-
     @PostMapping("/submit/state")
     @Operation(
             summary = "제출 상태 변경",
             description = """
                     **설명**
                     - 제출 내역 상태를 변경하는 API
-
+                    
                     **사용법**
                     - Method : POST
                     - Path : /api/admin/submit/state
-
+                    
                     **헤더**
                     - Authorization: Bearer {accessToken}
-
+                    
                     **Request Body**
                     - id (Long, required) : 제출 내역의 고유 아이디
                     - state (Integer, required) : 0=미승인(대기), 1=승인, 2=반려
@@ -266,11 +255,11 @@ public class AdminController {
     public ApiResponse<SubmitStateDto.Response> updateSubmitState(
             @RequestBody SubmitStateDto.Request request,
             HttpServletRequest r
-            ) {
+    ) {
         return ApiResponse.success(submitService.updateSubmitState(request), r.getRequestURI());
     }
 
-    @DeleteMapping("/submit/{id}")
+    @PostMapping("/submit/delete/{id}")
     @Operation(
             summary = "제출 내역 삭제",
             description = """
@@ -278,8 +267,8 @@ public class AdminController {
                     - 제출 내역을 삭제하는 API
                     
                     **사용법**
-                    - Method : DELETE
-                    - Path : /api/admin/submit/{id}
+                    - Method : POST
+                    - Path : /api/admin/submit/delete/{id}
                     
                     **헤더**
                     - Authorization: Bearer {accessToken}
@@ -297,21 +286,20 @@ public class AdminController {
     }
 
 
-
     @PostMapping("/submit/comment")
     @Operation(
             summary = "제출 내역 댓글 작성",
             description = """
                     **설명**
                     - 제출 내역 상태를 변경하는 API
-
+                    
                     **사용법**
                     - Method : POST
-                    - Path : /api/admin/submit/state
-
+                    - Path : /api/admin/submit/comment
+                    
                     **헤더**
                     - Authorization: Bearer {accessToken}
-
+                    
                     **Request Body**
                     - id (Long, required) : 제출 내역의 고유 아이디
                     - comment (String, required) : 댓글 내용
@@ -328,8 +316,7 @@ public class AdminController {
     }
 
 
-
-    @PatchMapping("/submit/comment")
+    @PostMapping("/submit/comment/patch")
     @Operation(
             summary = "제출 내역 댓글 수정",
             description = """
@@ -337,8 +324,8 @@ public class AdminController {
                     - 제출 내역 댓글을 수정하는 API
                     
                     **사용법**
-                    - Method : PATCH
-                    - Path : /api/admin/submit/comment/{id}
+                    - Method : POST
+                    - Path : /api/admin/submit/comment/patch
                     
                     **헤더**
                     - Authorization: Bearer {accessToken}
@@ -359,8 +346,7 @@ public class AdminController {
     }
 
 
-
-    @DeleteMapping("/submit/comment/{id}")
+    @PostMapping("/submit/comment/delete/{id}")
     @Operation(
             summary = "제출 내역 댓글 삭제",
             description = """
@@ -368,8 +354,8 @@ public class AdminController {
                     - 제출 내역 댓글을 삭제하는 API
                     
                     **사용법**
-                    - Method : DELETE
-                    - Path : /api/admin/submit/comment/{id}
+                    - Method : Post
+                    - Path : /api/admin/submit/comment/delete/{id}
                     
                     **헤더**
                     - Authorization: Bearer {accessToken}
@@ -389,7 +375,6 @@ public class AdminController {
 
         return ApiResponse.success(null, r.getRequestURI());
     }
-
 
 
     @GetMapping("/files/{id}/download")
@@ -426,6 +411,51 @@ public class AdminController {
                 .body(file.getFileDate());
     }
 
+    @GetMapping("/projects/{projectId}/rules")
+    @Operation(
+            summary = "프로젝트별 평가 규칙 조회",
+            description = """
+                    **설명**
+                    - 특정 프로젝트(이벤트)의 평가 규칙 및 가중치 목록을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/projects/{projectId}/rules
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<List<com.skku.sucpi.dto.project.ProjectActivityRuleResponseDto>> getProjectActivityRules(
+            @PathVariable Long projectId,
+            HttpServletRequest request
+    ) {
+        return ApiResponse.success(activityService.getRulesByProjectId(projectId), request.getRequestURI());
+    }
+
+    @GetMapping("/projects/rules/patch")
+    @Operation(
+            summary = "프로젝트 평가 규칙 수정",
+            description = """
+                    **설명**
+                    - 프로젝트의 평가 가중치 및 규칙 매핑 매트릭스를 수정하는 API
+                    
+                    **사용법**
+                    - Method : PATCH
+                    - Path : /api/admin/projects/rules/patch
+                    
+                    **Request Body**
+                    - projectId (Long, required)
+                    - rules (List, required)
+                    """
+    )
+    public ApiResponse<Void> patchProjectActivityRules(
+            @Valid @RequestBody com.skku.sucpi.dto.project.ProjectActivityRulePatchDto rulePatchDto,
+            HttpServletRequest request
+    ) {
+        activityService.updateProjectActivityRules(rulePatchDto);
+        return ApiResponse.success(null, request.getRequestURI());
+    }
 
 
     @GetMapping("/3q-average")
@@ -447,7 +477,6 @@ public class AdminController {
     ) {
         return ApiResponse.success(scoreService.get3QAverage(), r.getRequestURI());
     }
-
 
 
     @GetMapping("/3q-average/department")
@@ -472,7 +501,6 @@ public class AdminController {
     }
 
 
-
     @GetMapping("/submit/summary")
     @Operation(
             summary = "3Q의 총, 이번달, 저번달 활동 제출 내역 횟수",
@@ -493,7 +521,6 @@ public class AdminController {
     ) {
         return ApiResponse.success(submitService.countSubmissionsForThisAndLastMonth(), r.getRequestURI());
     }
-
 
 
     @GetMapping("submit-count/activity/{activityId}")
@@ -540,6 +567,8 @@ public class AdminController {
                 : LocalDate.now(seoulZone);
 
         return ApiResponse.success(submitService.getSubmitCountByActivity(activityId, startDate, endDate), request.getRequestURI());
-    };
+    }
+
+    ;
 
 }
