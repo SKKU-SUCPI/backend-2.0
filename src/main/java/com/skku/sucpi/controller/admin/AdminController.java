@@ -8,6 +8,7 @@ import com.skku.sucpi.dto.activity.ActivityStatsDto;
 import com.skku.sucpi.dto.category.RatioRequestDto;
 import com.skku.sucpi.dto.category.RatioResponseDto;
 import com.skku.sucpi.dto.comment.CommentUpdateDto;
+import com.skku.sucpi.dto.project.ProjectActivityRulePatchDto;
 import com.skku.sucpi.dto.score.ScoreAverageDto;
 import com.skku.sucpi.dto.score.ScoreDepartmentAverageDto;
 import com.skku.sucpi.dto.submit.SubmitCommentDto;
@@ -408,6 +409,52 @@ public class AdminController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "." + fileType + "\"")
                 .body(file.getFileDate());
+    }
+
+    @GetMapping("/projects/{projectId}/rules")
+    @Operation(
+            summary = "프로젝트별 평가 규칙 조회",
+            description = """
+                    **설명**
+                    - 특정 프로젝트(이벤트)의 평가 규칙 및 가중치 목록을 조회하는 API
+                    
+                    **사용법**
+                    - Method : GET
+                    - Path : /api/admin/projects/{projectId}/rules
+                    
+                    **헤더**
+                    - Authorization: Bearer {accessToken}
+                    """
+    )
+    public ApiResponse<List<com.skku.sucpi.dto.project.ProjectActivityRuleResponseDto>> getProjectActivityRules(
+            @PathVariable Long projectId,
+            HttpServletRequest request
+    ) {
+        return ApiResponse.success(activityService.getRulesByProjectId(projectId), request.getRequestURI());
+    }
+
+    @GetMapping("/projects/rules/patch")
+    @Operation(
+            summary = "프로젝트 평가 규칙 수정",
+            description = """
+                    **설명**
+                    - 프로젝트의 평가 가중치 및 규칙 매핑 매트릭스를 수정하는 API
+                    
+                    **사용법**
+                    - Method : PATCH
+                    - Path : /api/admin/projects/rules/patch
+                    
+                    **Request Body**
+                    - projectId (Long, required)
+                    - rules (List, required)
+                    """
+    )
+    public ApiResponse<Void> patchProjectActivityRules(
+            @Valid @RequestBody com.skku.sucpi.dto.project.ProjectActivityRulePatchDto rulePatchDto,
+            HttpServletRequest request
+    ) {
+        activityService.updateProjectActivityRules(rulePatchDto);
+        return ApiResponse.success(null, request.getRequestURI());
     }
 
 
