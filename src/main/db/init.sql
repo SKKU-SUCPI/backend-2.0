@@ -201,3 +201,71 @@ CREATE TABLE file_storage (
            REFERENCES submit (submit_id)
            ON DELETE CASCADE
 );
+
+
+-- 프로젝트 정보 테이블 삭제 및 생성
+DROP TABLE IF EXISTS project;
+CREATE TABLE project (
+    project_id      BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_name    VARCHAR(100) NOT NULL,
+    start_date      DATE,
+    end_date        DATE,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    multiplier      DOUBLE NOT NULL DEFAULT 1.0
+);
+
+-- 프로젝트 팀 정보 테이블 삭제 및 생성
+DROP TABLE IF EXISTS team;
+CREATE TABLE team (
+    team_id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id      BIGINT,
+    team_name       VARCHAR(100) NOT NULL,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_team_project
+        FOREIGN KEY (project_id)
+        REFERENCES project(project_id)
+        ON DELETE CASCADE
+);
+
+-- 팀원 정보 테이블 삭제 및 생성 
+DROP TABLE IF EXISTS team_member;
+CREATE TABLE team_member (
+    team_id         BIGINT NOT NULL,
+    user_id         BIGINT NOT NULL,
+    member_role     VARCHAR(50),
+    join_status     INT,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (team_id, user_id),
+
+    CONSTRAINT fk_team_member_team
+        FOREIGN KEY (team_id)
+        REFERENCES team(team_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_team_member_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+-- 프로젝트 점수 비율 테이블 삭제 및 생성
+DROP TABLE IF EXISTS project_activity_rule;
+CREATE TABLE project_activity_rule (
+    project_id      BIGINT NOT NULL,
+    activity_id     BIGINT NOT NULL,
+    custom_weight   DOUBLE,
+
+    PRIMARY KEY (project_id, activity_id),
+
+    CONSTRAINT fk_project_activity_rule_project
+        FOREIGN KEY (project_id)
+        REFERENCES project(project_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_project_activity_rule_activity
+        FOREIGN KEY (activity_id)
+        REFERENCES activity(activity_id)
+        ON DELETE CASCADE
+);
