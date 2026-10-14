@@ -26,9 +26,7 @@ public class SwaggerConfig {
                 .components(new Components())
                 .info(apiInfo())
                 .servers(List.of(
-                        new Server().url("http://siop-dev.skku.edu:8080"),
-                        new Server().url("http://localhost:8080"),
-                        new Server().url("https://siop-dev.skku.edu")
+                        new Server().url("https://sucpi.skku.edu")
                 ));
     }
 

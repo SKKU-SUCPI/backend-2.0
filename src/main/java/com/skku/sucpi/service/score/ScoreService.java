@@ -2,9 +2,13 @@ package com.skku.sucpi.service.score;
 
 import com.skku.sucpi.dto.score.*;
 import com.skku.sucpi.entity.Category;
+import com.skku.sucpi.entity.ProjectActivityRule;
 import com.skku.sucpi.entity.Score;
 import com.skku.sucpi.entity.User;
+import com.skku.sucpi.entity.Submit;
+import com.skku.sucpi.repository.ProjectActivityRuleRepository;
 import com.skku.sucpi.repository.ScoreRepository;
+import com.skku.sucpi.repository.SubmitRepository;
 import com.skku.sucpi.service.category.CategoryService;
 import com.skku.sucpi.util.UserUtil;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.List;
 
 @Service
@@ -21,7 +27,9 @@ import java.util.List;
 public class ScoreService {
 
     private final ScoreRepository scoreRepository;
+    private final ProjectActivityRuleRepository ruleRepository;
     private final CategoryService categoryService;
+    private final SubmitRepository submitRepository;
 
     public void createScore (Score score) {
         scoreRepository.save(score);
@@ -156,6 +164,69 @@ public class ScoreService {
                         .lq(scoreRepository.findAverageLqScore())
                         .rq(scoreRepository.findAverageRqScore())
                         .cq(scoreRepository.findAverageCqScore())
+                        .build())
+                .build();
+    }
+
+    public StudentScoreDto.Response getStudent3QInfoByProject(Long userId, Long projectId) {
+        StudentScoreDto.Response defaultScores = getStudent3QInfo(userId);
+
+        List<ProjectActivityRule> rules = ruleRepository.findByProjectId(projectId);
+
+        if(rules.isEmpty()) {
+            return defaultScores;
+        }
+
+        Map<Long, Double> customWeightMap = rules.stream()
+                .collect(Collectors.toMap(
+                        rule -> rule.getActivity().getId(),
+                        rule -> rule.getCustomWeight()
+                ));
+
+        List<Submit> userSubmits = submitRepository.findByUserId(userId);
+
+        double projectLq = 0.0;
+        double projectRq = 0.0;
+        double projectCq = 0.0;
+
+        // 3. Calculate dynamic score
+        for (Submit submit : userSubmits) {
+            // Check if submission is approved (assuming state 1 = approved based on ScoreRepository)
+            if (submit.getState() == 1) {
+                Long activityId = submit.getActivity().getId();
+                Long categoryId = submit.getActivity().getCategory().getId();
+                Double baseWeight = submit.getActivity().getWeight();
+
+                // Apply custom multiplier if it exists, otherwise multiply by 1.0
+                Double multiplier = customWeightMap.getOrDefault(activityId, 1.0);
+                Double finalScore = baseWeight * multiplier;
+
+                if (categoryId == 1L) {
+                    projectLq += finalScore;
+                } else if (categoryId == 2L) {
+                    projectRq += finalScore;
+                } else if (categoryId == 3L) {
+                    projectCq += finalScore;
+                }
+            }
+        }
+
+        // 4. Build and return the updated response
+        return StudentScoreDto.Response.builder()
+                .lq(StudentScoreDto.ScoreInfo.builder()
+                        .score(projectLq)
+                        .average(defaultScores.getLq().getAverage())
+                        .percentile(defaultScores.getLq().getPercentile())
+                        .build())
+                .rq(StudentScoreDto.ScoreInfo.builder()
+                        .score(projectRq)
+                        .average(defaultScores.getRq().getAverage())
+                        .percentile(defaultScores.getRq().getPercentile())
+                        .build())
+                .cq(StudentScoreDto.ScoreInfo.builder()
+                        .score(projectCq)
+                        .average(defaultScores.getCq().getAverage())
+                        .percentile(defaultScores.getCq().getPercentile())
                         .build())
                 .build();
     }
